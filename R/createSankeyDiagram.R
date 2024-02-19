@@ -48,7 +48,7 @@ doGroupCombinations <- function(treatmentPathways, groupCombinations) {
   if (groupCombinations) {
     treatmentPathways$path <- treatmentPathways$path %>%
       stringr::str_replace_all(
-        pattern = "\\w+\\+\\w+",
+        pattern = ".+\\+.+",
         replacement = "Combination"
       )
   }
