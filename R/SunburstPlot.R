@@ -17,11 +17,11 @@ SunburstPlot <- R6::R6Class(
       d3.select(el).select('.sunburst-legend').style('visibility', '');
     }
     ",
-
+    
     ## Methods ----
     renderPlot = function() {
       shiny::tagList(
-        shiny::htmlOutput(shiny::NS(private$.namespace, "sunburst"))
+        shiny::htmlOutput(shiny::NS(private$.namespace, class(self)[1]))
       )
     },
     
@@ -45,6 +45,11 @@ SunburstPlot <- R6::R6Class(
                 try({
                   shiny::tagList(
                     shiny::h3(name),
+                    downloadButton(
+                      outputId = NS(private$.namespace, sprintf("plot_%s", name)),
+                      label = "HTML",
+                      icon = icon(name = "download")
+                    ),
                     htmlwidgets::onRender(
                       TreatmentPatterns::createSunburstPlot(
                         treatmentPathways = data$treatmentPathways %>%
@@ -58,7 +63,8 @@ SunburstPlot <- R6::R6Class(
                   )
                 })
               })
-              output$sunburst <- shiny::renderUI(shiny::tagList(sunburstList))
+              private$tagList$plotList <- sunburstList
+              output[[class(self)[1]]] <- shiny::renderUI(shiny::tagList(private$tagList$plotList))
             }
           }
         })

@@ -22,7 +22,7 @@ Module <- R6::R6Class(
       self$validate()
       return(invisible(self))
     },
-
+    
     #' @description
     #' Validator method
     #'
@@ -83,7 +83,7 @@ Module <- R6::R6Class(
       checkmate::assertTRUE(require("dplyr", quietly = TRUE, mask.ok = TRUE, character.only = TRUE))
       checkmate::reportAssertions(assertions)
     },
-
+    
     ## Methods ----
     finalize = function() {}
   ),

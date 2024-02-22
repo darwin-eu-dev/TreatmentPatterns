@@ -8,7 +8,7 @@
 InteracitvePlot <- R6::R6Class(
   classname = "InteracitvePlot",
   inherit = Module,
-
+  
   # Public ----
   public = list(
     ## Fields ----
@@ -21,7 +21,7 @@ InteracitvePlot <- R6::R6Class(
       "#7fbf4f", "#ff0fef", "#0f2fcf", "#7f2f8f", "#7fbfdf",
       "#6f4fbf", "#7fcf2f", "#ff7fff", "#df2f2f", "#efcfff"
     ),
-
+    
     ## Methods ----
     initialize = function(app) {
       super$initialize(app)
@@ -30,7 +30,7 @@ InteracitvePlot <- R6::R6Class(
       private$.indexYearOption <- sprintf("indexYearOption%s", class(self)[1])
       private$.noneOption <- sprintf("noneOption%s", class(self)[1])
     },
-
+    
     #' @description
     #' Method to include a \link[shinydashboard]{menuItem} to link to the body.
     #'
@@ -48,7 +48,7 @@ InteracitvePlot <- R6::R6Class(
         icon = shiny::icon(lib = "glyphicon", name = "stats")
       )
     },
-
+    
     #' @description
     #' Method to include a \link[shinydashboard]{tabItem} to include the body.
     #'
@@ -68,7 +68,7 @@ InteracitvePlot <- R6::R6Class(
         )
       )
     },
-
+    
     #' @description
     #' Method to handle the back-end.
     #'
@@ -90,6 +90,7 @@ InteracitvePlot <- R6::R6Class(
       private$setAgeOptions(output, session, inputHandler)
       private$setIndexYearOptions(output, session, inputHandler)
       private$plot(input, output, inputHandler)
+      private$downloadHTML(input, output)
     }
   ),
   
@@ -100,11 +101,14 @@ InteracitvePlot <- R6::R6Class(
     .ageOption = "",
     .indexYearOption = "",
     .noneOption = "",
-
+    tagList = shiny::tagList(
+      plotList = NULL
+    ),
+    
     ## Interfaces ----
     renderPlot = function() {},
     plot = function(input, output, inputHandler) {},
-
+    
     ## Methods ----
     checkInputOption = function(option) {
       if (is.null(option)) {
@@ -133,7 +137,7 @@ InteracitvePlot <- R6::R6Class(
       labels <- data %>%
         dplyr::pull("path") %>%
         unique()
-
+      
       range <- if (!is.null(labels)) {
         self$colorPallete[seq_len(length(labels))]
       }
@@ -188,6 +192,39 @@ InteracitvePlot <- R6::R6Class(
           )
         })
       })
+    },
+    
+    downloadHTML = function(input, output) {
+      dbName <- reactive({
+        input$dbSelector
+      })
+      
+      observe({
+        for (name in dbName()) {
+          output[[NS(private$.namespace, sprintf("plot_%s", name))]] <- downloadHandler(
+            filename = "iris.csv",
+            content = function(file) {
+              write.csv(iris, file)
+            }
+          )
+        }
+      })
+      
+      # reactivePlot <- reactive({
+      #   private$tagList$plotList[[1]]
+      # })
+      # 
+      # reactiveDBName <- reactive({
+      #   sprintf("downloadData_%s", input$dbSelector)
+      # })
+      # 
+      # output[["downloadData_output.zip"]] <- downloadHandler(
+      #   filename = "iris.csv",
+      #   content = function(file) {
+      #     # htmlwidgets::saveWidget(reactivePlot(), file = file)
+      #     write.csv(iris, file = file)
+      #   }
+      # )
     }
   ),
   
