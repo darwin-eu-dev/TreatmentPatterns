@@ -22,12 +22,13 @@ SankeyDiagram <- R6::R6Class(
           input[[private$.ageOption]],
           input[[private$.sexOption]],
           input[[private$.indexYearOption]],
-          input[[private$.noneOption]]
+          input[[private$.noneOption]],
+          input[[private$.groupCombiOption]]
         ),
         handlerExpr = {
           if (!is.null(inputHandler$reactiveValues$treatmentPathways)) {
             if (nrow(inputHandler$reactiveValues$treatmentPathways) > 0) {
-              data <- private$formatData(
+              private$.reactiveValues$filteredData <- private$formatData(
                 inputHandler = inputHandler,
                 input = input
               )
@@ -36,8 +37,9 @@ SankeyDiagram <- R6::R6Class(
                   shiny::tagList(
                     shiny::h3(name),
                     TreatmentPatterns::createSankeyDiagram(
-                      treatmentPathways = data$treatmentPathways %>%
-                        dplyr::filter(.data$db == name)
+                      treatmentPathways = private$.reactiveValues$filteredData$treatmentPathways %>%
+                        dplyr::filter(.data$db == name),
+                      groupCombinations = input[[private$.groupCombiOption]]
                     )
                   )
                 })

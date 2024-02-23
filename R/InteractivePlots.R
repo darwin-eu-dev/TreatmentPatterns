@@ -29,6 +29,7 @@ InteracitvePlot <- R6::R6Class(
       private$.ageOption <- sprintf("ageOption%s", class(self)[1])
       private$.indexYearOption <- sprintf("indexYearOption%s", class(self)[1])
       private$.noneOption <- sprintf("noneOption%s", class(self)[1])
+      private$.groupCombiOption <- sprintf("groupCombiOption%s", class(self)[1])
     },
     
     #' @description
@@ -62,7 +63,8 @@ InteracitvePlot <- R6::R6Class(
             shiny::column(width = 1, shiny::uiOutput(shiny::NS(private$.namespace, private$.sexOption))),
             shiny::column(width = 1, shiny::uiOutput(shiny::NS(private$.namespace, private$.ageOption))),
             shiny::column(width = 1, shiny::uiOutput(shiny::NS(private$.namespace, private$.indexYearOption))),
-            shiny::column(width = 5, shiny::checkboxInput(shiny::NS(private$.namespace, private$.noneOption), label = "Exclude empty pathways"))
+            shiny::column(width = 5, shiny::checkboxInput(shiny::NS(private$.namespace, private$.noneOption), label = "Exclude empty pathways")),
+            shiny::column(width = 5, shiny::checkboxInput(shiny::NS(private$.namespace, private$.groupCombiOption), label = "Group combinations"))
           ),
           private$renderPlot()
         )
@@ -101,10 +103,12 @@ InteracitvePlot <- R6::R6Class(
     .ageOption = "",
     .indexYearOption = "",
     .noneOption = "",
-    tagList = shiny::tagList(
+    .groupCombiOption = "",
+    .reactiveValues = reactiveValues(
+      filteredData = NULL,
       plotList = NULL
     ),
-    
+
     ## Interfaces ----
     renderPlot = function() {},
     plot = function(input, output, inputHandler) {},
@@ -233,6 +237,7 @@ InteracitvePlot <- R6::R6Class(
     sexOption = function() return(private$.sexOption),
     ageOption = function() return(private$.ageOption),
     indexYearOption = function() return(private$.indexYearOption),
-    noneOption = function() return(private$.noneOption)
+    noneOption = function() return(private$.noneOption),
+    reactiveValues = function() return(private$.reactiveValues)
   )
 )

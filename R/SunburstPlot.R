@@ -32,12 +32,13 @@ SunburstPlot <- R6::R6Class(
           input[[private$.ageOption]],
           input[[private$.sexOption]],
           input[[private$.indexYearOption]],
-          input[[private$.noneOption]]
+          input[[private$.noneOption]],
+          input[[private$.groupCombiOption]]
         ),
         handlerExpr = {
           if (!is.null(inputHandler$reactiveValues$treatmentPathways)) {
             if (nrow(inputHandler$reactiveValues$treatmentPathways) > 0) {
-              data <- private$formatData(
+              private$.reactiveValues$filteredData <- private$formatData(
                 inputHandler = inputHandler,
                 input = input
               )
@@ -52,9 +53,10 @@ SunburstPlot <- R6::R6Class(
                     ),
                     htmlwidgets::onRender(
                       TreatmentPatterns::createSunburstPlot(
-                        treatmentPathways = data$treatmentPathways %>%
+                        treatmentPathways = private$.reactiveValues$filteredData$treatmentPathways %>%
                           dplyr::filter(.data$db == name),
-                        colors = data$labels,
+                        groupCombinations = input[[private$.groupCombiOption]],
+                        colors = private$.reactiveValues$filteredData$labels,
                         legend = list(w = 400),
                         withD3 = TRUE
                       ),
