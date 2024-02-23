@@ -110,10 +110,64 @@ InteracitvePlot <- R6::R6Class(
     ),
 
     ## Interfaces ----
-    renderPlot = function() {},
-    plot = function(input, output, inputHandler) {},
+    makePlot = function(input, name) {},
     
     ## Methods ----
+    plot = function(input, output, inputHandler) {
+      shiny::observeEvent(
+        eventExpr = list(
+          input$dbSelector,
+          input[[private$.ageOption]],
+          input[[private$.sexOption]],
+          input[[private$.indexYearOption]],
+          input[[private$.noneOption]],
+          input[[private$.groupCombiOption]]
+        ),
+        handlerExpr = {
+          if (!is.null(inputHandler$reactiveValues$treatmentPathways)) {
+            if (nrow(inputHandler$reactiveValues$treatmentPathways) > 0) {
+              private$.reactiveValues$filteredData <- private$formatData(
+                inputHandler = inputHandler,
+                input = input
+              )
+              plotList <- lapply(input$dbSelector, function(name) {
+                try({
+                  plot <- private$makePlot(input, name)
+                  private$updatePlotList(plot, name)
+                  private$makePlotTagList(plot, name)
+                })
+              })
+              output[[class(self)[1]]] <- shiny::renderUI(shiny::tagList(plotList))
+            }
+          }
+        })
+    },
+
+    renderPlot = function() {
+      shiny::tagList(
+        shiny::htmlOutput(shiny::NS(private$.namespace, class(self)[1]))
+      )
+    },
+    
+    updatePlotList = function(plot, name) {
+      plotL <- vector(mode = "list", length = 1)
+      names(plotL) <- paste0(class(self)[1], name)
+      plotL[[paste0(class(self)[1], name)]] <- plot
+      private$.reactiveValues$plotList[names(plotL)] <- plotL
+    },
+    
+    makePlotTagList = function(plot, name) {
+      shiny::tagList(
+        shiny::h3(name),
+        downloadButton(
+          outputId = NS(private$.namespace, paste0(class(self)[1], name)),
+          label = "HTML",
+          icon = icon(name = "download")
+        ),
+        plot
+      )
+    },
+
     checkInputOption = function(option) {
       if (is.null(option)) {
         "all"
@@ -204,31 +258,22 @@ InteracitvePlot <- R6::R6Class(
       })
       
       observe({
-        for (name in dbName()) {
-          output[[NS(private$.namespace, sprintf("plot_%s", name))]] <- downloadHandler(
-            filename = "iris.csv",
+        lapply(dbName(), function(name) {
+          output[[paste0(class(self)[1], name)]] <- downloadHandler(
+            filename = function() {
+              sprintf("%s_%s.html", class(self)[1], name)
+            },
             content = function(file) {
-              write.csv(iris, file)
+              tempFile <- tempfile(fileext = ".html")
+              htmlwidgets::saveWidget(
+                widget = private$.reactiveValues$plotList[[paste0(class(self)[1], name)]],
+                file = tempFile
+              )
+              file.copy(from = tempFile, to = file)
             }
           )
-        }
+        })
       })
-      
-      # reactivePlot <- reactive({
-      #   private$tagList$plotList[[1]]
-      # })
-      # 
-      # reactiveDBName <- reactive({
-      #   sprintf("downloadData_%s", input$dbSelector)
-      # })
-      # 
-      # output[["downloadData_output.zip"]] <- downloadHandler(
-      #   filename = "iris.csv",
-      #   content = function(file) {
-      #     # htmlwidgets::saveWidget(reactivePlot(), file = file)
-      #     write.csv(iris, file = file)
-      #   }
-      # )
     }
   ),
   
