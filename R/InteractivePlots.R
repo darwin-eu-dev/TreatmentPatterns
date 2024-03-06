@@ -92,7 +92,7 @@ InteracitvePlot <- R6::R6Class(
       private$setAgeOptions(output, session, inputHandler)
       private$setIndexYearOptions(output, session, inputHandler)
       private$plot(input, output, inputHandler)
-      private$downloadHTML(input, output)
+      private$download(input, output, fileNameFun = private$htmlFileName, contentFun = private$htmlContent)
     }
   ),
   
@@ -252,28 +252,40 @@ InteracitvePlot <- R6::R6Class(
       })
     },
     
-    downloadHTML = function(input, output) {
+    setDownloadHandler = function(name, fileNameFun, contentFun, output) {
+      output[[paste0(class(self)[1], name)]] <- downloadHandler(
+        filename = fileNameFun(name),
+        content = contentFun(file, name)
+      )
+    },
+    
+    download = function(input, output, fileNameFun, contentFun) {
       dbName <- reactive({
         input$dbSelector
       })
-      
+
       observe({
-        lapply(dbName(), function(name) {
-          output[[paste0(class(self)[1], name)]] <- downloadHandler(
-            filename = function() {
-              sprintf("%s_%s.html", class(self)[1], name)
-            },
-            content = function(file) {
-              tempFile <- tempfile(fileext = ".html")
-              htmlwidgets::saveWidget(
-                widget = private$.reactiveValues$plotList[[paste0(class(self)[1], name)]],
-                file = tempFile
-              )
-              file.copy(from = tempFile, to = file)
-            }
-          )
-        })
+        lapply(
+          X = dbName(),
+          FUN = private$setDownloadHandler,
+          fileNameFun = fileNameFun,
+          contentFun = contentFun,
+          output = output
+        )
       })
+    },
+
+    htmlFileName = function(name) {
+      sprintf("%s_%s.html", class(self)[1], name)
+    },
+    
+    htmlContent = function(file, name) {
+      tempFile <- tempfile(fileext = ".html")
+      htmlwidgets::saveWidget(
+        widget = private$.reactiveValues$plotList[[paste0(class(self)[1], name)]],
+        file = tempFile
+      )
+      file.copy(from = tempFile, to = file)
     }
   ),
   
