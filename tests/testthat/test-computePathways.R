@@ -535,3 +535,83 @@ test_that("filterTreatments", {
   Andromeda::close(changes)
   Andromeda::close(all)
 })
+
+test_that("maxGamp", {
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  
+  cohorts <- data.frame(
+    cohortId = c(1, 2, 3, 4),
+    cohortName = c("X", "A", "B", "C"),
+    type = c("target", "event", "event", "event")
+  )
+  
+  cohort_table <- dplyr::tribble(
+    ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
+    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    3,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    4,                     5,           as.Date("2014-03-14"), as.Date("2014-05-12")
+  )
+  
+  copy_to(con, cohort_table, overwrite = TRUE)
+  
+  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  
+  andromeda <- TreatmentPatterns::computePathways(
+    cohorts = cohorts,
+    cohortTableName = "cohort_table",
+    cdm = cdm,
+    includeTreatments = "startDate",
+    periodPriorToIndex = 0,
+    minEraDuration = 0,
+    eraCollapseSize = 5,
+    combinationWindow = 30,
+    minPostCombinationDuration = 30,
+    filterTreatments = "All",
+    maxPathLength = 5,
+    maxGap = 5
+  )
+
+  tempDir <- tempdir()
+  TreatmentPatterns::export(andromeda, tempDir, minCellCount = 1)
+  
+  treatmentPaths <- read.csv(file.path(tempDir, "treatmentPathways.csv"))
+  
+  path <- treatmentPaths %>%
+    dplyr::filter(
+      .data$age == "all",
+      .data$sex == "all",
+      .data$indexYear == "all") %>%
+    dplyr::pull(.data$path)
+  
+  expect_identical(path, "A+B-C")
+  
+  
+  andromeda <- TreatmentPatterns::computePathways(
+    cohorts = cohorts,
+    cohortTableName = "cohort_table",
+    cdm = cdm,
+    includeTreatments = "startDate",
+    periodPriorToIndex = 0,
+    minEraDuration = 0,
+    eraCollapseSize = 5,
+    combinationWindow = 30,
+    minPostCombinationDuration = 30,
+    filterTreatments = "All",
+    maxPathLength = 5,
+    maxGap = 2
+  )
+  
+  TreatmentPatterns::export(andromeda, tempDir, minCellCount = 1)
+  
+  treatmentPaths <- read.csv(file.path(tempDir, "treatmentPathways.csv"))
+  
+  path <- treatmentPaths %>%
+    dplyr::filter(
+      .data$age == "all",
+      .data$sex == "all",
+      .data$indexYear == "all") %>%
+    dplyr::pull(.data$path)
+  
+  expect_identical(path, "A+B")
+})

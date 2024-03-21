@@ -69,7 +69,8 @@ constructPathways <- function(settings, andromeda) {
     doCombinationWindow(
       andromeda = andromeda,
       combinationWindow = settings$combinationWindow,
-      minPostCombinationDuration = settings$minPostCombinationDuration
+      minPostCombinationDuration = settings$minPostCombinationDuration,
+      maxGap = settings$maxGap
     )
 
     doFilterTreatments(
@@ -379,11 +380,12 @@ doEraCollapse <- function(andromeda, eraCollapseSize) {
 doCombinationWindow <- function(
     andromeda,
     combinationWindow,
-    minPostCombinationDuration) {
+    minPostCombinationDuration,
+    maxGap) {
   time1 <- Sys.time()
   
   # Find which rows contain some overlap
-  selectRowsCombinationWindow(andromeda)
+  selectRowsCombinationWindow(andromeda, maxGap)
   
   # While rows that need modification exist:
   iterations <- 1
@@ -571,7 +573,7 @@ doCombinationWindow <- function(
         "sex", "eventEndDate", "durationEra", "gapPrevious"
       )
     
-    selectRowsCombinationWindow(andromeda)
+    selectRowsCombinationWindow(andromeda, maxGap)
     
     iterations <- iterations + 1
   }
@@ -604,15 +606,15 @@ doCombinationWindow <- function(
 #' @param andromeda (`Andromeda::andromeda()`)
 #'
 #' @return (`invisible(NULL)`)
-selectRowsCombinationWindow <- function(andromeda) {
+selectRowsCombinationWindow <- function(andromeda, maxGap) {
   # Order treatmentHistory by person_id, event_start_date, event_end_date
   # andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
   #   arrange(.data$personId, .data$eventStartDate, .data$eventEndDate)
-  
   andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
     dplyr::mutate(sortOrder = as.numeric(.data$eventStartDate) + as.numeric(.data$eventEndDate) * row_number() / n() * 10^-6) %>%
     dplyr::group_by(.data$personId) %>%
     dplyr::mutate(gapPrevious = .data$eventStartDate - dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)) %>%
+    dplyr::filter(.data$gapPrevious <= maxGap | is.na(.data$gapPrevious)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(allRows = ifelse(.data$gapPrevious < 0, dplyr::row_number(), NA)) %>%
     dplyr::mutate(gapPrevious = case_when(

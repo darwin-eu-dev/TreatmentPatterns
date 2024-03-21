@@ -20,6 +20,7 @@
 #' @template param_minPostCombinationDuration
 #' @template param_filterTreatments
 #' @template param_maxPathLength
+#' @param maxGap (`numeric(1)`) Filters gaps smaller or equal than the `maxGap` (gap <= maxGap)
 #'
 #' @return (`Andromeda::andromeda()`)
 #' \link[Andromeda]{andromeda} object containing non-sharable patient level
@@ -90,7 +91,8 @@ computePathways <- function(
     combinationWindow = 30,
     minPostCombinationDuration = 30,
     filterTreatments = "First",
-    maxPathLength = 5) {
+    maxPathLength = 5,
+    maxGap = 10) {
   validateComputePathways()
   
   args <- eval(
@@ -334,6 +336,15 @@ validateComputePathways <- function() {
     null.ok = TRUE,
     add = assertCol,
     .var.name = "cdm"
+  )
+  
+  checkmate::assertIntegerish(
+    x = args$maxGap,
+    len = 1, lower = 0,
+    upper = Inf,
+    null.ok = FALSE,
+    add = assertCol,
+    .var.name = "maxGap"
   )
   
   checkmate::reportAssertions(collection = assertCol)
