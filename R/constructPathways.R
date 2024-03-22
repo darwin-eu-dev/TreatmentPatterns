@@ -610,11 +610,35 @@ selectRowsCombinationWindow <- function(andromeda, maxGap) {
   # Order treatmentHistory by person_id, event_start_date, event_end_date
   # andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
   #   arrange(.data$personId, .data$eventStartDate, .data$eventEndDate)
+  andromeda$toDrop <- andromeda$treatmentHistory %>%
+    dplyr::group_by(.data$personId) %>%
+    dplyr::mutate(toRm = dplyr::case_when(
+      .data$eventStartDate - dplyr::lag(.data$eventEndDate) > maxGap ~ 1,
+      .default = 0
+    )) %>%
+    dplyr::filter(.data$toRm == 1) %>%
+    dplyr::select("personId", "eventStartDate") %>%
+    dplyr::rename(dropDate = "eventStartDate")
+
   andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+    dplyr::full_join(andromeda$toDrop, dplyr::join_by(personId == personId)) %>%
+    dplyr::filter(.data$eventStartDate < .data$dropDate | is.na(.data$dropDate)) %>%
+    dplyr::select(-"dropDate") %>%
     dplyr::mutate(sortOrder = as.numeric(.data$eventStartDate) + as.numeric(.data$eventEndDate) * row_number() / n() * 10^-6) %>%
     dplyr::group_by(.data$personId) %>%
     dplyr::mutate(gapPrevious = .data$eventStartDate - dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)) %>%
-    dplyr::filter(.data$gapPrevious <= maxGap | is.na(.data$gapPrevious)) %>%
+    # dplyr::filter(.data$gapPrevious <= maxGap | is.na(.data$gapPrevious)) %>%
+    # dplyr::mutate(toRm = dplyr::case_when(
+    #   .data$gapPrevious >= maxGap ~ 1,
+    #   .default = 0
+    # )) %>%
+    # dplyr::mutate(toRm = dplyr::case_when(
+    #   .data$toRm == 1 ~ 1,
+    #   .data$eventStartDate >= dplyr::lag(.data$eventStartDate) & dplyr::lag(.data$toRm) == 1 ~ 1,
+    #   .default = 0
+    # )) %>%
+    # dplyr::filter(.data$toRm == 0) %>%
+    # dplyr::select(-"toRm") %>%
     dplyr::ungroup() %>%
     dplyr::mutate(allRows = ifelse(.data$gapPrevious < 0, dplyr::row_number(), NA)) %>%
     dplyr::mutate(gapPrevious = case_when(

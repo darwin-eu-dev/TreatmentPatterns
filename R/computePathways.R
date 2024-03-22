@@ -92,7 +92,7 @@ computePathways <- function(
     minPostCombinationDuration = 30,
     filterTreatments = "First",
     maxPathLength = 5,
-    maxGap = 10) {
+    maxGap = Inf) {
   validateComputePathways()
   
   args <- eval(
@@ -338,7 +338,7 @@ validateComputePathways <- function() {
     .var.name = "cdm"
   )
   
-  checkmate::assertIntegerish(
+  checkmate::assertNumeric(
     x = args$maxGap,
     len = 1, lower = 0,
     upper = Inf,

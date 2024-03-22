@@ -22,7 +22,7 @@ computePathways(
   minPostCombinationDuration = 30,
   filterTreatments = "First",
   maxPathLength = 5,
-  maxGap = 10
+  maxGap = Inf
 )
 }
 \arguments{
