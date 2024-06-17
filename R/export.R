@@ -153,7 +153,8 @@ export <- function(
         countsYearPath,
         countsAgePath,
         countsSexPath,
-        statsTherapyPath
+        statsTherapyPath,
+        metadata
       ),
       flags = "-j"
     )
