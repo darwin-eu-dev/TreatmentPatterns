@@ -20,6 +20,7 @@
 #' @template param_minPostCombinationDuration
 #' @template param_filterTreatments
 #' @template param_maxPathLength
+#' @param maxCombinationIter (`numeric`: `Inf`) Maximum number of combinations to allow when combining events. By default set to `Inf`.
 #'
 #' @return (`Andromeda::andromeda()`)
 #' \link[Andromeda]{andromeda} object containing non-sharable patient level
@@ -95,7 +96,8 @@ computePathways <- function(
     combinationWindow = 30,
     minPostCombinationDuration = 30,
     filterTreatments = "First",
-    maxPathLength = 5) {
+    maxPathLength = 5,
+    maxCombinationIter = Inf) {
   validateComputePathways()
   
   args <- eval(
@@ -339,6 +341,16 @@ validateComputePathways <- function() {
     null.ok = TRUE,
     add = assertCol,
     .var.name = "cdm"
+  )
+  
+  checkmate::assertNumeric(
+    args$maxCombinationIter,
+    len = 1,
+    null.ok = FALSE,
+    lower = 0,
+    upper = Inf,
+    finite = FALSE,
+    .var.name = "maxCombinationIter"
   )
   
   checkmate::reportAssertions(collection = assertCol)
