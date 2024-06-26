@@ -21,7 +21,8 @@ computePathways(
   combinationWindow = 30,
   minPostCombinationDuration = 30,
   filterTreatments = "First",
-  maxPathLength = 5
+  maxPathLength = 5,
+  maxCombinationIter = Inf
 )
 }
 \arguments{
@@ -88,6 +89,8 @@ event cohorts (‘All’).}
 
 \item{maxPathLength}{(\code{integer(1)}: \code{5})\cr
 Maximum number of steps included in treatment pathway}
+
+\item{maxCombinationIter}{(\code{numeric}: \code{Inf}) Maximum number of combinations to allow when combining events. By default set to \code{Inf}.}
 }
 \value{
 (\code{Andromeda::andromeda()})
