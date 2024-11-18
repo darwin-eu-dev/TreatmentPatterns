@@ -34,7 +34,7 @@ constructPathways <- function(settings, andromeda) {
       targetCohortIds = targetCohortIds,
       eventCohortIds = eventCohortIds,
       exitCohortIds = exitCohortIds,
-      periodPriorToIndex = settings$periodPriorToIndex,
+      indexDateOffset = settings$indexDateOffset,
       includeTreatments = settings$includeTreatments
     )
 
@@ -148,7 +148,7 @@ getCohortIds <- function(cohorts, cohortType) {
 #' @param targetCohortIds (`numeric(n)`)
 #' @param eventCohortIds (`numeric(n)`)
 #' @param exitCohortIds (`numeric(n)`)
-#' @template param_periodPriorToIndex
+#' @template param_indexDateOffset
 #' @template param_includeTreatments
 #'
 #' @return (`data.frame()`)\cr
@@ -167,13 +167,13 @@ createTreatmentHistory <- function(
     targetCohortIds,
     eventCohortIds,
     exitCohortIds,
-    periodPriorToIndex,
+    indexDateOffset,
     includeTreatments) {
   andromeda$targetCohorts <- andromeda$cohortTable %>%
     dplyr::filter(.data$cohortId %in% targetCohortIds) %>%
     dplyr::mutate(type = "target") %>%
     dplyr::mutate(indexYear = as.numeric(format(.data$startDate, "%Y"))) %>%
-    dplyr::mutate(indexDate = .data$startDate - periodPriorToIndex)
+    dplyr::mutate(indexDate = .data$startDate + indexDateOffset)
   
   # Select event cohorts for target cohort and merge with start/end date and
   # index year
@@ -220,7 +220,7 @@ createTreatmentHistory <- function(
       )) %>%
       dplyr::mutate(
         startDate.x = pmax(
-          .data$startDate.y - periodPriorToIndex,
+          .data$startDate.y + indexDateOffset,
           .data$startDate.x,
           na.rm = TRUE
         )

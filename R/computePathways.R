@@ -11,7 +11,7 @@
 #' @template param_resultSchema
 #' @param tempEmulationSchema Schema used to emulate temp tables
 #' @template param_includeTreatments
-#' @template param_periodPriorToIndex
+#' @template param_indexDateOffset
 #' @template param_minEraDuration
 #' @template param_splitEventCohorts
 #' @template param_splitTime
@@ -87,7 +87,7 @@ computePathways <- function(
     resultSchema = NULL,
     tempEmulationSchema = NULL,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 0,
     splitEventCohorts = NULL,
     splitTime = NULL,
@@ -180,12 +180,12 @@ validateComputePathways <- function() {
   )
   
   checkmate::assertNumeric(
-    args$periodPriorToIndex,
+    args$indexDateOffset,
     len = 1,
     finite = TRUE,
     null.ok = FALSE,
     add = assertCol,
-    .var.name = "periodPriorToIndex"
+    .var.name = "indexDateOffset"
   )
   
   checkmate::assertNumeric(

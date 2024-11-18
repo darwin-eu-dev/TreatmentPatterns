@@ -117,7 +117,7 @@ test_that("includeTreatments", {
   Andromeda::close(andromeda_endDate)
 })
 
-test_that("periodPriorToIndex", {
+test_that("indexDateOffset", {
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -126,7 +126,7 @@ test_that("periodPriorToIndex", {
       cohorts = globals$cohorts,
       cohortTableName = globals$cohortTableName,
       cdm = globals$cdm,
-      periodPriorToIndex = "0"
+      indexDateOffset = "0"
     ),
     "Must be of type.+'numeric'"
   )
@@ -276,7 +276,7 @@ test_that("minPostCombinationDuration: 30", {
     cohortTableName = "cohort_table",
     cdm = cdm,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 0,
     eraCollapseSize = 3,
     combinationWindow = 30,
@@ -305,7 +305,7 @@ test_that("minPostCombinationDuration: 30", {
     cohortTableName = "cohort_table",
     cdm = cdm,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 0,
     eraCollapseSize = 3,
     combinationWindow = 30,
@@ -335,7 +335,7 @@ test_that("minPostCombinationDuration: 30", {
     cohortTableName = "cohort_table",
     cdm = cdm,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 0,
     eraCollapseSize = 3,
     combinationWindow = 30,
@@ -544,7 +544,7 @@ test_that("FRFS combination", {
     cdm = cdm,
     tempEmulationSchema = NULL,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 30,
     eraCollapseSize = 30,
     combinationWindow = 30,
@@ -597,7 +597,7 @@ test_that("LRFS combination", {
     cdm = cdm,
     tempEmulationSchema = NULL,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 30,
     eraCollapseSize = 30,
     combinationWindow = 30,
