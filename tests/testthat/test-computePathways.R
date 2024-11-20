@@ -117,7 +117,7 @@ test_that("includeTreatments", {
   Andromeda::close(andromeda_endDate)
 })
 
-test_that("periodPriorToIndex", {
+test_that("indexDateOffset", {
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -126,9 +126,49 @@ test_that("periodPriorToIndex", {
       cohorts = globals$cohorts,
       cohortTableName = globals$cohortTableName,
       cdm = globals$cdm,
-      periodPriorToIndex = "0"
+      indexDateOffset = "0"
     ),
     "Must be of type.+'numeric'"
+  )
+
+  expect_error(
+    computePathways(
+      cohorts = globals$cohorts,
+      cohortTableName = globals$cohortTableName,
+      cdm = globals$cdm,
+      indexDateOffset = Inf
+    ),
+    "Must be finite"
+  )
+
+  expect_message(
+    computePathways(
+      cohorts = globals$cohorts,
+      cohortTableName = globals$cohortTableName,
+      cdm = globals$cdm,
+      indexDateOffset = 0
+    ),
+    "Original number of rows: 8366"
+  )
+
+  expect_message(
+    computePathways(
+      cohorts = globals$cohorts,
+      cohortTableName = globals$cohortTableName,
+      cdm = globals$cdm,
+      indexDateOffset = -30
+    ),
+    "Original number of rows: 8366"
+  )
+
+  expect_message(
+    computePathways(
+      cohorts = globals$cohorts,
+      cohortTableName = globals$cohortTableName,
+      cdm = globals$cdm,
+      indexDateOffset = 30
+    ),
+    "Original number of rows: 6267"
   )
 })
 
@@ -276,7 +316,7 @@ test_that("minPostCombinationDuration: 30", {
     cohortTableName = "cohort_table",
     cdm = cdm,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 0,
     eraCollapseSize = 3,
     combinationWindow = 30,
@@ -305,7 +345,7 @@ test_that("minPostCombinationDuration: 30", {
     cohortTableName = "cohort_table",
     cdm = cdm,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 0,
     eraCollapseSize = 3,
     combinationWindow = 30,
@@ -335,7 +375,7 @@ test_that("minPostCombinationDuration: 30", {
     cohortTableName = "cohort_table",
     cdm = cdm,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 0,
     eraCollapseSize = 3,
     combinationWindow = 30,
@@ -544,7 +584,7 @@ test_that("FRFS combination", {
     cdm = cdm,
     tempEmulationSchema = NULL,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 30,
     eraCollapseSize = 30,
     combinationWindow = 30,
@@ -597,7 +637,7 @@ test_that("LRFS combination", {
     cdm = cdm,
     tempEmulationSchema = NULL,
     includeTreatments = "startDate",
-    periodPriorToIndex = 0,
+    indexDateOffset = 0,
     minEraDuration = 30,
     eraCollapseSize = 30,
     combinationWindow = 30,

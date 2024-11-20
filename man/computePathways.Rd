@@ -13,7 +13,7 @@ computePathways(
   resultSchema = NULL,
   tempEmulationSchema = NULL,
   includeTreatments = "startDate",
-  periodPriorToIndex = 0,
+  indexDateOffset = 0,
   minEraDuration = 0,
   splitEventCohorts = NULL,
   splitTime = NULL,
@@ -56,9 +56,8 @@ Optional; In congruence with \code{connectionDetails} and \code{cdmSchema}. Igno
 \item{\code{"endDate"}}{Include treatments before target cohort end date and before.}
 }}
 
-\item{periodPriorToIndex}{(\code{integer(1)}: \code{0})\cr
-Number of days prior to the index date of the target cohort | that event
-cohorts are allowed to start}
+\item{indexDateOffset}{(\code{integer(1)}: \code{0})\cr
+Offset the index date of the \code{Target} cohort.}
 
 \item{minEraDuration}{(\code{integer(1)}: \code{0})\cr
 Minimum time an event era should last to be included in analysis}
