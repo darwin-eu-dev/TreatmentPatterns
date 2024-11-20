@@ -86,7 +86,7 @@ test_that("InputHandler: server()", {
       expect_s3_class(inputHandler$reactiveValues$countsAge, "data.frame")
       expect_s3_class(inputHandler$reactiveValues$countsSex, "data.frame")
       expect_s3_class(inputHandler$reactiveValues$countsYear, "data.frame")
-      expect_s3_class(inputHandler$reactiveValues$summaryStatsTherapyDuration, "data.frame")
+      expect_s3_class(inputHandler$reactiveValues$summaryEventDuration, "data.frame")
       expect_s3_class(inputHandler$reactiveValues$metadata, "data.frame")
       
       # Fields

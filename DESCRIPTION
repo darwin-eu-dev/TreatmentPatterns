@@ -73,4 +73,4 @@ Collate:
     'createSunburstPlot.R'
     'executeTreatmentPatterns.R'
     'export.R'
-
+    'plotEventDuration.R'

@@ -121,7 +121,7 @@ export <- function(
   write.csv(treatmentPathways, file = treatmentPathwaysPath, row.names = FALSE)
   
   # Summary statistics duration
-  statsTherapyPath <- file.path(outputPath, "summaryStatsTherapyDuration.csv")
+  statsTherapyPath <- file.path(outputPath, "summaryEventDuration.csv")
   message(sprintf("Writing summaryStatsTherapyDuration to %s", statsTherapyPath))
   statsTherapy <- computeStatsTherapy(treatmentHistory)
   write.csv(statsTherapy, file = statsTherapyPath, row.names = FALSE)
@@ -223,22 +223,77 @@ validateExport <- function() {
 #'
 #' @return (`data.frame()`)
 computeStatsTherapy <- function(treatmentHistory) {
-  stats <- treatmentHistory %>%
-    mutate(treatmentType = dplyr::case_when(
-      nchar(.data$eventCohortId) > 1 ~ "combination",
-      .default = "monotherapy"
-    )) %>%
-    dplyr::group_by(.data$treatmentType) %>%
-    dplyr::summarise(
-      avgDuration = mean(.data$durationEra, na.rm = TRUE),
-      medianDuration = stats::median(.data$durationEra, na.rm = TRUE),
-      sd = stats::sd(.data$durationEra, na.rm = TRUE),
-      min = min(.data$durationEra, na.rm = TRUE),
-      max = max(.data$durationEra, na.rm = TRUE),
-      count = n()
-    )
-  
-  return(stats)
+  dplyr::bind_rows(
+    treatmentHistory %>%
+      dplyr::mutate(eventName = dplyr::case_when(
+        nchar(.data$eventCohortId) > 1 ~ "combination-event",
+        .default = "mono-event"
+      )) %>%
+      dplyr::group_by(.data$eventName) %>%
+      dplyr::summarise(
+        min = min(.data$durationEra, na.rm = TRUE),
+        Q1 = quantile(.data$durationEra, probs = 0.25, na.rm = TRUE),
+        median = stats::median(.data$durationEra, na.rm = TRUE),
+        Q2 = stats::quantile(.data$durationEra, probs = 0.75, na.rm = TRUE),
+        max = max(.data$durationEra, na.rm = TRUE),
+        average = mean(.data$durationEra, na.rm = TRUE),
+        sd = stats::sd(.data$durationEra, na.rm = TRUE),
+        count = n()
+      ) %>%
+      dplyr::mutate(line = "overall"),
+    
+    treatmentHistory %>%
+      dplyr::group_by(.data$eventSeq) %>%
+      dplyr::mutate(eventName = dplyr::case_when(
+        nchar(.data$eventCohortId) > 1 ~ "combination-event",
+        .default = "mono-event"
+      )) %>%
+      dplyr::ungroup() %>%
+      dplyr::group_by(.data$eventName, .data$eventSeq) %>%
+      dplyr::summarise(
+        min = min(.data$durationEra, na.rm = TRUE),
+        Q1 = quantile(.data$durationEra, probs = 0.25, na.rm = TRUE),
+        median = stats::median(.data$durationEra, na.rm = TRUE),
+        Q2 = quantile(.data$durationEra, probs = 0.75, na.rm = TRUE),
+        max = max(.data$durationEra, na.rm = TRUE),
+        average = mean(.data$durationEra, na.rm = TRUE),
+        sd = stats::sd(.data$durationEra, na.rm = TRUE),
+        count = n()
+      ) %>%
+      mutate(line = as.character(.data$eventSeq)) %>%
+      select(-"eventSeq"),
+    
+    treatmentHistory %>%
+      dplyr::group_by(.data$eventCohortName) %>%
+      dplyr::summarise(
+        min = min(.data$durationEra, na.rm = TRUE),
+        Q1 = stats::quantile(.data$durationEra, probs = 0.25, na.rm = TRUE),
+        median = stats::median(.data$durationEra, na.rm = TRUE),
+        Q2 = stats::quantile(.data$durationEra, probs = 0.75, na.rm = TRUE),
+        max = max(.data$durationEra, na.rm = TRUE),
+        average = mean(.data$durationEra, na.rm = TRUE),
+        sd = stats::sd(.data$durationEra, na.rm = TRUE),
+        count = n()
+      ) %>%
+      dplyr::mutate(line = "overall") %>%
+      dplyr::rename(eventName = "eventCohortName"),
+    
+    treatmentHistory %>%
+      dplyr::group_by(.data$eventSeq, .data$eventCohortName) %>%
+      dplyr::summarise(
+        min = min(.data$durationEra, na.rm = TRUE),
+        Q1 = stats::quantile(.data$durationEra, probs = 0.25, na.rm = TRUE),
+        median = stats::median(.data$durationEra, na.rm = TRUE),
+        Q2 = stats::quantile(.data$durationEra, probs = 0.75, na.rm = TRUE),
+        max = max(.data$durationEra, na.rm = TRUE),
+        average = mean(.data$durationEra, na.rm = TRUE),
+        sd = stats::sd(.data$durationEra, na.rm = TRUE),
+        count = n(), .groups = "drop"
+      ) %>%
+      dplyr::mutate(line = as.character(.data$eventSeq)) %>%
+      dplyr::select(-"eventSeq") %>%
+      dplyr::rename(eventName = "eventCohortName")
+  )
 }
 
 countYear <- function(treatmentHistory, minCellCount) {
