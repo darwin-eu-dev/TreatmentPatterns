@@ -49,7 +49,7 @@ constructPathways <- function(settings, andromeda) {
     targetCohortIds = targetCohortIds,
     eventCohortIds = eventCohortIds,
     exitCohortIds = exitCohortIds,
-    periodPriorToIndex = settings$periodPriorToIndex,
+    indexDateOffset = settings$indexDateOffset,
     includeTreatments = settings$includeTreatments
   )
 
