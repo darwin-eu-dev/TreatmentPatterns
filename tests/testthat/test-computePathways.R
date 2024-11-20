@@ -130,6 +130,46 @@ test_that("indexDateOffset", {
     ),
     "Must be of type.+'numeric'"
   )
+
+  expect_error(
+    computePathways(
+      cohorts = globals$cohorts,
+      cohortTableName = globals$cohortTableName,
+      cdm = globals$cdm,
+      indexDateOffset = Inf
+    ),
+    "Must be finite"
+  )
+
+  expect_message(
+    computePathways(
+      cohorts = globals$cohorts,
+      cohortTableName = globals$cohortTableName,
+      cdm = globals$cdm,
+      indexDateOffset = 0
+    ),
+    "Original number of rows: 8366"
+  )
+
+  expect_message(
+    computePathways(
+      cohorts = globals$cohorts,
+      cohortTableName = globals$cohortTableName,
+      cdm = globals$cdm,
+      indexDateOffset = -30
+    ),
+    "Original number of rows: 8366"
+  )
+
+  expect_message(
+    computePathways(
+      cohorts = globals$cohorts,
+      cohortTableName = globals$cohortTableName,
+      cdm = globals$cdm,
+      indexDateOffset = 30
+    ),
+    "Original number of rows: 6267"
+  )
 })
 
 test_that("minEraDuration", {
