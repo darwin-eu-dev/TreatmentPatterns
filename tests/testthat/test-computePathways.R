@@ -618,3 +618,57 @@ test_that("LRFS combination", {
   
   DBI::dbDisconnect(con)
 })
+
+test_that("No target records", {
+  params <- suppressWarnings(generateCohortTableCDMC())
+  
+  params$cohorts$cohortId[8] <- 9
+  
+  expect_warning({
+    outputEnv <- computePathways(
+      cohorts = params$cohorts,
+      cohortTableName = params$cohortTableName,
+      cdm = params$cdm
+    )
+  })
+  
+  expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
+  
+  DBI::dbDisconnect(params$con, shutdown = TRUE)
+})
+
+test_that("Empty cohort table", {
+  params <- suppressWarnings(generateCohortTableCDMC())
+  
+  params$cdm$cohort_table <- params$cdm$cohort_table %>%
+    filter(.data$cohort_definition_id <= 0) %>%
+    compute()
+  
+  expect_warning({
+    outputEnv <- computePathways(
+      cohorts = params$cohorts,
+      cohortTableName = params$cohortTableName,
+      cdm = params$cdm
+    )
+  })
+  
+  expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
+  
+  DBI::dbDisconnect(params$con, shutdown = TRUE)
+})
+
+test_that("No target defined", {
+  params <- suppressWarnings(generateCohortTableCDMC())
+  
+  params$cohorts$type <- rep("event", 8)
+  
+  expect_error({
+    outputEnv <- computePathways(
+      cohorts = params$cohorts,
+      cohortTableName = params$cohortTableName,
+      cdm = params$cdm
+    )
+  })
+
+  DBI::dbDisconnect(params$con, shutdown = TRUE)
+})

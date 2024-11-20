@@ -279,19 +279,24 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "cohorts"
   )
-  
+
   checkmate::assertSubset(
     x = names(args$cohorts),
     choices = c("cohortId", "cohortName", "type"),
     add = assertCol,
     .var.name = "cohorts"
   )
-  
+
+  types <- args$cohorts$type
+  if (!"target" %in% types) {
+    stop("No 'target' cohort specified in `cohorts`.")
+  }
+
   checkmate::assertSubset(
     x = args$cohorts$type,
     choices = c("event", "target", "exit"),
     add = assertCol,
-    .var.name = "cohorts"
+    .var.name = "cohorts$type"
   )
   
   checkmate::assertCharacter(
@@ -348,7 +353,7 @@ checkCohortTable = function(andromeda) {
   cohortTableHead <- andromeda[["cohortTable"]] %>%
     head() %>%
     dplyr::collect()
-  
+
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertIntegerish(cohortTableHead$cohort_definition_id, add = assertions)
   checkmate::assertIntegerish(cohortTableHead$subject_id, add = assertions)

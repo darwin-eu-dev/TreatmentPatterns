@@ -26,18 +26,18 @@ constructPathways <- function(settings, andromeda) {
   nRows <- andromeda$cohortTable %>%
     dplyr::count() %>%
     dplyr::pull()
-  
-  if (nRows > 0) {
-    # Preprocess the target/event cohorts to create treatment history
-    createTreatmentHistory(
-      andromeda = andromeda,
-      targetCohortIds = targetCohortIds,
-      eventCohortIds = eventCohortIds,
-      exitCohortIds = exitCohortIds,
-      periodPriorToIndex = settings$periodPriorToIndex,
-      includeTreatments = settings$includeTreatments
-    )
 
+  # Preprocess the target/event cohorts to create treatment history
+  createTreatmentHistory(
+    andromeda = andromeda,
+    targetCohortIds = targetCohortIds,
+    eventCohortIds = eventCohortIds,
+    exitCohortIds = exitCohortIds,
+    periodPriorToIndex = settings$periodPriorToIndex,
+    includeTreatments = settings$includeTreatments
+  )
+
+  if (nRows > 0) {
     andromeda$exitHistory <- andromeda$treatmentHistory %>%
       dplyr::filter(.data$type == "exit") %>%
       dplyr::select(-"type")
@@ -125,8 +125,10 @@ constructPathways <- function(settings, andromeda) {
           eventCohortName = eventCohortNames,
           indexYear = floor(.data$indexYear / 365.25) + 1970)
     }
+  } else {
+    warning("No cases found. Generating empty treatmentHistory table.")
   }
-  
+
   andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
     dplyr::filter(!is.na(.data$personId))
   
