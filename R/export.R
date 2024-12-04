@@ -99,7 +99,9 @@ export <- function(
     ageWindow = 10,
     minCellCount = 5,
     censorType = "minCellCount",
-    archiveName = NULL) {
+    archiveName = NULL,
+    nonePaths = FALSE,
+    stratify = FALSE) {
   validateExport()
   
   nrows <- andromeda$treatmentHistory %>%
@@ -110,21 +112,23 @@ export <- function(
     message("Treatment History table is empty. Nothing to export.")
     return(invisible(NULL))
   }
-  
-  if (!dir.exists(outputPath)) {
-    dir.create(outputPath)
-  }
+
+  dir.create(outputPath, showWarnings = FALSE, recursive = TRUE)
 
   treatmentHistory <- andromeda$treatmentHistory %>%
     dplyr::collect() %>%
     dplyr::select(
       "personId", "indexYear", "age", "sex", "eventCohortName", "eventCohortId", "eventSeq", "durationEra")
-  
-  treatmentHistory <- dplyr::bind_rows(
-    treatmentHistory,
-    getFilteredSubjects(andromeda)
-  )
-  
+
+  treatmentHistory <- if (nonePaths) {
+    dplyr::bind_rows(
+      treatmentHistory,
+      getFilteredSubjects(andromeda)
+    )
+  } else {
+    treatmentHistory
+  }
+
   # attrition
   attritionPath <- file.path(outputPath, "attrition.csv")
   message(sprintf("Writing attrition to %s", attritionPath))
@@ -142,10 +146,11 @@ export <- function(
   treatmentPathwaysPath <- file.path(outputPath, "treatmentPathways.csv")
   message(sprintf("Writing treatmentPathways to %s", treatmentPathwaysPath))
   treatmentPathways <- computeTreatmentPathways(
-    treatmentHistory,
-    ageWindow,
-    minCellCount,
-    censorType
+    treatmentHistory = treatmentHistory,
+    ageWindow = ageWindow,
+    minCellCount = minCellCount,
+    censorType = censorType,
+    stratify = stratify
   ) %>% dplyr::distinct()
   
   write.csv(treatmentPathways, file = treatmentPathwaysPath, row.names = FALSE)
@@ -242,6 +247,13 @@ validateExport <- function() {
     .var.name = "archiveName"
   )
 
+  checkmate::assertLogical(
+    x = args$nonePaths,
+    len = 1,
+    add = assertCol,
+    null.ok = FALSE,
+    .var.name = "nonePaths"
+  )
   checkmate::reportAssertions(assertCol)
 }
 
@@ -491,24 +503,39 @@ groupByAgeWindow <- function(treatmentHistory, ageWindow) {
 #' @param ageWindow numeric(n)
 #' @param minCellCount numeric(1)
 #' @param censorType character(1)
+#' @param stratify (logical(1))
 #'
 #' @return (`data.frame()`)
 #' 
 #' @noRd
-computeTreatmentPathways <- function(treatmentHistory, ageWindow, minCellCount, censorType) {
+computeTreatmentPathways <- function(treatmentHistory, ageWindow, minCellCount, censorType, stratify) {
   treatmentPathways <- groupByAgeWindow(treatmentHistory, ageWindow)
   
   treatmentPathways <- treatmentPathways %>%
     dplyr::mutate(indexYear = as.character(.data$indexYear))
   
-  treatmentPathways <- stratisfy(treatmentPathways)
-  
-  treatmentPathways[is.na(treatmentPathways)] <- "all"
-  
-  treatmentPathways <- censorData(treatmentPathways, minCellCount, censorType)
-  
-  treatmentPathways$path[treatmentPathways$path == "NA"] <- "None"
-  
+  treatmentPathways <- if (stratify) {
+    treatmentPathways <- stratisfy(treatmentPathways)
+    treatmentPathways[is.na(treatmentPathways)] <- "all"
+    treatmentPathways <- censorData(treatmentPathways, minCellCount, censorType)
+    treatmentPathways$path[treatmentPathways$path == "NA"] <- "None"
+    treatmentPathways
+  } else {
+    treatmentHistory %>%
+      collect() %>%
+      arrange(.data$personId, .data$eventSeq) %>%
+      group_by(personId) %>%
+      reframe(
+        across(
+          "eventCohortName", paste, collapse = "-"
+        )
+      ) %>%
+      rename(path = "eventCohortName") %>%
+      group_by(path) %>%
+      summarise(freq = n()) %>%
+      mutate(age = "all", sex = "all", indexYear = "all") %>%
+      arrange(desc(.data$freq), .data$path)
+  }
   return(treatmentPathways)
 }
 
