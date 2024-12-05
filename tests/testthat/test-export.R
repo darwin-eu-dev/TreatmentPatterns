@@ -66,8 +66,13 @@ test_that("outputPath", {
 
   ## 3 ----
   expect_error(
-    TreatmentPatterns::export(andromeda, outputPath = 3),
-    "Variable 'outputPath': No path provided"
+    TreatmentPatterns::export(
+      andromeda,
+      outputPath = 3,
+      nonePaths = TRUE,
+      stratify = TRUE
+    ),
+    "Variable 'outputPath':"
   )
   
   Andromeda::close(andromeda)
@@ -95,7 +100,9 @@ test_that("ageWindow", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      ageWindow = 10
+      ageWindow = 10,
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
 
@@ -109,7 +116,9 @@ test_that("ageWindow", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      ageWindow = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150)
+      ageWindow = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150),
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
 
@@ -146,7 +155,9 @@ test_that("minCellCount", {
       andromeda = andromeda,
       outputPath = tempDirLocal,
       minCellCount = 10,
-      censorType = "remove"
+      censorType = "remove",
+      nonePaths = TRUE,
+      stratify = TRUE
     ),
     "Removing \\d+ pathways with a frequency <10."
   )
@@ -160,7 +171,9 @@ test_that("minCellCount", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      minCellCount = "10"
+      minCellCount = "10",
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
   
@@ -202,7 +215,9 @@ test_that("archiveName", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      archiveName = 3
+      archiveName = 3,
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
   
@@ -232,7 +247,9 @@ test_that("censorType", {
       andromeda = andromeda,
       outputPath = tempDirLocal,
       minCellCount = 10,
-      censorType = "remove"
+      censorType = "remove",
+      nonePaths = TRUE,
+      stratify = TRUE
     ),
     "Removing \\d+ pathways with a frequency <10."
   )
@@ -247,7 +264,9 @@ test_that("censorType", {
       andromeda = andromeda,
       outputPath = tempDirLocal,
       minCellCount = 10,
-      censorType = "minCellCount"
+      censorType = "minCellCount",
+      nonePaths = TRUE,
+      stratify = TRUE
     ),
     "Censoring \\d+ pathways with a frequency <10 to 10."
   )
@@ -262,7 +281,9 @@ test_that("censorType", {
       andromeda = andromeda,
       outputPath = tempDirLocal,
       minCellCount = 10,
-      censorType = "mean"
+      censorType = "mean",
+      nonePaths = TRUE,
+      stratify = TRUE
     ),
     "Censoring \\d+ pathways with a frequency <10 to mean."
   )
@@ -276,7 +297,9 @@ test_that("censorType", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      censorType = "Stuff"
+      censorType = "Stuff",
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
   
@@ -322,8 +345,13 @@ test_that("outputPath", {
 
   ## 3 ----
   expect_error(
-    export(andromeda, outputPath = 3),
-    "Variable 'outputPath': No path provided"
+    export(
+      andromeda,
+      outputPath = 3,
+      nonePaths = TRUE,
+      stratify = TRUE
+    ),
+    "Variable 'outputPath':"
   )
   
   Andromeda::close(andromeda)
@@ -349,7 +377,9 @@ test_that("ageWindow", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      ageWindow = 10
+      ageWindow = 10,
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
 
@@ -362,7 +392,9 @@ test_that("ageWindow", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      ageWindow = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150)
+      ageWindow = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150),
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
 
@@ -397,7 +429,9 @@ test_that("minCellCount", {
       andromeda = andromeda,
       outputPath = tempDirLocal,
       minCellCount = 10,
-      censorType = "remove"
+      censorType = "remove",
+      nonePaths = TRUE,
+      stratify = TRUE
     ),
     "Removing \\d+ pathways with a frequency <10."
   )
@@ -411,7 +445,9 @@ test_that("minCellCount", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      minCellCount = "10"
+      minCellCount = "10",
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
   
@@ -438,7 +474,9 @@ test_that("archiveName", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      archiveName = "output.zip"
+      archiveName = "output.zip",
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
 
@@ -451,7 +489,9 @@ test_that("archiveName", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      archiveName = 3
+      archiveName = 3,
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
   
@@ -479,7 +519,9 @@ test_that("censorType", {
       andromeda = andromeda,
       outputPath = tempDirLocal,
       minCellCount = 10,
-      censorType = "remove"
+      censorType = "remove",
+      nonePaths = TRUE,
+      stratify = TRUE
     ),
     "Removing \\d+ pathways with a frequency <10."
   )
@@ -494,7 +536,9 @@ test_that("censorType", {
       andromeda = andromeda,
       outputPath = tempDirLocal,
       minCellCount = 10,
-      censorType = "minCellCount"
+      censorType = "minCellCount",
+      nonePaths = TRUE,
+      stratify = TRUE
     ),
     "Censoring \\d+ pathways with a frequency <10 to 10."
   )
@@ -509,7 +553,9 @@ test_that("censorType", {
       andromeda = andromeda,
       outputPath = tempDirLocal,
       minCellCount = 10,
-      censorType = "mean"
+      censorType = "mean",
+      nonePaths = TRUE,
+      stratify = TRUE
     ),
     "Censoring \\d+ pathways with a frequency <10 to mean."
   )
@@ -523,7 +569,9 @@ test_that("censorType", {
     export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
-      censorType = "Stuff"
+      censorType = "Stuff",
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
   
@@ -549,7 +597,9 @@ test_that("counts", {
   TreatmentPatterns::export(
     andromeda = andromeda,
     outputPath = tempDirLocal,
-    minCellCount = 1, ageWindow = c(0, 18, 150)
+    minCellCount = 1, ageWindow = c(0, 18, 150),
+    nonePaths = TRUE,
+    stratify = TRUE
   )
   
   treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
@@ -615,12 +665,115 @@ test_that("attrition", {
   suppressWarnings(
     TreatmentPatterns::export(
       andromeda = andromeda,
-      outputPath = tempDirLocal
+      outputPath = tempDirLocal,
+      nonePaths = TRUE,
+      stratify = TRUE
     )
   )
   
   expect_true(file.exists(file.path(tempDirLocal, "attrition.csv")))
   
+  Andromeda::close(andromeda)
+  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+})
+
+
+test_that("", {
+  skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
+
+  globals <- suppressWarnings(generateCohortTableCDMC())
+
+  andromeda <- TreatmentPatterns::computePathways(
+    cohorts = globals$cohorts,
+    cohortTableName = globals$cohortTableName,
+    cdm = globals$cdm
+  )
+  
+  tempDirLocal <- file.path(tempdir(), "output")
+  suppressWarnings(
+    TreatmentPatterns::export(
+      andromeda = andromeda,
+      outputPath = file.path(tempDirLocal, "T-T"),
+      nonePaths = TRUE,
+      stratify = TRUE
+    )
+  )
+  
+  suppressWarnings(
+    TreatmentPatterns::export(
+      andromeda = andromeda,
+      outputPath = file.path(tempDirLocal, "T-F"),
+      nonePaths = TRUE,
+      stratify = FALSE
+    )
+  )
+  
+  suppressWarnings(
+    TreatmentPatterns::export(
+      andromeda = andromeda,
+      outputPath = file.path(tempDirLocal, "F-T"),
+      nonePaths = FALSE,
+      stratify = TRUE
+    )
+  )
+  
+  suppressWarnings(
+    TreatmentPatterns::export(
+      andromeda = andromeda,
+      outputPath = file.path(tempDirLocal, "F-F"),
+      nonePaths = FALSE,
+      stratify = FALSE
+    )
+  )
+
+  tt <- read.csv(file.path(tempDirLocal, "T-T", "treatmentPathways.csv"))
+  tf <- read.csv(file.path(tempDirLocal, "T-F", "treatmentPathways.csv"))
+  ft <- read.csv(file.path(tempDirLocal, "F-T", "treatmentPathways.csv"))
+  ff <- read.csv(file.path(tempDirLocal, "F-F", "treatmentPathways.csv"))
+
+  # No strata
+  expect_true(nrow(ff) + 1 == nrow(tf))
+  expect_identical(
+    ff,
+    tf %>%
+      dplyr::filter(.data$path != "None")
+  )
+
+  # Strata
+  expect_identical(
+    ft,
+    tt %>%
+      filter(.data$path != "None")
+  )
+
+  # Pair-wise comparison
+  ages <- unique(tt$age)
+  sexes <- unique(tt$sex)
+  years <- unique(tt$indexYear)
+
+  for (age in ages) {
+    for (sex in sexes) {
+      for (year in years) {
+        n1 <- tt %>%
+          dplyr::filter(
+            .data$age == age,
+            .data$sex == sex,
+            .data$indexYear == year,
+            .data$path != "None"
+          )
+
+        n2 <- ft %>%
+          dplyr::filter(
+            .data$age == age,
+            .data$sex == sex,
+            .data$indexYear == year
+          )
+        expect_identical(n1, n2)
+      }
+    }
+  }
+
   Andromeda::close(andromeda)
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })

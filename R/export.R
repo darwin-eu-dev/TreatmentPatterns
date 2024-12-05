@@ -27,6 +27,12 @@
 #' @template param_minCellCount
 #' @template param_censorType
 #' @template param_archiveName
+#' @param nonePaths (`logical(1)`) Should `None` paths be included? This will
+#' fetch all persons included in the target cohort and assign them a `"None"`
+#' pathway. Significantly impacts performance.
+#' @param stratify (`logical(1)`) Should pathways be stratified? This will
+#' perform pairwise stratification between age, sex, and index year.
+#' Significantly impacts performance.
 #'
 #' @return (`invisible(NULL)`)
 #'
@@ -209,9 +215,9 @@ validateExport <- function() {
     .var.name = "andromeda"
   )
 
-  checkmate::assertPathForOutput(
+  checkmate::assertCharacter(
     x = args$outputPath,
-    overwrite = TRUE,
+    len = 1,
     add = assertCol,
     .var.name = "outputPath"
   )

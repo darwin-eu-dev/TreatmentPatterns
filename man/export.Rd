@@ -10,7 +10,9 @@ export(
   ageWindow = 10,
   minCellCount = 5,
   censorType = "minCellCount",
-  archiveName = NULL
+  archiveName = NULL,
+  nonePaths = FALSE,
+  stratify = FALSE
 )
 }
 \arguments{
@@ -37,6 +39,14 @@ minimum value will carry over to the sankey diagram and sunburst plot.}
 
 \item{archiveName}{(\code{character(1)}: \code{NULL})\cr
 If not \code{NULL} adds the exported files to a ZIP-file with the specified archive name.}
+
+\item{nonePaths}{(\code{logical(1)}) Should \code{None} paths be included? This will
+fetch all persons included in the target cohort and assign them a \code{"None"}
+pathway. Significantly impacts performance.}
+
+\item{stratify}{(\code{logical(1)}) Should pathways be stratified? This will
+perform pairwise stratification between age, sex, and index year.
+Significantly impacts performance.}
 }
 \value{
 (\code{invisible(NULL)})
