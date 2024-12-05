@@ -36,6 +36,8 @@
 #' @template param_minPostCombinationDuration
 #' @template param_filterTreatments
 #' @template param_maxPathLength
+#' @param analysisId (`character(1)`) Identifier for the TreatmentPatterns analysis.
+#' @param description (`character(1)`) Description of the analysis.
 #'
 #' @return (`Andromeda::andromeda()`)
 #' \link[Andromeda]{andromeda} object containing non-sharable patient level
@@ -108,6 +110,8 @@ computePathways <- function(
     connectionDetails = NULL,
     cdmSchema = NULL,
     resultSchema = NULL,
+    analysisId = 1,
+    description = "",
     tempEmulationSchema = NULL,
     includeTreatments = "startDate",
     indexDateOffset = 0,
@@ -120,12 +124,12 @@ computePathways <- function(
     filterTreatments = "First",
     maxPathLength = 5) {
   validateComputePathways()
-  
+
   args <- eval(
     expr = expression(mget(names(formals()))),
     envir = sys.frame(sys.nframe())
   )
-  
+
   cdmInterface <- CDMInterface$new(
     connectionDetails = connectionDetails,
     cdmSchema = cdmSchema,
@@ -139,7 +143,14 @@ computePathways <- function(
   })
 
   andromeda <- Andromeda::andromeda()
+
+  andromeda$analyses <- data.frame(
+    analysis_id = analysisId,
+    description = description
+  )
+
   andromeda <- cdmInterface$fetchMetadata(andromeda)
+  andromeda <- cdmInterface$fetchCdmSource(andromeda)
   andromeda <- cdmInterface$fetchCohortTable(
     cohorts = cohorts,
     cohortTableName = cohortTableName,
@@ -147,9 +158,9 @@ computePathways <- function(
     andromedaTableName = "cohortTable",
     minEraDuration = minEraDuration
   )
-  
+
   checkCohortTable(andromeda)
-  
+
   andromeda$cohortTable <- andromeda$cohortTable %>%
     dplyr::rename(
       cohortId = "cohort_definition_id",
@@ -157,7 +168,7 @@ computePathways <- function(
       startDate = "cohort_start_date",
       endDate = "cohort_end_date"
     )
-  
+
   andromeda <- constructPathways(
     settings = args,
     andromeda = andromeda
@@ -165,13 +176,13 @@ computePathways <- function(
 
   andromeda$metadata <- andromeda$metadata %>%
     dplyr::collect() %>%
-    dplyr::mutate(execution_end_date = as.character(Sys.Date()))
+    dplyr::mutate(execution_end = as.numeric(Sys.time()))
 
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
     toAdd = data.frame(
       number_records = attrCounts$nRecords,
-      number_subject = attrCounts$nSubjects,
+      number_subjects = attrCounts$nSubjects,
       reason_id = 9,
       reason = sprintf("treatment construction done")
     ),

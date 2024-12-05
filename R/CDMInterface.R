@@ -65,7 +65,7 @@ CDMInterface <- R6::R6Class(
     #' Name of the table in the Andromeda object where the data will be loaded.
     #' @template param_minEraDuration
     #'
-    #' @return (`data.frame`)
+    #' @return (`andromeda`)
     fetchCohortTable = function(cohorts, cohortTableName, andromeda, andromedaTableName, minEraDuration = NULL) {
       switch(
         private$.type,
@@ -73,21 +73,37 @@ CDMInterface <- R6::R6Class(
         DatabaseConnector = private$dbconFetchCohortTable(cohorts, cohortTableName, andromeda, andromedaTableName, minEraDuration)
       )
     },
-    
+
     #' @description
-    #' Fetch metadata from CDM
+    #' Fetch cdm_source from CDM
     #'
     #' @template param_andromeda
     #'
-    #' @return (`invisible(NULL)`)
-    fetchMetadata = function(andromeda) {
+    #' @return (`andromeda`)
+    fetchCdmSource = function(andromeda) {
       switch(
         private$.type,
-        CDMConnector = private$cdmconFetchMetadata(andromeda),
-        DatabaseConnector = private$dbconFetchMetadata(andromeda)
+        CDMConnector = private$cdmconFetchCdmSource(andromeda),
+        DatabaseConnector = private$dbconFetchCdmSource(andromeda)
       )
     },
-    
+
+    #' @description
+    #' Fetch meta data from CDM
+    #'
+    #' @template param_andromeda
+    #'
+    #' @return (`andromeda`)
+    fetchMetadata = function(andromeda) {
+      andromeda$metadata <- data.frame(
+        execution_start = as.numeric(Sys.time()),
+        package_version = as.character(utils::packageVersion("TreatmentPatterns")),
+        r_version = base::version$version.string,
+        platform = base::version$platform
+      )
+      return(andromeda)
+    },
+
     #' @description
     #' Destroys instance
     #' 
@@ -127,10 +143,10 @@ CDMInterface <- R6::R6Class(
       appendAttrition(
         toAdd = data.frame(
           number_records = sum(n),
-          number_subject = length(n),
+          number_subjects = length(n),
           reason_id = 1,
           reason = sprintf("Qualifying records for cohort definitions: %s", paste(cohortIds, collapse = ", ")),
-          time = as.numeric(Sys.time())
+          time_stamp = as.numeric(Sys.time())
         ),
         andromeda = andromeda
       )
@@ -186,26 +202,19 @@ CDMInterface <- R6::R6Class(
       appendAttrition(
         toAdd = data.frame(
           number_records = sum(n),
-          number_subject = length(n),
+          number_subjects = length(n),
           reason_id = 2,
           reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
-          time = as.numeric(Sys.time())
+          time_stamp = as.numeric(Sys.time())
         ),
         andromeda = andromeda
       )
       return(andromeda)
     },
 
-    dbconFetchMetadata = function(andromeda) {
+    dbconFetchCdmSource = function(andromeda) {
       renderedSql <- SqlRender::render(
-        sql = "
-        SELECT
-          cdm_source_name,
-          cdm_source_abbreviation,
-          cdm_release_date,
-          vocabulary_version
-        FROM @cdmSchema.cdm_source
-      ;",
+        sql = "SELECT * FROM @cdmSchema.cdm_source;",
         cdmSchema = private$.cdmSchema
       )
 
@@ -214,17 +223,12 @@ CDMInterface <- R6::R6Class(
         targetDialect = private$.connection@dbms
       )
 
-      andromeda$metadata <- DatabaseConnector::querySql(
+      DatabaseConnector::querySqlToAndromeda(
         connection = private$.connection,
         sql = translatedSql,
-        snakeCaseToCamelCase = TRUE) %>%
-        dplyr::mutate(
-          executionStartDate = as.character(Sys.Date()),
-          packageVersion = as.character(utils::packageVersion("TreatmentPatterns")),
-          rVersion = base::version$version.string,
-          platform = base::version$platform
-        )
-      
+        andromeda = andromeda,
+        andromedaTableName = "cdm_source_info"
+      )
       return(andromeda)
     },
     
@@ -299,10 +303,10 @@ CDMInterface <- R6::R6Class(
       appendAttrition(
         toAdd = data.frame(
           number_records = sum(n),
-          number_subject = length(n),
+          number_subjects = length(n),
           reason_id = 2,
           reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
-          time = as.numeric(Sys.time())
+          time_stamp = as.numeric(Sys.time())
         ),
         andromeda = andromeda
       )
@@ -310,22 +314,10 @@ CDMInterface <- R6::R6Class(
     },
     
     # andromeda (`Andromeda::andromeda()`)
-    cdmconFetchMetadata = function(andromeda) {
-      andromeda$metadata <- private$.cdm$cdm_source %>%
-        dplyr::select(
-          "cdm_source_name",
-          "cdm_source_abbreviation",
-          "cdm_release_date",
-          "vocabulary_version"
-        ) %>%
-        dplyr::collect() %>%
-        SqlRender::snakeCaseToCamelCaseNames() %>%
-        dplyr::mutate(
-          executionStartDate = as.character(Sys.Date()),
-          packageVersion = as.character(utils::packageVersion("TreatmentPatterns")),
-          rVersion = base::version$version.string,
-          platform = base::version$platform
-        )
+    cdmconFetchCdmSource = function(andromeda) {
+      cdmSource <- private$.cdm$cdm_source %>%
+        dplyr::collect()
+      andromeda$cdm_source_info <- cdmSource
       return(andromeda)
     }
   ),

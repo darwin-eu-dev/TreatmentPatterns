@@ -7,7 +7,7 @@
 Class to handle the Sunburst plot of TreatmentPatterns.
 }
 \section{Super classes}{
-\code{\link[TreatmentPatterns:ShinyModule]{TreatmentPatterns::ShinyModule}} -> \code{TreatmentPatterns::InteracitvePlot} -> \code{SunburstPlot}
+\code{TreatmentPatterns::ShinyModule} -> \code{TreatmentPatterns::InteracitvePlot} -> \code{SunburstPlot}
 }
 \section{Methods}{
 \subsection{Public methods}{

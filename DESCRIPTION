@@ -68,6 +68,7 @@ Collate:
     'ShinyApp.R'
     'SunburstPlot.R'
     'TreatmentPatterns-package.R'
+    'TreatmentPatternsResults.R'
     'attrition.R'
     'computePathways.R'
     'constructPathways.R'
@@ -75,4 +76,5 @@ Collate:
     'createSunburstPlot.R'
     'executeTreatmentPatterns.R'
     'export.R'
+    'getResultsDataModelSpecification.R'
     'plotEventDuration.R'

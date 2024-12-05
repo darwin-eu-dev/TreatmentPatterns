@@ -1,0 +1,52 @@
+tableName;columnName;dataType;isRequired;primaryKey;description
+attrition;number_records;int;yes;no;Number of records
+attrition;number_subjects;int;yes;no;Number of subjects
+attrition;reason_id;int;yes;no;Reason Identifier
+attrition;reason;varchar;yes;no;Reason description
+attrition;time;bigint;yes;no;Time stamp in seconds since epoch (1970-01-01)
+attrition;analysis_id;int;yes;no;Analysis identifier foreign key
+counts_age;age;int;yes;no;Age in years
+counts_age;n;varchar;yes;no;"Count per age, may be ""<x"""
+counts_age;analysis_id;int;yes;no;Analysis identifier foreign key
+counts_sex;sex;varchar;yes;no;Sex group
+counts_sex;n;varchar;yes;no;"Count per sex, may be ""<x"""
+counts_sex;analysis_id;int;yes;no;Analysis identifier foreign key
+counts_year;year;int;yes;no;Calendar year
+counts_year;n;varchar;yes;no;"Count per year, may be ""<x"""
+counts_year;analysis_id;int;yes;no;Analysis identifier foreign key
+metadata;execution_start;bigint;yes;no;Time stamp in seconds since epoch (1970-01-01)
+metadata;package_version;varchar;yes;no;TreatmentPatterns version
+metadata;r_version;varchar;yes;no;R version
+metadata;platform;varchar;yes;no;Platform (Example: x86_64-w64-mingw32)
+metadata;execution_end;bigint;yes;no;Time stamp in seconds since epoch (1970-01-01)
+metadata;analysis_id;int;yes;no;Analysis identifier foreign key
+summary_event_duration;event_name;varchar;yes;no;Name of (combination) event
+summary_event_duration;min;int;yes;no;Minimum duration in days
+summary_event_duration;q1;int;yes;no;Q1 duration in days
+summary_event_duration;median;int;yes;no;Median duration in days
+summary_event_duration;q2;int;yes;no;Q2 duration in days
+summary_event_duration;max;int;yes;no;Maximum duration in days
+summary_event_duration;average;float;yes;no;Average duration in days
+summary_event_duration;sd;float;yes;no;Standard Deviation of duration in days
+summary_event_duration;count;int;yes;no;Count of (combination) event
+summary_event_duration;line;varchar;yes;no;Position in pathway. I.e. 1 equals the first event in a pathway. 2 the second, etc. Overall indicates across the entire pathway
+summary_event_duration;analysis_id;int;yes;no;Analysis identifier foreign key
+treatment_pathways;path;varchar;yes;no;Pathway
+treatment_pathways;freq;int;yes;no;Count of pathway
+treatment_pathways;age;varchar;yes;no;Age stratum
+treatment_pathways;sex;varchar;yes;no;Sex stratum
+treatment_pathways;index_year;varchar;yes;no;Target index year stratum
+treatment_pathways;analysis_id;int;yes;no;Analysis identifier foreign key
+cdm_source_info;cdm_source_name;varchar;yes;no;CDM Source Name
+cdm_source_info;cdm_source_abbreviation;varchar;yes;no;CDM Source Abbreviation
+cdm_source_info;cdm_holder;varchar;yes;no;Cdm holder
+cdm_source_info;source_description;varchar;yes;no;Source description
+cdm_source_info;source_documentation_reference;varchar;yes;no;Source Documentation Reference
+cdm_source_info;cdm_etl_reference;varchar;yes;no;CDM ETL Reference
+cdm_source_info;source_release_date;date;yes;no;Source release date
+cdm_source_info;cdm_release_date;date;yes;no;CDM release date
+cdm_source_info;cdm_version;varchar;yes;no;CDM version
+cdm_source_info;vocabulary_version;varchar;yes;no;Vocabulary version
+cdm_source_info;analysis_id;int;yes;no;Analysis identifier foreign key
+analyses;analysis_id;int;yes;no;Analysis identifier
+analyses;description;varchar;yes;no;Analysis description

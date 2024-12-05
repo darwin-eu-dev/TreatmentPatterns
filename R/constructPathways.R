@@ -243,7 +243,7 @@ createTreatmentHistory <- function(
   appendAttrition(
     toAdd = data.frame(
       number_records = attrCounts$nRecords,
-      number_subject = attrCounts$nSubjects,
+      number_subjects = attrCounts$nSubjects,
       reason_id = 3,
       reason = sprintf("Removing events where index date < target index date + indexDateOffset (%s)", indexDateOffset)
     ),
@@ -312,7 +312,7 @@ doSplitEventCohorts <- function(
   appendAttrition(
     toAdd = data.frame(
       number_records = attrCounts$nRecords,
-      number_subject = attrCounts$nSubjects,
+      number_subjects = attrCounts$nSubjects,
       reason_id = 4,
       reason = sprintf("splitEventCohorts")
     ),
@@ -368,7 +368,7 @@ doEraCollapse <- function(andromeda, eraCollapseSize) {
   appendAttrition(
     toAdd = data.frame(
       number_records = attrCounts$nRecords,
-      number_subject = attrCounts$nSubjects,
+      number_subjects = attrCounts$nSubjects,
       reason_id = 5,
       reason = sprintf("Collapsing eras, eraCollapse (%s)", eraCollapseSize)
     ),
@@ -568,7 +568,7 @@ doCombinationWindow <- function(
     appendAttrition(
       toAdd = data.frame(
         number_records = attrCounts$nRecords,
-        number_subject = attrCounts$nSubjects,
+        number_subjects = attrCounts$nSubjects,
         reason_id = 6,
         reason = sprintf("Iteration %s: minPostCombinationDuration (%s), combinatinoWindow (%s)", iterations, minPostCombinationDuration, combinationWindow)
       ),
@@ -589,7 +589,7 @@ doCombinationWindow <- function(
   appendAttrition(
     toAdd = data.frame(
       number_records = attrCounts$nRecords,
-      number_subject = attrCounts$nSubjects,
+      number_subjects = attrCounts$nSubjects,
       reason_id = 7,
       reason = sprintf("After Combination")
     ),
@@ -729,7 +729,7 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
   appendAttrition(
     toAdd = data.frame(
       number_records = attrCounts$nRecords,
-      number_subject = attrCounts$nSubjects,
+      number_subjects = attrCounts$nSubjects,
       reason_id = 8,
       reason = sprintf("filterTreatments (%s)", filterTreatments)
     ),

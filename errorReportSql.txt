@@ -1,0 +1,38 @@
+DBMS:
+duckdb
+
+Error:
+rapi_prepare: Failed to prepare query SELECT DISTINCT analysis_id FROM main.tp_analyses
+Error: Catalog Error: Table with name tp_analyses does not exist!
+Did you mean "information_schema.tables"?
+LINE 1: SELECT DISTINCT analysis_id FROM main.tp_analyses
+                                         ^
+
+SQL:
+SELECT DISTINCT analysis_id FROM main.tp_analyses;
+
+R version:
+R version 4.4.1 (2024-06-14 ucrt)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- TreatmentPatterns (2.7.0)
+- testthat (3.2.1.1)
+- CDMConnector (1.5.0)
+- dplyr (1.1.4)
+- ResultModelManager (0.5.9)
+- DatabaseConnector (6.3.2)
+- R6 (2.5.1)
+- duckdb (1.0.0-2)
+- DBI (1.2.3)

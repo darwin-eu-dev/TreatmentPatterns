@@ -7,7 +7,7 @@
 Class to handle the Sankey diagram of TreatmentPatterns.
 }
 \section{Super classes}{
-\code{\link[TreatmentPatterns:ShinyModule]{TreatmentPatterns::ShinyModule}} -> \code{TreatmentPatterns::InteracitvePlot} -> \code{SankeyDiagram}
+\code{TreatmentPatterns::ShinyModule} -> \code{TreatmentPatterns::InteracitvePlot} -> \code{SankeyDiagram}
 }
 \section{Methods}{
 \subsection{Public methods}{

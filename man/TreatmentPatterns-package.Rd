@@ -12,6 +12,7 @@ Computes treatment patterns within a given cohort using the Observational Medica
 Useful links:
 \itemize{
   \item \url{https://github.com/darwin-eu/TreatmentPatterns}
+  \item \url{https://darwin-eu-dev.github.io/TreatmentPatterns/}
   \item Report bugs at \url{https://github.com/darwin-eu/TreatmentPatterns/issues}
 }
 

@@ -12,23 +12,23 @@ fetchAttritionCounts <- function(andromeda, table = "treatmentHistory") {
 initAttrition <- function(andromeda) {
   andromeda$attrition <- data.frame(
     number_records = numeric(0),
-    number_subject = numeric(0),
+    number_subjects = numeric(0),
     reason_id = numeric(0),
     reason = character(0),
-    time = numeric(0)
+    time_stamp = numeric(0)
   )
 }
 
 appendAttrition <- function(toAdd, andromeda) {
   if (is.null(andromeda$attrition)) initAttrition(andromeda)
   
-  toAdd$time <- as.numeric(Sys.time())
-
+  toAdd$time_stamp <- as.numeric(Sys.time())
+  
   andromeda$attrition <- dplyr::rows_append(
     x = andromeda$attrition,
     y = toAdd,
     copy = TRUE
   )
 
-  message(sprintf("-- %s\n\tRecords: %s\n\tSubjects: %s", toAdd$reason, toAdd$number_records, toAdd$number_subject))
+  message(sprintf("-- %s\n\tRecords: %s\n\tSubjects: %s", toAdd$reason, toAdd$number_records, toAdd$number_subjects))
 }
