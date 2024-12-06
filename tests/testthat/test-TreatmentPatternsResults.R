@@ -146,12 +146,15 @@ test_that("Method: uploadResultsToDb()", {
   skip_if_not(require("DatabaseConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
   skip_if_not(require("ResultModelManager", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
 
+  results <- TreatmentPatternsResults$new()
+  results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
+
   tempDir <- file.path(tempdir(), "test-uploadToDb")
   dir.create(tempDir, showWarnings = FALSE, recursive = TRUE)
 
   connectionDetails <- DatabaseConnector::createConnectionDetails(
     dbms = "sqlite",
-    server = "db.sqlite"
+    server = file.path(tempDir, "db.sqlite")
   )
 
   suppressWarnings(
