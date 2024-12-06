@@ -31,6 +31,17 @@ test_that("Method: new(csvDirPath)", {
   expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
+
+  result <- TreatmentPatternsResults$new(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
+  expect_s3_class(result$analyses, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$cdm_source_info, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$counts_year, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$counts_sex, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$counts_age, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$summary_event_duration, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
 })
 
 test_that("Method: new(zipFile)", {
@@ -45,6 +56,21 @@ test_that("Method: new(zipFile)", {
   expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
+
+  result <- TreatmentPatternsResults$new(filePath = system.file(package = "TreatmentPatterns", "DummyOutput", "output.zip"))
+  expect_s3_class(result$analyses, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$cdm_source_info, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$counts_year, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$counts_sex, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$counts_age, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$summary_event_duration, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
+})
+
+test_that("Method: new(wrongFile)", {
+  expect_error(TreatmentPatternsResults$new(filePath = "some/file.xyz"))
 })
 
 test_that("Method: plotEventDuration()", {
@@ -60,8 +86,10 @@ test_that("Method: plotSankey()", {
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
   
-  sankey <- results$plotSankey()
-  
+  sankey <- results$plotSankey(nonePaths = TRUE)
+  expect_s3_class(sankey, class = c("sankeyNetwork", "htmlwidget"))
+
+  sankey <- results$plotSankey(nonePaths = FALSE)
   expect_s3_class(sankey, class = c("sankeyNetwork", "htmlwidget"))
 })
 
@@ -69,8 +97,10 @@ test_that("Method: plotSunburst()", {
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
   
-  sunburst <- results$plotSunburst()
-  
+  sunburst <- results$plotSunburst(nonePaths = TRUE)
+  expect_s3_class(sunburst, class = c("sunburst", "htmlwidget"))
+
+  sunburst <- results$plotSunburst(nonePaths = FALSE)
   expect_s3_class(sunburst, class = c("sunburst", "htmlwidget"))
 })
 
@@ -109,5 +139,38 @@ test_that("Method: saveAsZip()", {
     list.files(tempDir) %in% "output.zip"
   ))
 
+  unlink(tempDir, recursive = TRUE)
+})
+
+test_that("Method: uploadResultsToDb()", {
+  skip_if_not(require("DatabaseConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
+
+  tempDir <- file.path(tempdir(), "test-uploadToDb")
+  dir.create(tempDir, showWarnings = FALSE, recursive = TRUE)
+
+  connectionDetails <- DatabaseConnector::createConnectionDetails(
+    dbms = "sqlite",
+    server = "db.sqlite"
+  )
+
+  suppressWarnings(
+    results$uploadResultsToDb(
+    connectionDetails = connectionDetails,
+    schema = "main",
+    prefix = "tp_",
+    overwrite = TRUE
+    )
+  )
+
+  con <- DatabaseConnector::connect(connectionDetails)
+
+  tableNames <- DatabaseConnector::renderTranslateQuerySql(con, "SELECT name FROM sqlite_master WHERE type='table';")
+  tableNames <- substr(tableNames$NAME, start = 4, 100)
+
+  for (name in tableNames) {
+    expect_s3_class(results[[name]], class = "data.frame")
+  }
+
+  DatabaseConnector::disconnect(con)
   unlink(tempDir, recursive = TRUE)
 })

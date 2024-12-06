@@ -42,13 +42,13 @@ Suggests:
     DatabaseConnector (>= 6.0.0),
     SqlRender,
     CohortGenerator,
+    ResultModelManager,
     webshot2,
     CirceR,
     duckdb,
     DBI,
     withr,
-    plotly,
-    Capr
+    plotly
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
