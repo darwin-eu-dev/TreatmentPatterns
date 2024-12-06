@@ -48,7 +48,8 @@ Suggests:
     duckdb,
     DBI,
     withr,
-    plotly
+    plotly,
+    DiagrammeR
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
