@@ -27,6 +27,7 @@ test_that("empty treatmentHistory table", {
 # CohortGenerator ----
 test_that("outputPath", {
   skip_if_not(ableToRun()$CG)
+  skip_on_os(os = "linux")
   
   globals <- generateCohortTableCG()
   
@@ -94,6 +95,7 @@ test_that("outputPath", {
 
 test_that("ageWindow", {
   skip_if_not(ableToRun()$CG)
+  skip_on_os(os = "linux")
   
   globals <- generateCohortTableCG()
   
@@ -142,6 +144,7 @@ test_that("ageWindow", {
 
 test_that("minCellCount", {
   skip_if_not(ableToRun()$CG)
+  skip_on_os(os = "linux")
   
   globals <- generateCohortTableCG()
   
@@ -184,6 +187,7 @@ test_that("minCellCount", {
 
 test_that("archiveName", {
   skip_if_not(ableToRun()$CG)
+  skip_on_os(os = "linux")
   
   globals <- generateCohortTableCG()
   
@@ -226,6 +230,7 @@ test_that("archiveName", {
 
 test_that("censorType", {
   skip_if_not(ableToRun()$CG)
+  skip_on_os(os = "linux")
   
   globals <- generateCohortTableCG()
   

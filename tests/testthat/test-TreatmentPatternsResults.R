@@ -144,6 +144,7 @@ test_that("Method: saveAsZip()", {
 
 test_that("Method: uploadResultsToDb()", {
   skip_if_not(require("DatabaseConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
+  skip_if_not(require("ResultModelManager", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
 
   tempDir <- file.path(tempdir(), "test-uploadToDb")
   dir.create(tempDir, showWarnings = FALSE, recursive = TRUE)

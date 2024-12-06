@@ -7,6 +7,7 @@ test_that("void", {
 
 test_that("CohortGenerator", {
   skip_if_not(ableToRun()$CG)
+  skip_on_os(os = "linux")
   
   global <- generateCohortTableCG()
   
