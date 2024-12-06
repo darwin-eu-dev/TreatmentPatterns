@@ -1,5 +1,5 @@
 ---
-title: "PaRe Report: TreatmentPatterns [2.7.0]"
+title: "PaRe Report: TreatmentPatterns [2.7.1]"
 author: "`r paste('PaRe', packageVersion('PaRe'))`"
 date: "`r Sys.Date()`"
 output:

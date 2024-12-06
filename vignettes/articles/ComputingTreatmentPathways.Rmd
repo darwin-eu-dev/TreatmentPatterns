@@ -256,11 +256,8 @@ The `export` function allows us to export the generated result objects from `com
 ### minCellCount and censorType
 Let's say we are only able to share results of groups of subjects that have at least 5 subjects in them.
 ```{r minCellCount}
-tempDir <- tempdir()
-
-export(
+results <- export(
   andromeda = defaultSettings,
-  outputPath = file.path(tempDir, "default"),
   minCellCount = 5
 )
 ```
@@ -269,9 +266,8 @@ We can also choose between different methods how to handle pathways that fall be
 
 We could say we want to censor all pathways that fall below the `minCellCount` to be censored _to_ the `minCellCount`.
 ```{r censorType_cellCount}
-export(
+resultsA <- export(
   andromeda = minEra60,
-  outputPath = file.path(tempDir, "minEra60_cellCount"),
   minCellCount = 5,
   censorType = "minCellCount"
 )
@@ -279,9 +275,8 @@ export(
 
 Or we could completely remove them
 ```{r censorType_remove}
-export(
+resultsB <- export(
   andromeda = minEra60,
-  outputPath = file.path(tempDir, "minEra60_remove"),
   minCellCount = 5,
   censorType = "remove"
 )
@@ -289,9 +284,8 @@ export(
 
 Or finally we can censor them as the mean of all the groups that fall below the `minCellCount`.
 ```{r censorType_mean}
-export(
+resultsC <- export(
   andromeda = minEra60,
-  outputPath = file.path(tempDir, "minEra60_mean"),
   minCellCount = 5,
   censorType = "mean"
 )
@@ -300,9 +294,8 @@ export(
 ### ageWindow
 We can also specify an age window.
 ```{r ageWindow3}
-export(
+resultsD <- export(
   andromeda = splitAcuteTherapy,
-  outputPath = file.path(tempDir, "splitAcuteTherapy_ageWindow3"),
   minCellCount = 5,
   censorType = "mean",
   ageWindow = 3
@@ -311,9 +304,8 @@ export(
 
 Or a collection of ages.
 ```{r ageWindowMultiple}
-export(
+resultsE <- export(
   andromeda = splitAcuteTherapy,
-  outputPath = file.path(tempDir, "splitAcuteTherapy_ageWindowMultiple"),
   minCellCount = 5,
   censorType = "mean",
   ageWindow = c(0, 18, 25, 30, 40, 50, 60, 150)
@@ -323,9 +315,8 @@ export(
 ### archiveName
 Finally we can also specify an `archiveName` which is the name of a zip-file to zip all our output csv-files to.
 ```{r archiveName}
-export(
+resultsF <- export(
   andromeda = includeEndDate,
-  outputPath = file.path(tempDir, "includeEndDate"),
   minCellCount = 5,
   censorType = "mean",
   ageWindow = 3,
@@ -335,10 +326,9 @@ export(
 ## All-in-one
 Instead of using `computePathways` and `export`, instead we could use `executeTreatmentPatterns`. Which is an all-in-one function that trades full control for convenience.
 ```{r executeTreatmentPatternsCDMConnector}
-executeTreatmentPatterns(
+resultsG <- executeTreatmentPatterns(
   cohorts = cohorts,
   cohortTableName = "cohort_table",
-  outputPath = file.path(tempDir, "all-in-one"),
   cdm = cdm,
   minEraDuration = 0,
   eraCollapseSize = 30,
@@ -352,7 +342,6 @@ When using `DatabaseConnector` we can substitute the `cdm` object with `connecti
 executeTreatmentPatterns(
   cohorts = cohorts,
   cohortTableName = "cohort_table",
-  outputPath = file.path(tempDir, "all-in-one"),
   connectionDetails = Eunomia::getEunomiaConnectionDetails(),
   cdmSchema = "main",
   resultSchema = "main",
@@ -370,71 +359,48 @@ Now that we have exported our output, in various ways, we can evaluate the outpu
 ### treatmentPathways
 The treatmentPathways file contains all the pathways found, with a frequency, pairwise stratified by age group, sex and index year.
 ```{r readTreatmentPathways}
-treatmentPathways <- read.csv(file.path(tempDir, "default", "treatmentPathways.csv"))
-head(treatmentPathways)
-```
-
-We are able to filter based on the strata, and filter on a frequency > 5.
-```{r treatmentPathwaysAll}
-all <- treatmentPathways %>%
-  filter(
-    age == "all",
-    sex == "all",
-    indexYear == "all",
-    freq > 5
-  )
+results$treatment_pathways
 ```
 We can see the pathways contain the treatment names we provided in our event cohorts. Besides that we also see the paths are annoted with a `+` or `-`. The `+` indicates two treatments are a combination therapy, i.e. `Acetaminophen+Amoxicillin` is a combination of _Acetaminophen_ and _Amoxicillin_. The `-` indicates a switch between treatments, i.e. `Aspirin-Acetaminophen` is a switch from _Aspirin_ to _Acetaminophen_. Note that these combinations and switches can occur in the same pathway, i.e. `Amoxicillin+Clavulanate-Aspirin`. The first treatment is a combination of _Amoxicillin_ and _Clavulanate_ that switches to _Aspirin_.
 
 ### countsAge, countsSex, and countsYear
 The countsAge, countsSex, and countsYear contain counts per age, sex, and index year.
 ```{r counts}
-age <- read.csv(file.path(tempDir, "default", "countsAge.csv"))
-sex <- read.csv(file.path(tempDir, "default", "countsSex.csv"))
-year <- read.csv(file.path(tempDir, "default", "countsYear.csv"))
-
-head(age)
-head(sex)
-head(year)
+head(results$counts_age)
+head(results$counts_sex)
+head(results$counts_year)
 ```
+
 ### summaryStatsTherapyDuration
 The summaryEventDuration file contains summary statistics from different events, across all found "lines". A "line" is equal to the level in the Sunburst or Sankey diagrams. The summary statistics allow for plotting of boxplots with the `plotEventDuration()` function.
 ```{r summaryStatsTherapyDuration}
-eventDuration <- read.csv(file.path(tempDir, "default", "summaryEventDuration.csv"))
-
-plotEventDuration(
-  eventDurations = eventDuration,
-  minCellCount = 5,
-  treatmentGroups = "both",
-  eventLines = NULL,
-  includeOverall = TRUE
-)
+results$plotEventDuration()
 ```
-
+Or we can use the function
+```{r}
+plotEventDuration(results$summary_event_duration)
+```
 
 ### metadata
 The metadata file is a file that contains information about the circumstances the analysis was performed in, and information about R, and the CDM.
 ```{r metadata}
-read.csv(file.path(tempDir, "default", "metadata.csv"))
+results$metadata
 ```
 
 ### Sunburst Plot & Sankey Diagram
 From the filtered treatmentPathways file we are able to create a sunburst plot.
 ```{r sunburstPlot}
-createSunburstPlot(treatmentPathways = all, legend = list(w = 300))
+results$plotSunburst()
 ```
 
 Or a Sankey Diagram.
 ```{r sankeyDiagram}
-createSankeyDiagram(all)
+results$plotSankey()
 ```
 
 Both plots are interactive in an HTML-environment, and are easy to include in shiny applications.
 
 ```{r cleanup, include=FALSE}
-# Remove temp files
-unlink(tempDir, recursive = TRUE)
-
 # Close Andromeda objects
 Andromeda::close(defaultSettings)
 Andromeda::close(minEra60)
