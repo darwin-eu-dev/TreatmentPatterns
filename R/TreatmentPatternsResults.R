@@ -100,33 +100,43 @@ TreatmentPatternsResults <- R6::R6Class(
     #'
     #' @param path (`character(1)`) Path to write to.
     #' @param name (`character(1)`) File name.
+    #' @param verbose (`logical`: `TRUE`) Verbose messaging.
     #'
     #' @return `self`
-    saveAsZip = function(path, name) {
+    saveAsZip = function(path, name, verbose = TRUE) {
       assertions <- checkmate::makeAssertCollection()
       checkmate::assertCharacter(path, len = 1, add = assertions)
       checkmate::assertCharacter(name, len = 1, add = assertions)
       checkmate::reportAssertions(assertions)
 
+      dir.create(path, showWarnings = FALSE, recursive = TRUE)
+
       tempDir <- file.path(tempdir(), "tp-csv")
       dir.create(tempDir, showWarnings = FALSE, recursive = TRUE)
       outputPath <- file.path(path, name)
-      self$saveAsCsv(path = tempDir)
+      self$saveAsCsv(path = tempDir, verbose = FALSE)
       invisible(zip(zipfile = outputPath, files = list.files(tempDir, full.names = TRUE), flags = "-j"))
       unlink(tempDir, recursive = TRUE)
+
+      if (verbose) {
+        message(sprintf("Wrote zip-file to: %s", path))
+      }
       return(invisible(self))
     },
-
+    
     #' @description
     #' Save the results as csv-files.
     #'
     #' @param path (`character(1)`) Path to write to.
+    #' @param verbose (`logical`: `TRUE`) Verbose messaging.
     #'
     #' @return `self`
-    saveAsCsv = function(path) {
+    saveAsCsv = function(path, verbose = TRUE) {
       assertions <- checkmate::makeAssertCollection()
       checkmate::assertCharacter(path, len = 1, add = assertions)
       checkmate::reportAssertions(assertions)
+
+      dir.create(path, showWarnings = FALSE, recursive = TRUE)
 
       write.csv(private$.attrition, file.path(path, "attrition.csv"), row.names = FALSE)
       write.csv(private$.metadata, file.path(path, "metadata.csv"), row.names = FALSE)
@@ -137,9 +147,13 @@ TreatmentPatternsResults <- R6::R6Class(
       write.csv(private$.countsYear, file.path(path, "counts_year.csv"), row.names = FALSE)
       write.csv(private$.cdmSourceInfo, file.path(path, "cdm_source_info.csv"), row.names = FALSE)
       write.csv(private$.analyses, file.path(path, "analyses.csv"), row.names = FALSE)
+      
+      if (verbose) {
+        message(sprintf("Wrote csv-files to: %s", path))
+      }
       return(invisible(self))
     },
-
+    
     #' @description
     #' Upload results to a resultsDatabase using `ResultModelManager`.
     #'
@@ -147,6 +161,7 @@ TreatmentPatternsResults <- R6::R6Class(
     #' @param schema (`character(1)`) Schema to write tables to.
     #' @param prefix (`character(1)`: `"tp_"`) Table prefix.
     #' @param overwrite (`logical(1)`: `TRUE`) Should tables be overwritten?
+    #' @param purgeSiteDataBeforeUploading (`logical`: `FALSE`) Should site data be purged before uploading?
     #'
     #' @return `self`
     uploadResultsToDb = function(connectionDetails, schema, prefix = "tp_", overwrite = TRUE, purgeSiteDataBeforeUploading = FALSE) {
@@ -156,18 +171,18 @@ TreatmentPatternsResults <- R6::R6Class(
       checkmate::assertCharacter(prefix, len = 1, add = assertions)
       checkmate::assertLogical(overwrite, len = 1, add = assertions)
       checkmate::reportAssertions(assertions)
-
+      
       rmmInstalled <- require(
         "ResultModelManager",
         character.only = TRUE,
         quietly = TRUE,
         warn.conflicts = FALSE
       )
-
+      
       if (rmmInstalled) {
         tempDir <- file.path(tempdir(), "tp-db")
         dir.create(tempDir, showWarnings = FALSE, recursive = TRUE)
-        self$saveAsCsv(path = tempDir)
+        self$saveAsCsv(path = tempDir, verbose = FALSE)
         ResultModelManager::uploadResults(
           connectionDetails = connectionDetails,
           specifications = getResultsDataModelSpecifications(),
@@ -182,7 +197,7 @@ TreatmentPatternsResults <- R6::R6Class(
       unlink(tempDir, recursive = TRUE)
       return(invisible(self))
     },
-
+    
     #' @description
     #' Load data from files.
     #'
@@ -193,7 +208,7 @@ TreatmentPatternsResults <- R6::R6Class(
       assertions <- checkmate::makeAssertCollection()
       checkmate::assertCharacter(filePath, len = 1, add = assertions)
       checkmate::reportAssertions(assertions)
-
+      
       type <- private$assertSource(filePath)
       switch(
         type,
@@ -202,7 +217,7 @@ TreatmentPatternsResults <- R6::R6Class(
       )
       return(invisible(self))
     },
-
+    
     #' @description
     #' Wrapper for `TreatmentPatterns::createSunburstPlot()`, but with data filtering step.
     #'
@@ -220,18 +235,18 @@ TreatmentPatternsResults <- R6::R6Class(
       checkmate::assertCharacter(indexYear, len = 1, add = assertions)
       checkmate::assertLogical(nonePaths, len = 1, add = assertions)
       checkmate::reportAssertions(assertions)
-
+      
       none <- if (nonePaths) {
         ""
       } else {
         "None"
       }
-
+      
       private$.treatmentPathways |>
         private$filterData(age, sex, indexYear, none) |>
         TreatmentPatterns::createSunburstPlot(...)
     },
-
+    
     #' @description
     #' Wrapper for `TreatmentPatterns::createSankeyDiagram()`, but with data filtering step.
     #'
@@ -249,18 +264,18 @@ TreatmentPatternsResults <- R6::R6Class(
       checkmate::assertCharacter(indexYear, len = 1, add = assertions)
       checkmate::assertLogical(nonePaths, len = 1, add = assertions)
       checkmate::reportAssertions(assertions)
-
+      
       none <- if (nonePaths) {
         ""
       } else {
         "None"
       }
-
+      
       private$.treatmentPathways |>
         private$filterData(age, sex, indexYear, none) |>
         TreatmentPatterns::createSankeyDiagram(...)
     },
-
+    
     #' @description
     #' Wrapper for `TreatmentPatterns::plotEventDuration()`.
     #'
@@ -272,7 +287,7 @@ TreatmentPatternsResults <- R6::R6Class(
         TreatmentPatterns::plotEventDuration(...)
     }
   ),
-
+  
   # Private ----
   private = list(
     ## Fields ----
@@ -285,7 +300,7 @@ TreatmentPatternsResults <- R6::R6Class(
     .countsYear = NULL,
     .cdmSourceInfo = NULL,
     .analyses = NULL,
-
+    
     ## Methods ----
     assertSource = function(filePath) {
       if (endsWith(tolower(filePath), suffix = ".zip")) {
@@ -296,7 +311,7 @@ TreatmentPatternsResults <- R6::R6Class(
         stop("Cannot assert type. A zip-file or a directory containing csv-files are supported")
       }
     },
-
+    
     loadZip = function(filePath) {
       fileNames <- unzip(zipfile = filePath, list = TRUE)$Name
       files <- lapply(fileNames, function(file) {
@@ -305,7 +320,7 @@ TreatmentPatternsResults <- R6::R6Class(
           read.csv()
       })
       names(files) <- fileNames
-
+      
       private$.attrition <- files$attrition.csv
       private$.metadata <- files$metadata.csv
       private$.treatmentPathways <- files$treatment_pathways.csv
@@ -316,7 +331,7 @@ TreatmentPatternsResults <- R6::R6Class(
       private$.cdmSourceInfo <- files$cdm_source_info.csv
       private$.analyses <- files$analyses.csv
     },
-
+    
     loadCsv = function(filePath) {
       private$.attrition <- read.csv(file.path(filePath, "attrition.csv"))
       private$.metadata <- read.csv(file.path(filePath, "metadata.csv"))
@@ -326,16 +341,16 @@ TreatmentPatternsResults <- R6::R6Class(
       private$.countsSex <- read.csv(file.path(filePath, "counts_sex.csv"))
       private$.countsYear <- read.csv(file.path(filePath, "counts_year.csv"))
       private$.cdmSourceInfo <- read.csv(file.path(filePath, "cdm_source_info.csv"))
-      private$.analyses <- read.csv(file.path(filepath, "analyses.csv"))
+      private$.analyses <- read.csv(file.path(filePath, "analyses.csv"))
     },
-
+    
     filterData = function(data, age, sex, indexYear, none) {
       data %>%
         dplyr::filter(
           .data$age == age,
           .data$sex == sex,
-          .data$indexYear == indexYear,
-          .data$path != none
+          .data$index_year == indexYear,
+          .data$pathway != none
         )
     }
   )

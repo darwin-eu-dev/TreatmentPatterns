@@ -23,6 +23,10 @@ to a file. Plotting methods are provided.
 \item{\code{counts_sex}}{(\code{data.frame})}
 
 \item{\code{counts_year}}{(\code{data.frame})}
+
+\item{\code{cdm_source_info}}{(\code{data.frame})}
+
+\item{\code{analyses}}{(\code{data.frame})}
 }
 \if{html}{\out{</div>}}
 }
@@ -54,6 +58,8 @@ Initializer method
   countsAge = NULL,
   countsSex = NULL,
   countsYear = NULL,
+  cdmSourceInfo = NULL,
+  analyses = NULL,
   filePath = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -75,6 +81,10 @@ Initializer method
 
 \item{\code{countsYear}}{(\verb{data.frame)}) countsYear result.}
 
+\item{\code{cdmSourceInfo}}{(\code{data.frame}) cdmSourceInfo result.}
+
+\item{\code{analyses}}{(\code{data.frame}) Analyses result.}
+
 \item{\code{filePath}}{(\code{character}) File path to either a directory or zip-file, containing the csv-files.}
 }
 \if{html}{\out{</div>}}
@@ -86,7 +96,7 @@ Initializer method
 \subsection{Method \code{saveAsZip()}}{
 Save the results as a zip-file.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TreatmentPatternsResults$saveAsZip(path, name)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TreatmentPatternsResults$saveAsZip(path, name, verbose = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -95,6 +105,8 @@ Save the results as a zip-file.
 \item{\code{path}}{(\code{character(1)}) Path to write to.}
 
 \item{\code{name}}{(\code{character(1)}) File name.}
+
+\item{\code{verbose}}{(\code{logical}: \code{TRUE}) Verbose messaging.}
 }
 \if{html}{\out{</div>}}
 }
@@ -108,13 +120,15 @@ Save the results as a zip-file.
 \subsection{Method \code{saveAsCsv()}}{
 Save the results as csv-files.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TreatmentPatternsResults$saveAsCsv(path)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TreatmentPatternsResults$saveAsCsv(path, verbose = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{path}}{(\code{character(1)}) Path to write to.}
+
+\item{\code{verbose}}{(\code{logical}: \code{TRUE}) Verbose messaging.}
 }
 \if{html}{\out{</div>}}
 }
@@ -132,7 +146,8 @@ Upload results to a resultsDatabase using \code{ResultModelManager}.
   connectionDetails,
   schema,
   prefix = "tp_",
-  overwrite = TRUE
+  overwrite = TRUE,
+  purgeSiteDataBeforeUploading = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -146,6 +161,8 @@ Upload results to a resultsDatabase using \code{ResultModelManager}.
 \item{\code{prefix}}{(\code{character(1)}: \code{"tp_"}) Table prefix.}
 
 \item{\code{overwrite}}{(\code{logical(1)}: \code{TRUE}) Should tables be overwritten?}
+
+\item{\code{purgeSiteDataBeforeUploading}}{(\code{logical}: \code{FALSE}) Should site data be purged before uploading?}
 }
 \if{html}{\out{</div>}}
 }
