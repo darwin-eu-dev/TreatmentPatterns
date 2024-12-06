@@ -34,7 +34,7 @@ Create sankey diagram.
 \examples{
 # Dummy data, typically read from treatmentPathways.csv
 treatmentPathways <- data.frame(
-  path = c("Acetaminophen", "Acetaminophen-Amoxicillin+Clavulanate",
+  pathway = c("Acetaminophen", "Acetaminophen-Amoxicillin+Clavulanate",
            "Acetaminophen-Aspirin", "Amoxicillin+Clavulanate", "Aspirin"),
   freq = c(206, 6, 14, 48, 221),
   sex = rep("all", 5),

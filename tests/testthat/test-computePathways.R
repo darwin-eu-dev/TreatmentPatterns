@@ -140,7 +140,7 @@ test_that("indexDateOffset", {
     ),
     "Must be finite"
   )
-
+  
   expect_message(
     computePathways(
       cohorts = globals$cohorts,
@@ -150,7 +150,7 @@ test_that("indexDateOffset", {
     ),
     "Records: 8366"
   )
-
+  
   expect_message(
     computePathways(
       cohorts = globals$cohorts,
@@ -160,7 +160,7 @@ test_that("indexDateOffset", {
     ),
     "Records: 8366"
   )
-
+  
   expect_message(
     computePathways(
       cohorts = globals$cohorts,
@@ -175,7 +175,7 @@ test_that("indexDateOffset", {
 test_that("minEraDuration", {
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
-
+  
   expect_error(
     computePathways(
       cohorts = globals$cohorts,
@@ -190,7 +190,7 @@ test_that("minEraDuration", {
 test_that("splitEventCohorts", {
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
-
+  
   andromeda_empty <- computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -205,7 +205,7 @@ test_that("splitEventCohorts", {
     splitEventCohorts = 4,
     splitTime = 30
   )
-
+  
   empty <- andromeda_empty[["treatmentHistory"]] %>% collect()
   clavulanate <- andromeda_Clavulanate[["treatmentHistory"]] %>% collect()
   
@@ -228,7 +228,7 @@ test_that("splitEventCohorts", {
 test_that("splitTime", {
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
-
+  
   expect_error(
     computePathways(
       cohorts = globals$cohorts,
@@ -243,21 +243,21 @@ test_that("splitTime", {
 test_that("eraCollapseSize", {
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
-
+  
   andromeda_0 <- computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm,
     eraCollapseSize = 0
   )
-
+  
   andromeda_10000 <- computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm,
     eraCollapseSize = 10000
   )
-
+  
   expect_error(
     computePathways(
       cohorts = globals$cohorts,
@@ -267,7 +267,7 @@ test_that("eraCollapseSize", {
     ),
     " Must be of type.+'numeric'"
   )
-
+  
   Andromeda::close(andromeda_0)
   Andromeda::close(andromeda_10000)
 })
@@ -275,7 +275,7 @@ test_that("eraCollapseSize", {
 test_that("combinationWindow", {
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
-
+  
   expect_error(
     suppressWarnings(
       computePathways(
@@ -325,19 +325,18 @@ test_that("minPostCombinationDuration: 30", {
     maxPathLength = 5
   )
   
-  tempDir <- tempdir()
-  TreatmentPatterns::export(andromeda, tempDir, minCellCount = 1)
+  result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
   
-  treatmentPaths <- read.csv(file.path(tempDir, "treatmentPathways.csv"))
+  treatmentPaths <- result$treatment_pathways
   
-  path <- treatmentPaths %>%
+  pathway <- treatmentPaths %>%
     dplyr::filter(
       .data$age == "all",
       .data$sex == "all",
-      .data$indexYear == "all") %>%
-    dplyr::pull(.data$path)
+      .data$index_year == "all") %>%
+    dplyr::pull(.data$pathway)
   
-  expect_identical(path, "A+B")
+  expect_identical(pathway, "A+B")
   
   ## 12 ----
   andromeda <- TreatmentPatterns::computePathways(
@@ -354,19 +353,18 @@ test_that("minPostCombinationDuration: 30", {
     maxPathLength = 5
   )
   
-  tempDir <- tempdir()
-  TreatmentPatterns::export(andromeda, tempDir, minCellCount = 1)
+  result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
   
-  treatmentPaths <- read.csv(file.path(tempDir, "treatmentPathways.csv"))
+  treatmentPaths <- result$treatment_pathways
   
-  path <- treatmentPaths %>%
+  pathway <- treatmentPaths %>%
     dplyr::filter(
       .data$age == "all",
       .data$sex == "all",
-      .data$indexYear == "all") %>%
-    dplyr::pull(.data$path)
+      .data$index_year == "all") %>%
+    dplyr::pull(.data$pathway)
   
-  expect_identical(path, "A+B-B")
+  expect_identical(pathway, "A+B-B")
   
   
   ## 8 ----
@@ -384,19 +382,18 @@ test_that("minPostCombinationDuration: 30", {
     maxPathLength = 5
   )
   
-  tempDir <- tempdir()
-  TreatmentPatterns::export(andromeda, tempDir, minCellCount = 1)
+  result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
   
-  treatmentPaths <- read.csv(file.path(tempDir, "treatmentPathways.csv"))
+  treatmentPaths <- result$treatment_pathways
   
-  path <- treatmentPaths %>%
+  pathway <- treatmentPaths %>%
     dplyr::filter(
       .data$age == "all",
       .data$sex == "all",
-      .data$indexYear == "all") %>%
-    dplyr::pull(.data$path)
+      .data$index_year == "all") %>%
+    dplyr::pull(.data$pathway)
   
-  expect_identical(path, "A-A+B-B")
+  expect_identical(pathway, "A-A+B-B")
   
   DBI::dbDisconnect(con)
 })
@@ -404,7 +401,7 @@ test_that("minPostCombinationDuration: 30", {
 test_that("filterTreatments", {
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
-
+  
   expect_error(
     computePathways(
       cohorts = globals$cohorts,
@@ -414,21 +411,21 @@ test_that("filterTreatments", {
     ),
     "Must be a subset of"
   )
-
+  
   first <- computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm,
     filterTreatments = "First"
   )
-
+  
   changes <- computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm,
     filterTreatments = "Changes"
   )
-
+  
   all <- computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -451,7 +448,7 @@ test_that("filterTreatments", {
     sort(names(changesTH)),
     sort(names(allTH))
   )
-
+  
   # eventCohortId
   expect_identical(
     "character",
@@ -459,7 +456,7 @@ test_that("filterTreatments", {
     class(changesTH$eventCohortId),
     class(allTH$eventCohortId)
   )
-
+  
   expect_contains(
     expected = c(
       class(firstTH$personId),
@@ -468,63 +465,63 @@ test_that("filterTreatments", {
     ),
     object = c("integer", "numeric")
   )
-
+  
   expect_identical(
     "numeric",
     class(firstTH$indexYear),
     class(changesTH$indexYear),
     class(allTH$indexYear)
   )
-
+  
   expect_identical(
     "integer",
     class(firstTH$eventStartDate),
     class(changesTH$eventStartDate),
     class(allTH$eventStartDate)
   )
-
+  
   expect_identical(
     "integer",
     class(firstTH$eventEndDate),
     class(changesTH$eventStartDate),
     class(allTH$eventEndDate)
   )
-
+  
   expect_identical(
     "numeric",
     class(firstTH$age),
     class(changesTH$age),
     class(allTH$age)
   )
-
+  
   expect_identical(
     "character",
     class(firstTH$sex),
     class(changesTH$sex),
     class(allTH$sex)
   )
-
+  
   expect_identical(
     "integer",
     class(firstTH$durationEra),
     class(changesTH$durationEra),
     class(allTH$durationEra)
   )
-
+  
   expect_identical(
     "numeric",
     class(firstTH$sortOrder),
     class(changesTH$sortOrder),
     class(allTH$sortOrder)
   )
-
+  
   expect_identical(
     "integer",
     class(firstTH$eventSeq),
     class(changesTH$eventSeq),
     class(allTH$eventSeq)
   )
-
+  
   expect_identical(
     "character",
     class(firstTH$eventCohortName),
@@ -535,19 +532,19 @@ test_that("filterTreatments", {
   expect_false(any(is.na(firstTH)))
   expect_false(any(is.na(changesTH)))
   expect_false(any(is.na(allTH)))
-
+  
   expect_false(any(is.null(firstTH)))
   expect_false(any(is.null(changesTH)))
   expect_false(any(is.null(allTH)))
-
+  
   expect_true(nrow(firstTH) == 553)
   expect_true(nrow(changesTH) == 554)
   expect_true(nrow(allTH) == 554)
-
+  
   expect_true(Andromeda::isAndromeda(first))
   expect_true(Andromeda::isAndromeda(changes))
   expect_true(Andromeda::isAndromeda(all))
-
+  
   Andromeda::close(first)
   Andromeda::close(changes)
   Andromeda::close(all)
@@ -595,14 +592,14 @@ test_that("FRFS combination", {
   nFRFS <- andromeda$addRowsFRFS_1 %>%
     dplyr::collect() %>%
     nrow()
-
+  
   nLRFS <- andromeda$addRowsLRFS_1 %>%
     dplyr::collect() %>%
     nrow()
-
+  
   expect_equal(nFRFS, 1)
   expect_equal(nLRFS, 0)
-
+  
   DBI::dbDisconnect(con)
 })
 
@@ -661,7 +658,7 @@ test_that("LRFS combination", {
 
 test_that("No target records", {
   skip_if_not(ableToRun()$CDMC)
-
+  
   params <- suppressWarnings(generateCohortTableCDMC())
   
   params$cohorts$cohortId[8] <- 9
@@ -743,10 +740,10 @@ test_that("Attrition", {
   expect_identical(
     outputEnvCDMC$attrition %>%
       collect() %>%
-      select(-"time"),
+      select(-"time_stamp"),
     outputEnvCG$attrition %>%
       collect() %>%
-      select(-"time")
+      select(-"time_stamp")
   )
 
   Andromeda::close(outputEnvCG)

@@ -7,7 +7,6 @@
 executeTreatmentPatterns(
   cohorts,
   cohortTableName,
-  outputPath,
   cdm = NULL,
   connectionDetails = NULL,
   cdmSchema = NULL,
@@ -30,8 +29,6 @@ Data frame containing the following columns and data types:
 
 \item{cohortTableName}{(\code{character(1)})\cr
 Cohort table name.}
-
-\item{outputPath}{(\code{character(1)})\cr}
 
 \item{cdm}{(\code{CDMConnector::cdm_from_con()}: \code{NULL})\cr
 Optional; Ignores \code{connectionDetails}, \code{cdmSchema}, and \code{resultSchema}.}
@@ -63,7 +60,7 @@ Minimum count required per pathway. Censors data below \code{x} as \verb{<x}. Th
 minimum value will carry over to the sankey diagram and sunburst plot.}
 }
 \value{
-(\code{invisible(NULL)})
+\code{TreatmentPatternsResults}
 }
 \description{
 Compute treatment patterns according to the specified parameters within
@@ -123,8 +120,7 @@ if (require("CirceR", character.only = TRUE, quietly = TRUE)) {
   executeTreatmentPatterns(
     cohorts = cohorts,
     cohortTableName = "cohort_table",
-    cdm = cdm,
-    outputPath = tempdir()
+    cdm = cdm
   )
     
   DBI::dbDisconnect(con, shutdown = TRUE)

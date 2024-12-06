@@ -17,14 +17,14 @@
 splitPathItems <- function(treatmentPathways) {
   data <- treatmentPathways %>%
     rowwise() %>%
-    dplyr::mutate(path = stringr::str_split(.data$path, pattern = "-")) %>%
+    dplyr::mutate(pathway = stringr::str_split(.data$pathway, pattern = "-")) %>%
     dplyr::mutate(freq = as.integer(.data$freq))
   
   data <- data %>%
-    tidyr::unnest_wider(path, names_sep = "")
+    tidyr::unnest_wider(pathway, names_sep = "")
   
   data <- data %>%
-    dplyr::group_by_at(grep("path", names(data))) %>%
+    dplyr::group_by_at(grep("pathway", names(data))) %>%
     dplyr::summarise(freq = sum(.data$freq), .groups = "drop")
   
   data[is.na(data)] <- "Stopped"
@@ -51,7 +51,7 @@ createLinks <- function(data) {
 
 doGroupCombinations <- function(treatmentPathways, groupCombinations) {
   if (groupCombinations) {
-    treatmentPathways$path <- treatmentPathways$path %>%
+    treatmentPathways$pathway <- treatmentPathways$pathway %>%
       stringr::str_replace_all(
         pattern = "((\\w+)?\\+\\w+)+",
         replacement = "Combination"
@@ -101,7 +101,7 @@ validateCreateSankeyDiagram <- function() {
   checkmate::assertNames(
     x = names(args$treatmentPathways),
     type = "named",
-    must.include = c("path", "freq"),
+    must.include = c("pathway", "freq"),
     .var.name = "treatmentPathways"
   )
   
@@ -172,7 +172,7 @@ setColourScale <- function(linkedData, colors) {
 #' @examples
 #' # Dummy data, typically read from treatmentPathways.csv
 #' treatmentPathways <- data.frame(
-#'   path = c("Acetaminophen", "Acetaminophen-Amoxicillin+Clavulanate",
+#'   pathway = c("Acetaminophen", "Acetaminophen-Amoxicillin+Clavulanate",
 #'            "Acetaminophen-Aspirin", "Amoxicillin+Clavulanate", "Aspirin"),
 #'   freq = c(206, 6, 14, 48, 221),
 #'   sex = rep("all", 5),

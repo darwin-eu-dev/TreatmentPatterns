@@ -29,7 +29,7 @@
 InputHandler <- R6::R6Class(
   classname = "InputHandler",
   inherit = ShinyModule,
-  
+
   # Public ----
   public = list(
     #' @description
@@ -60,7 +60,7 @@ InputHandler <- R6::R6Class(
         private$uploadFile()
       )
     },
-    
+
     #' @description
     #' Method to handle the back-end.
     #'
@@ -83,7 +83,7 @@ InputHandler <- R6::R6Class(
       private$fetchMetadata()
       private$fetchSummaryEventDuration()
     },
-    
+
     #' @description
     #' Method to include a \link[shiny]{uiOutput} to select between multiple
     #' uploaded files.
@@ -92,7 +92,7 @@ InputHandler <- R6::R6Class(
     uiDatabaseSelector = function() {
       shiny::uiOutput(outputId = shiny::NS(private$.namespace, "dbSelector"))
     },
-    
+
     #' @description
     #' Method to dictate where the data is coming from, either from the `input`
     #' through the shiny application, or from a specified path. When one is
@@ -123,7 +123,7 @@ InputHandler <- R6::R6Class(
       return(invisible(self))
     }
   ),
-  
+
   # Private ----
   private = list(
     ## Fields ----
@@ -137,7 +137,7 @@ InputHandler <- R6::R6Class(
       summaryEventDuration = NULL,
       metadata = NULL
     ),
-    
+
     ## Methods ----
     ### UI ----
     uploadFile = function() {
@@ -149,7 +149,7 @@ InputHandler <- R6::R6Class(
         )
       )
     },
-    
+
     dbSelector = function(input, output, session) {
       shiny::observeEvent(self$reactiveValues$dataPath, {
         output$dbSelector <- renderUI({
@@ -162,7 +162,7 @@ InputHandler <- R6::R6Class(
         })
       })
     },
-    
+
     ### Server ----
     fetchFile = function(fileName) {
       #browser()
@@ -179,7 +179,7 @@ InputHandler <- R6::R6Class(
         }
       }) %>% dplyr::bind_rows()
     },
-    
+
     fetchZip = function(fileName, path, db) {
       read.csv(unzip(
         zipfile = path,
@@ -195,39 +195,39 @@ InputHandler <- R6::R6Class(
         dplyr::mutate(db = db) %>%
       dplyr::bind_rows()
     },
-    
+
     fetchTreatmentPathways = function() {
       shiny::observeEvent(private$.reactiveValues$dataPath, {
         if (!is.null(private$.reactiveValues$dataPath)) {
-          private$.reactiveValues$treatmentPathways <- private$fetchFile("treatmentPathways.csv")
+          private$.reactiveValues$treatmentPathways <- private$fetchFile("treatment_pathways.csv")
         }
       })
     },
-    
+
     fetchCountsAge = function() {
       shiny::observeEvent(private$.reactiveValues$dataPath, {
         if (!is.null(private$.reactiveValues$dataPath)) {
-          private$.reactiveValues$countsAge <- private$fetchFile("countsAge.csv")
+          private$.reactiveValues$countsAge <- private$fetchFile("counts_age.csv")
         }
       })
     },
-    
+
     fetchCountsSex = function() {
       shiny::observeEvent(private$.reactiveValues$dataPath, {
         if (!is.null(private$.reactiveValues$dataPath)) {
-          private$.reactiveValues$countsSex <- private$fetchFile("countsSex.csv")
+          private$.reactiveValues$countsSex <- private$fetchFile("counts_sex.csv")
         }
       })
     },
-    
+
     fetchCountsYear = function() {
       shiny::observeEvent(private$.reactiveValues$dataPath, {
         if (!is.null(private$.reactiveValues$dataPath)) {
-          private$.reactiveValues$countsYear <- private$fetchFile("countsYear.csv")
+          private$.reactiveValues$countsYear <- private$fetchFile("counts_year.csv")
         }
       })
     },
-    
+
     fetchMetadata = function() {
       shiny::observeEvent(private$.reactiveValues$dataPath, {
         if (!is.null(private$.reactiveValues$dataPath)) {
@@ -235,16 +235,16 @@ InputHandler <- R6::R6Class(
         }
       })
     },
-    
+
     fetchSummaryEventDuration = function() {
       shiny::observeEvent(private$.reactiveValues$dataPath, {
         if (!is.null(private$.reactiveValues$dataPath)) {
-          private$.reactiveValues$summaryEventDuration <- private$fetchFile("summaryEventDuration.csv")
+          private$.reactiveValues$summaryEventDuration <- private$fetchFile("summary_event_duration.csv")
         }
       })
     }
   ),
-  
+
   # Active ----
   active = list(
     reactiveValues = function() return(private$.reactiveValues)

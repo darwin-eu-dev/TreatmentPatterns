@@ -1,14 +1,14 @@
 test_that("defaults", {
-  data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summaryEventDuration.csv"))
+  data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summary_event_duration.csv"))
 
   gg <- plotEventDuration(eventDurations = data)
   
-  expect_class(x = gg, classes = c("gg", "ggplot"))
+  expect_s3_class(gg, c("gg", "ggplot"))
   expect_error(plotEventDuration(eventDurations = "data"))
 })
 
 test_that("minCellCount", {
-  data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summaryEventDuration.csv"))
+  data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summary_event_duration.csv"))
 
   gg <- plotEventDuration(
     eventDurations = data,
@@ -32,32 +32,32 @@ test_that("minCellCount", {
 })
 
 test_that("treatmentGroups", {
-  data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summaryEventDuration.csv"))
+  data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summary_event_duration.csv"))
   
   gg <- plotEventDuration(
     eventDurations = data,
     treatmentGroups = "both"
   )
   
-  expect_true(length(unique(gg$data$eventName)) > 2)
+  expect_true(length(unique(gg$data$event_name)) > 2)
 
   gg <- plotEventDuration(
     eventDurations = data,
     treatmentGroups = "individual"
   )
 
-  expect_false(all(c("mono-event", "combination-event") %in% gg$data$eventName))
+  expect_false(all(c("mono-event", "combination-event") %in% gg$data$event_name))
   
   gg <- plotEventDuration(
     eventDurations = data,
     treatmentGroups = "group"
   )
   
-  expect_true(all(c("mono-event", "combination-event") %in% gg$data$eventName))
+  expect_true(all(c("mono-event", "combination-event") %in% gg$data$event_name))
 })
 
 test_that("treatment lines", {
-  data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summaryEventDuration.csv"))
+  data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summary_event_duration.csv"))
 
   gg <- plotEventDuration(
     eventDurations = data,

@@ -6,77 +6,33 @@ test_that("void", {
 })
 
 test_that("CohortGenerator", {
-  testthat::skip_on_cran()
-  testthat::skip_on_ci()
+  skip_if_not(ableToRun()$CG)
   
   global <- generateCohortTableCG()
   
-  tempDir <- tempdir()
-
-  TreatmentPatterns::executeTreatmentPatterns(
+  result <- TreatmentPatterns::executeTreatmentPatterns(
     cohorts = global$cohorts,
     cohortTableName = global$cohortTableName,
     connectionDetails = global$connectionDetails,
     cdmSchema = global$cdmSchema,
-    resultSchema = global$resultSchema,
-    outputPath = tempDir
+    resultSchema = global$resultSchema
   )
 
-  expect_true(
-    file.exists(file.path(tempDir, "treatmentPathways.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDir, "summaryEventDuration.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDir, "countsYear.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDir, "countsAge.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDir, "countsSex.csv"))
-  )
+  expect_true("TreatmentPatternsResults" %in% class(result))
 })
 
 test_that("CDMConnector", {
-  testthat::skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   
   globals <- generateCohortTableCDMC()
   
-  tempDir <- tempdir()
-  
-  TreatmentPatterns::executeTreatmentPatterns(
+  result <- TreatmentPatterns::executeTreatmentPatterns(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm,
-    outputPath = tempDir
+    cdm = globals$cdm
   )
-
-  expect_true(
-    file.exists(file.path(tempDir, "treatmentPathways.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDir, "summaryEventDuration.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDir, "countsYear.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDir, "countsAge.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDir, "countsSex.csv"))
-  )
+  
+  expect_true("TreatmentPatternsResults" %in% class(result))
   
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })

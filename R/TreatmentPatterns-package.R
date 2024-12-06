@@ -42,12 +42,16 @@ utils::globalVariables(
     "x",
     "y",
     "rowNumber",
+    "pathway",
     "path",
     "personId",
     "freq",
-    "Q1",
-    "Q2",
-    "eventName",
+    "duration_q1",
+    "duration_q2",
+    "duration_min",
+    "duration_max",
+    "duration_median",
+    "event_name",
     "subject_id_origin"
   )
 )

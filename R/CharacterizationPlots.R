@@ -137,7 +137,7 @@ CharacterizationPlots <- R6::R6Class(
     
     plotCharIndexYear = function(output, inputHandler) {
       output$charIndexYearPlot <- shiny::renderUI({
-        p <- ggplot2::ggplot(private$numerizeCounts(inputHandler$reactiveValues$countsYear), mapping = ggplot2::aes(x = indexYear, y = n)) +
+        p <- ggplot2::ggplot(private$numerizeCounts(inputHandler$reactiveValues$countsYear), mapping = ggplot2::aes(x = index_year, y = n)) +
           ggplot2::geom_bar(stat = "identity", fill = "#336B91") +
           ggplot2::facet_grid(db ~ .) +
           ggplot2::theme_bw()

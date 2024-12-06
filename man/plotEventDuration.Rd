@@ -88,15 +88,10 @@ if (ableToRun) {
     cdm = cdm
   )
 
-  export(
-    andromeda = outputEnv,
-    outputPath = tempdir()
-  )
-
-  eventDurations <- read.csv(file.path(tempdir(), "summaryEventDuration.csv"))
+  results <- export(outputEnv)
 
   plotEventDuration(
-    eventDurations = eventDurations,
+    eventDurations = results$summary_event_duration,
     minCellCount = 5,
     treatmentGroups = "group",
     eventLines = 1:4,

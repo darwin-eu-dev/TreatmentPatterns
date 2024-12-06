@@ -2,13 +2,12 @@ library(testthat)
 library(TreatmentPatterns)
 
 dummyData <- data.frame(
-  path = c("A+Z", "B", "C", "A-B", "B-C", "D+Z", "E", "F", "D-E", "D-E-F"),
+  pathway = c("A+Z", "B", "C", "A-B", "B-C", "D+Z", "E", "F", "D-E", "D-E-F"),
   freq = c(25, 25, 25, 12, 13, 25, 25, 25, 12, 13),
   sex = rep("all", 10),
   age = rep("all", 10),
   index_year = c(rep("all", 5), rep("2020", 5))
 )
-
 
 test_that("minimal", {
   p <- createSunburstPlot(treatmentPathways = dummyData)

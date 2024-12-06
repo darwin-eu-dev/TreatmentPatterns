@@ -117,7 +117,7 @@ export <- function(
   
   if (nrows == 0) {
     message("Treatment History table is empty. Nothing to export.")
-    return(invisible(NULL))
+    return(TreatmentPatternsResults$new())
   }
 
   if (!is.null(outputPath)) {

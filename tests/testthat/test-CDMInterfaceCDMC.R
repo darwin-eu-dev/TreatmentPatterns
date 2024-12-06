@@ -52,19 +52,19 @@ test_that("Method: new - empty", {
 
 test_that("Method: fetchMetadata", {
   skip_if_not(ableToRun()$CDMC)
-  cdmInterface$fetchMetadata(andromeda)
+  andromeda <- cdmInterface$fetchMetadata(andromeda)
 
   metadata <- andromeda$metadata %>% collect()
 
   expect_in(
-    c("cdmSourceName", "cdmSourceAbbreviation", "cdmReleaseDate", "vocabularyVersion"),
+    c("execution_start", "package_version", "r_version", "platform"),
     names(metadata)
   )
-
-  expect_identical(metadata$rVersion, base::version$version.string)
+  
+  expect_identical(metadata$r_version, base::version$version.string)
   expect_identical(metadata$platform, base::version$platform)
   expect_identical(nrow(metadata), 1L)
-  expect_identical(ncol(metadata), 8L)
+  expect_identical(ncol(metadata), 4L)
 })
 
 test_that("Method: fetchCohortTable", {
@@ -84,10 +84,10 @@ test_that("Method: fetchCohortTable", {
   )
   
   res <- andromeda$cohortTable
-
+  
   expect_identical(ncol(res), 7L)
   expect_identical(res %>% collect() %>% nrow(), 3L)
-
+  
   # Empty
   cdmInterface$fetchCohortTable(
     cohorts = data.frame(

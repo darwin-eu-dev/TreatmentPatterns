@@ -26,8 +26,6 @@ test_that("empty treatmentHistory table", {
 
 # CohortGenerator ----
 test_that("outputPath", {
-  skip_on_ci()
-  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   
   globals <- generateCohortTableCG()
@@ -42,26 +40,42 @@ test_that("outputPath", {
   ## file.path(tempDirCG) ----
   tempDirLocal <- file.path(tempdir(), "output")
 
-  export(andromeda, outputPath = tempDirLocal)
+  result <- export(andromeda, outputPath = tempDirLocal)
 
   expect_true(
-    file.exists(file.path(tempDirLocal, "treatmentPathways.csv"))
+    file.exists(file.path(tempDirLocal, "treatment_pathways.csv"))
   )
-
+  
   expect_true(
-    file.exists(file.path(tempDirLocal, "summaryEventDuration.csv"))
+    file.exists(file.path(tempDirLocal, "summary_event_duration.csv"))
   )
-
+  
   expect_true(
-    file.exists(file.path(tempDirLocal, "countsYear.csv"))
+    file.exists(file.path(tempDirLocal, "counts_year.csv"))
   )
-
+  
   expect_true(
-    file.exists(file.path(tempDirLocal, "countsAge.csv"))
+    file.exists(file.path(tempDirLocal, "counts_age.csv"))
   )
-
+  
   expect_true(
-    file.exists(file.path(tempDirLocal, "countsSex.csv"))
+    file.exists(file.path(tempDirLocal, "counts_sex.csv"))
+  )
+  
+  expect_true(
+    file.exists(file.path(tempDirLocal, "attrition.csv"))
+  )
+  
+  expect_true(
+    file.exists(file.path(tempDirLocal, "cdm_source_info.csv"))
+  )
+  
+  expect_true(
+    file.exists(file.path(tempDirLocal, "analyses.csv"))
+  )
+  
+  expect_true(
+    file.exists(file.path(tempDirLocal, "metadata.csv"))
   )
 
   ## 3 ----
@@ -79,8 +93,6 @@ test_that("outputPath", {
 })
 
 test_that("ageWindow", {
-  skip_on_ci()
-  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   
   globals <- generateCohortTableCG()
@@ -92,49 +104,43 @@ test_that("ageWindow", {
     cdmSchema = globals$cdmSchema,
     resultSchema = globals$resultSchema
   )
-  
-  tempDirLocal <- file.path(tempdir(), "output")
 
   ## 10 ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       ageWindow = 10,
       nonePaths = TRUE,
       stratify = TRUE
     )
   )
 
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
 
   expect_true(
     all(c("0-10", "10-20", "20-30", "30-40", "40-50", "all") %in% treatmentPathways$age))
 
   ## c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150) ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       ageWindow = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150),
       nonePaths = TRUE,
       stratify = TRUE
     )
   )
 
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
 
   expect_true(all(
     c("0-2", "2-4", "4-6", "6-8", "8-10", "10-12",
       "12-14", "14-16", "16-18", "18-150", "all") %in% treatmentPathways$age
   ))
-  
+
   Andromeda::close(andromeda)
 })
 
 test_that("minCellCount", {
-  skip_on_ci()
-  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   
   globals <- generateCohortTableCG()
@@ -146,14 +152,11 @@ test_that("minCellCount", {
     cdmSchema = globals$cdmSchema,
     resultSchema = globals$resultSchema
   )
-  
-  tempDirLocal <- file.path(tempdir(), "output")
-  
+
   ## 10 ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = 10,
       censorType = "remove",
       nonePaths = TRUE,
@@ -162,7 +165,7 @@ test_that("minCellCount", {
     "Removing \\d+ pathways with a frequency <10."
   )
 
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
 
   expect_equal(min(treatmentPathways$freq), 10)
 
@@ -170,7 +173,6 @@ test_that("minCellCount", {
   expect_error(
     export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = "10",
       nonePaths = TRUE,
       stratify = TRUE
@@ -181,8 +183,6 @@ test_that("minCellCount", {
 })
 
 test_that("archiveName", {
-  skip_on_ci()
-  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   
   globals <- generateCohortTableCG()
@@ -225,8 +225,6 @@ test_that("archiveName", {
 })
 
 test_that("censorType", {
-  skip_on_ci()
-  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   
   globals <- generateCohortTableCG()
@@ -238,14 +236,11 @@ test_that("censorType", {
     cdmSchema = globals$cdmSchema,
     resultSchema = globals$resultSchema
   )
-  
-  tempDirLocal <- file.path(tempdir(), "output")
-  
+
   ## "remove" ----
   expect_message(
-    TreatmentPatterns::export(
+    result <- TreatmentPatterns::export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = 10,
       censorType = "remove",
       nonePaths = TRUE,
@@ -254,7 +249,7 @@ test_that("censorType", {
     "Removing \\d+ pathways with a frequency <10."
   )
 
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
 
   expect_equal(min(treatmentPathways$freq), 10)
 
@@ -262,7 +257,6 @@ test_that("censorType", {
   expect_message(
     TreatmentPatterns::export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = 10,
       censorType = "minCellCount",
       nonePaths = TRUE,
@@ -271,15 +265,14 @@ test_that("censorType", {
     "Censoring \\d+ pathways with a frequency <10 to 10."
   )
   
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
   
   expect_equal(min(treatmentPathways$freq), 10)
   
   ## "mean" ----
   expect_message(
-    TreatmentPatterns::export(
+    result <- TreatmentPatterns::export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = 10,
       censorType = "mean",
       nonePaths = TRUE,
@@ -288,7 +281,7 @@ test_that("censorType", {
     "Censoring \\d+ pathways with a frequency <10 to mean."
   )
   
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
   
   expect_equal(min(treatmentPathways$freq), 2)
   
@@ -296,19 +289,17 @@ test_that("censorType", {
   expect_error(
     export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       censorType = "Stuff",
       nonePaths = TRUE,
       stratify = TRUE
     )
   )
-  
+
   Andromeda::close(andromeda)
 })
 
 # CDMConnector ----
 test_that("outputPath", {
-  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   
   globals <- generateCohortTableCDMC()
@@ -321,26 +312,42 @@ test_that("outputPath", {
   
   tempDirLocal <- file.path(tempdir(), "output")
   
-  export(andromeda, outputPath = tempDirLocal)
+  result <- export(andromeda, outputPath = tempDirLocal)
 
   expect_true(
-    file.exists(file.path(tempDirLocal, "treatmentPathways.csv"))
+    file.exists(file.path(tempDirLocal, "treatment_pathways.csv"))
   )
-
+  
   expect_true(
-    file.exists(file.path(tempDirLocal, "summaryEventDuration.csv"))
+    file.exists(file.path(tempDirLocal, "summary_event_duration.csv"))
   )
-
+  
   expect_true(
-    file.exists(file.path(tempDirLocal, "countsYear.csv"))
+    file.exists(file.path(tempDirLocal, "counts_year.csv"))
   )
-
+  
   expect_true(
-    file.exists(file.path(tempDirLocal, "countsAge.csv"))
+    file.exists(file.path(tempDirLocal, "counts_age.csv"))
   )
-
+  
   expect_true(
-    file.exists(file.path(tempDirLocal, "countsSex.csv"))
+    file.exists(file.path(tempDirLocal, "counts_sex.csv"))
+  )
+  
+  expect_true(
+    file.exists(file.path(tempDirLocal, "attrition.csv"))
+  )
+  
+  expect_true(
+    file.exists(file.path(tempDirLocal, "cdm_source_info.csv"))
+  )
+  
+  expect_true(
+    file.exists(file.path(tempDirLocal, "analyses.csv"))
+  )
+  
+  expect_true(
+    file.exists(file.path(tempDirLocal, "metadata.csv"))
   )
 
   ## 3 ----
@@ -359,7 +366,6 @@ test_that("outputPath", {
 })
 
 test_that("ageWindow", {
-  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   
   globals <- generateCohortTableCDMC()
@@ -369,36 +375,32 @@ test_that("ageWindow", {
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm
   )
-  
-  tempDirLocal <- file.path(tempdir(), "output")
-  
+
   ## 10 ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       ageWindow = 10,
       nonePaths = TRUE,
       stratify = TRUE
     )
   )
 
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
 
   expect_true(all(c("0-10", "10-20", "all") %in% treatmentPathways$age))
 
   ## c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150) ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       ageWindow = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150),
       nonePaths = TRUE,
       stratify = TRUE
     )
   )
 
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
 
   expect_true(all(
     c("0-2", "2-4", "4-6", "6-8", "8-10", "10-12",
@@ -410,7 +412,6 @@ test_that("ageWindow", {
 })
 
 test_that("minCellCount", {
-  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   
   globals <- generateCohortTableCDMC()
@@ -420,14 +421,11 @@ test_that("minCellCount", {
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm
   )
-  
-  tempDirLocal <- file.path(tempdir(), "output")
-  
+
   ## 10 ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = 10,
       censorType = "remove",
       nonePaths = TRUE,
@@ -436,7 +434,7 @@ test_that("minCellCount", {
     "Removing \\d+ pathways with a frequency <10."
   )
 
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
 
   expect_equal(min(treatmentPathways$freq), 10)
 
@@ -444,7 +442,6 @@ test_that("minCellCount", {
   expect_error(
     export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = "10",
       nonePaths = TRUE,
       stratify = TRUE
@@ -456,7 +453,6 @@ test_that("minCellCount", {
 })
 
 test_that("archiveName", {
-  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   
   globals <- generateCohortTableCDMC()
@@ -468,10 +464,10 @@ test_that("archiveName", {
   )
   
   tempDirLocal <- file.path(tempdir(), "output")
-  
+
   ## "output.zip" ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
       outputPath = tempDirLocal,
       archiveName = "output.zip",
@@ -500,7 +496,6 @@ test_that("archiveName", {
 })
 
 test_that("censorType", {
-  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   
   globals <- generateCohortTableCDMC()
@@ -510,14 +505,11 @@ test_that("censorType", {
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm
   )
-  
-  tempDirLocal <- file.path(tempdir(), "output")
-  
+
   ## "remove" ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = 10,
       censorType = "remove",
       nonePaths = TRUE,
@@ -526,15 +518,14 @@ test_that("censorType", {
     "Removing \\d+ pathways with a frequency <10."
   )
   
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
-  
+  treatmentPathways <- result$treatment_pathways
+
   expect_equal(min(treatmentPathways$freq), 10)
-  
+
   ## "minCellCount" ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = 10,
       censorType = "minCellCount",
       nonePaths = TRUE,
@@ -543,15 +534,14 @@ test_that("censorType", {
     "Censoring \\d+ pathways with a frequency <10 to 10."
   )
   
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
-  
+  treatmentPathways <- result$treatment_pathways
+
   expect_equal(min(treatmentPathways$freq), 10)
-  
+
   ## "mean" ----
   expect_message(
-    export(
+    result <- export(
       andromeda = andromeda,
-      outputPath = tempDirLocal,
       minCellCount = 10,
       censorType = "mean",
       nonePaths = TRUE,
@@ -560,7 +550,7 @@ test_that("censorType", {
     "Censoring \\d+ pathways with a frequency <10 to mean."
   )
   
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+  treatmentPathways <- result$treatment_pathways
   
   expect_equal(min(treatmentPathways$freq), 2)
   
@@ -580,7 +570,6 @@ test_that("censorType", {
 })
 
 test_that("counts", {
-  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   
   globals <- generateCohortTableCDMC()
@@ -590,22 +579,20 @@ test_that("counts", {
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm
   )
-  
-  tempDirLocal <- file.path(tempdir(), "output")
-  
+
   ## "remove" ----
-  TreatmentPatterns::export(
+  result <- TreatmentPatterns::export(
     andromeda = andromeda,
-    outputPath = tempDirLocal,
-    minCellCount = 1, ageWindow = c(0, 18, 150),
+    minCellCount = 1,
+    ageWindow = c(0, 18, 150),
     nonePaths = TRUE,
     stratify = TRUE
   )
-  
-  treatmentPathways <- read.csv(file.path(tempDirLocal, "treatmentPathways.csv"))
+
+  treatmentPathways <- result$treatment_pathways
 
   totalAll <- treatmentPathways %>%
-    dplyr::filter(.data$age == "all", .data$sex == "all", indexYear == "all") %>%
+    dplyr::filter(.data$age == "all", .data$sex == "all", index_year == "all") %>%
     summarize(sum(freq)) %>%
     pull()
   
@@ -614,7 +601,7 @@ test_that("counts", {
   sexes <- sexes[sexes != "all"]
   totalSexes <- lapply(sexes, function(sexGroup) {
     treatmentPathways %>%
-      dplyr::filter(.data$age == "all", .data$sex == sexGroup, indexYear == "all") %>%
+      dplyr::filter(.data$age == "all", .data$sex == sexGroup, index_year == "all") %>%
       summarize(sum(freq)) %>%
       pull()
   }) %>% unlist() %>% sum()
@@ -626,7 +613,7 @@ test_that("counts", {
   ages <- ages[ages != "all"] %>% unlist()
   totalAges <- lapply(ages, function(ageGroup) {
     treatmentPathways %>%
-      dplyr::filter(.data$age == ageGroup, .data$sex == "all", indexYear == "all") %>%
+      dplyr::filter(.data$age == ageGroup, .data$sex == "all", index_year == "all") %>%
       summarize(sum(freq)) %>%
       pull()
   }) %>% unlist() %>% sum()
@@ -634,11 +621,11 @@ test_that("counts", {
   expect_identical(totalAll, totalAges)
   
   # Years
-  years <- unique(treatmentPathways$indexYear)
+  years <- unique(treatmentPathways$index_year)
   years <- years[years != "all"]
   totalYears <- lapply(years, function(year) {
     treatmentPathways %>%
-      dplyr::filter(.data$age == "all", .data$sex == "all", indexYear == year) %>%
+      dplyr::filter(.data$age == "all", .data$sex == "all", index_year == year) %>%
       summarize(sum(freq)) %>%
       pull()
   }) %>% unlist() %>% sum()
@@ -650,7 +637,6 @@ test_that("counts", {
 })
 
 test_that("attrition", {
-  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
   globals <- generateCohortTableCDMC()
@@ -677,9 +663,7 @@ test_that("attrition", {
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
-
-test_that("", {
-  skip_on_cran()
+test_that("stratify, none paths", {
   skip_if_not(ableToRun()$CDMC)
 
   globals <- suppressWarnings(generateCohortTableCDMC())
@@ -689,68 +673,58 @@ test_that("", {
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm
   )
-  
-  tempDirLocal <- file.path(tempdir(), "output")
-  suppressWarnings(
-    TreatmentPatterns::export(
-      andromeda = andromeda,
-      outputPath = file.path(tempDirLocal, "T-T"),
-      nonePaths = TRUE,
-      stratify = TRUE
-    )
-  )
-  
-  suppressWarnings(
-    TreatmentPatterns::export(
-      andromeda = andromeda,
-      outputPath = file.path(tempDirLocal, "T-F"),
-      nonePaths = TRUE,
-      stratify = FALSE
-    )
-  )
-  
-  suppressWarnings(
-    TreatmentPatterns::export(
-      andromeda = andromeda,
-      outputPath = file.path(tempDirLocal, "F-T"),
-      nonePaths = FALSE,
-      stratify = TRUE
-    )
-  )
-  
-  suppressWarnings(
-    TreatmentPatterns::export(
-      andromeda = andromeda,
-      outputPath = file.path(tempDirLocal, "F-F"),
-      nonePaths = FALSE,
-      stratify = FALSE
-    )
+
+  result <- TreatmentPatterns::export(
+    andromeda = andromeda,
+    nonePaths = TRUE,
+    stratify = TRUE
   )
 
-  tt <- read.csv(file.path(tempDirLocal, "T-T", "treatmentPathways.csv"))
-  tf <- read.csv(file.path(tempDirLocal, "T-F", "treatmentPathways.csv"))
-  ft <- read.csv(file.path(tempDirLocal, "F-T", "treatmentPathways.csv"))
-  ff <- read.csv(file.path(tempDirLocal, "F-F", "treatmentPathways.csv"))
+  tt <- result$treatment_pathways
+
+  result <- TreatmentPatterns::export(
+    andromeda = andromeda,
+    nonePaths = TRUE,
+    stratify = FALSE
+  )
+
+  tf <- result$treatment_pathways
+
+  result <- TreatmentPatterns::export(
+    andromeda = andromeda,
+    nonePaths = FALSE,
+    stratify = TRUE
+  )
+
+  ft <- result$treatment_pathways
+
+  result <- TreatmentPatterns::export(
+    andromeda = andromeda,
+    nonePaths = FALSE,
+    stratify = FALSE
+  )
+
+  ff <- result$treatment_pathways
 
   # No strata
   expect_true(nrow(ff) + 1 == nrow(tf))
   expect_identical(
     ff,
     tf %>%
-      dplyr::filter(.data$path != "None")
+      dplyr::filter(.data$pathway != "None")
   )
 
   # Strata
   expect_identical(
     ft,
     tt %>%
-      filter(.data$path != "None")
+      filter(.data$pathway != "None")
   )
 
   # Pair-wise comparison
   ages <- unique(tt$age)
   sexes <- unique(tt$sex)
-  years <- unique(tt$indexYear)
+  years <- unique(tt$index_year)
 
   for (age in ages) {
     for (sex in sexes) {
@@ -759,15 +733,15 @@ test_that("", {
           dplyr::filter(
             .data$age == age,
             .data$sex == sex,
-            .data$indexYear == year,
-            .data$path != "None"
+            .data$index_year == year,
+            .data$pathway != "None"
           )
 
         n2 <- ft %>%
           dplyr::filter(
             .data$age == age,
             .data$sex == sex,
-            .data$indexYear == year
+            .data$index_year == year
           )
         expect_identical(n1, n2)
       }

@@ -148,14 +148,14 @@ InteracitvePlot <- R6::R6Class(
       data %>%
         dplyr::filter(.data$age == private$checkInputOption(input[[private$.ageOption]])) %>%
         dplyr::filter(.data$sex == private$checkInputOption(input[[private$.sexOption]])) %>%
-        dplyr::filter(.data$indexYear == private$checkInputOption(input[[private$.indexYearOption]])) %>%
-        dplyr::filter(.data$path != none) %>%
+        dplyr::filter(.data$index_year == private$checkInputOption(input[[private$.indexYearOption]])) %>%
+        dplyr::filter(.data$pathway != none) %>%
         dplyr::filter(.data$db %in% input$dbSelector)
     },
     
     getLabelColors = function(data) {
       labels <- data %>%
-        dplyr::pull("path") %>%
+        dplyr::pull(.data$pathway) %>%
         unique()
 
       range <- if (!is.null(labels)) {
@@ -207,7 +207,7 @@ InteracitvePlot <- R6::R6Class(
           shiny::selectInput(
             inputId = session$ns(self$indexYearOption),
             label = "Index Year",
-            choices = unique(inputHandler$reactiveValues$treatmentPathways$indexYear),
+            choices = unique(inputHandler$reactiveValues$treatmentPathways$index_year),
             selected = "all"
           )
         })

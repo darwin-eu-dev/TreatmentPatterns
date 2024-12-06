@@ -7,7 +7,7 @@
 Class to handle the characterization plots.
 }
 \section{Super class}{
-\code{TreatmentPatterns::ShinyModule} -> \code{CharacterizationPlots}
+\code{\link[TreatmentPatterns:ShinyModule]{TreatmentPatterns::ShinyModule}} -> \code{CharacterizationPlots}
 }
 \section{Methods}{
 \subsection{Public methods}{

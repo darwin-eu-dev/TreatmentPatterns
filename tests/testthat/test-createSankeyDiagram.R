@@ -2,7 +2,7 @@ library(TreatmentPatterns)
 library(testthat)
 
 dummyData <- data.frame(
-  path = c("A+Z", "B", "C", "A-B", "B-C", "D+Z", "E", "F", "D-E", "D-E-F"),
+  pathway = c("A+Z", "B", "C", "A-B", "B-C", "D+Z", "E", "F", "D-E", "D-E-F"),
   freq = c(25, 25, 25, 12, 13, 25, 25, 25, 12, 13),
   sex = rep("all", 10),
   age = rep("all", 10),
@@ -47,7 +47,7 @@ test_that("groupCombinations: TRUE", {
   expect_identical(pLabels, actualLabels)
   
   df <- data.frame(
-    path = c(
+    pathway = c(
       "A-B",
       "A+B",
       "A-B+C",
@@ -112,7 +112,7 @@ test_that("colors", {
 
 test_that("2 path levels", {
   dummyData <- data.frame(
-    path = c("A", "A-B+C", "A-D", "B+C", "D"),
+    pathway = c("A", "A-B+C", "A-D", "B+C", "D"),
     freq = c(206, 6, 14, 48, 221),
     sex = rep("all", 5),
     age = rep("all", 5),
@@ -136,11 +136,11 @@ test_that("2 path levels", {
 
 test_that("1 path levels", {
   treatmentPathways <- data.frame(
-    path = c("a", "b", "c"),
+    pathway = c("a", "b", "c"),
     freq = c(55, 8, 11),
     sex = rep("all", 3),
     age = rep("all", 3),
-    indexYear = rep("all", 3)
+    index_year = rep("all", 3)
   )
   
   expect_error(

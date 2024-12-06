@@ -84,15 +84,10 @@
 #'     cdm = cdm
 #'   )
 #'
-#'   export(
-#'     andromeda = outputEnv,
-#'     outputPath = tempdir()
-#'   )
-#'
-#'   eventDurations <- read.csv(file.path(tempdir(), "summaryEventDuration.csv"))
+#'   results <- export(outputEnv)
 #'
 #'   plotEventDuration(
-#'     eventDurations = eventDurations,
+#'     eventDurations = results$summary_event_duration,
 #'     minCellCount = 5,
 #'     treatmentGroups = "group",
 #'     eventLines = 1:4,
@@ -115,31 +110,31 @@ plotEventDuration <- function(eventDurations, minCellCount = 0, treatmentGroups 
   #browser()
   eventDurations <- eventDurations %>%
     filter(
-      .data$count >= minCellCount,
+      .data$event_count >= minCellCount,
       case_when(
-        treatmentGroups == "both" ~ .data$eventName == .data$eventName,
-        treatmentGroups == "group" ~ .data$eventName %in% c("mono-event", "combination-event"),
-        treatmentGroups == "individual" ~ !.data$eventName %in% c("mono-event", "combination-event")
+        treatmentGroups == "both" ~ .data$event_name == .data$event_name,
+        treatmentGroups == "group" ~ .data$event_name %in% c("mono-event", "combination-event"),
+        treatmentGroups == "individual" ~ !.data$event_name %in% c("mono-event", "combination-event")
       ),
       case_when(
-        is.null(eventLines) ~ .data$eventName == .data$eventName,
+        is.null(eventLines) ~ .data$event_name == .data$event_name,
         .default = .data$line %in% c(as.character(eventLines), "overall")
       ),
       case_when(
-        includeOverall ~ .data$eventName == .data$eventName,
+        includeOverall ~ .data$event_name == .data$event_name,
         .default = !.data$line == "overall"
-        )
       )
-
+    )
+  
   ggplot2::ggplot(data = eventDurations) +
     ggplot2::geom_boxplot(
       mapping = ggplot2::aes(
-        y = eventName,
-        xmin = min,
-        xlower = Q1,
-        xmiddle = median,
-        xupper = Q2,
-        xmax = max
+        y = event_name,
+        xmin = duration_min,
+        xlower = duration_q1,
+        xmiddle = duration_median,
+        xupper = duration_q2,
+        xmax = duration_max
       ),
       stat = "identity"
     ) +

@@ -14,6 +14,6 @@ Gets the results data model specifications of \code{TreatmentPatterns}.
 }
 \examples{
 {
-getResultsDataModelSpecification()
+getResultsDataModelSpecifications()
 }
 }

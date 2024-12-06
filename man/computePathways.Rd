@@ -11,6 +11,8 @@ computePathways(
   connectionDetails = NULL,
   cdmSchema = NULL,
   resultSchema = NULL,
+  analysisId = 1,
+  description = "",
   tempEmulationSchema = NULL,
   includeTreatments = "startDate",
   indexDateOffset = 0,
@@ -47,6 +49,10 @@ Optional; In congruence with \code{connectionDetails} and \code{resultSchema}. I
 
 \item{resultSchema}{(\code{character(1)}: \code{NULL})\cr
 Optional; In congruence with \code{connectionDetails} and \code{cdmSchema}. Ignores \code{cdm}.}
+
+\item{analysisId}{(\code{character(1)}) Identifier for the TreatmentPatterns analysis.}
+
+\item{description}{(\code{character(1)}) Description of the analysis.}
 
 \item{tempEmulationSchema}{Schema used to emulate temp tables}
 

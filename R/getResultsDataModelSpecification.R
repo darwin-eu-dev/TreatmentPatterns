@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples{
-#' getResultsDataModelSpecification()
+#' getResultsDataModelSpecifications()
 #' }
 getResultsDataModelSpecifications <- function() {
   read.csv(system.file(package = "TreatmentPatterns", "resultsDataModelSpecifications.csv"), sep = ";")

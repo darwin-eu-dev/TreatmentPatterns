@@ -28,7 +28,7 @@
 #' @examples
 #' # Dummy data, typically read from treatmentPathways.csv
 #' treatmentPatwhays <- data.frame(
-#'   path = c("Acetaminophen", "Acetaminophen-Amoxicillin+Clavulanate",
+#'   pathway = c("Acetaminophen", "Acetaminophen-Amoxicillin+Clavulanate",
 #'            "Acetaminophen-Aspirin", "Amoxicillin+Clavulanate", "Aspirin"),
 #'   freq = c(206, 6, 14, 48, 221),
 #'   sex = rep("all", 5),
@@ -61,7 +61,7 @@ validateCreateSunburstPlot <- function() {
   checkmate::assertNames(
     x = names(args$treatmentPathways),
     type = "named",
-    must.include = c("path", "freq"),
+    must.include = c("pathway", "freq"),
     .var.name = "treatmentPathways"
   )
 

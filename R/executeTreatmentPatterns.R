@@ -23,7 +23,6 @@
 #'
 #' @template param_cohorts
 #' @template param_cohortTableName
-#' @template param_outputPath
 #' @template param_cdm
 #' @template param_connectionDetails
 #' @template param_cdmSchema
@@ -34,7 +33,7 @@
 #' @template param_combinationWindow
 #' @template param_minCellCount
 #'
-#' @return (`invisible(NULL)`)
+#' @return `TreatmentPatternsResults`
 #' @export
 #'
 #' @examples
@@ -89,8 +88,7 @@
 #'   executeTreatmentPatterns(
 #'     cohorts = cohorts,
 #'     cohortTableName = "cohort_table",
-#'     cdm = cdm,
-#'     outputPath = tempdir()
+#'     cdm = cdm
 #'   )
 #'     
 #'   DBI::dbDisconnect(con, shutdown = TRUE)
@@ -99,7 +97,6 @@
 executeTreatmentPatterns <- function(
     cohorts,
     cohortTableName,
-    outputPath,
     cdm = NULL,
     connectionDetails = NULL,
     cdmSchema = NULL,
@@ -109,9 +106,8 @@ executeTreatmentPatterns <- function(
     eraCollapseSize = 30,
     combinationWindow = 30,
     minCellCount = 5) {
-  checkmate::assert_character(outputPath, len = 1, null.ok = FALSE)
   checkmate::assert_integerish(minCellCount, len = 1, null.ok = FALSE, lower = 0)
-
+  
   # Compute pathways on patient level
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -142,15 +138,13 @@ executeTreatmentPatterns <- function(
       message("Andromeda object was close pre-maturely")
     })
   })
-
-  # Export csv-files
+  
   TreatmentPatterns::export(
     andromeda = andromeda,
-    outputPath = outputPath,
     ageWindow = 5,
     minCellCount = minCellCount,
     censorType = "mean",
-    archiveName = "TreatmentPatterns-Output.zip"
+    nonePaths = TRUE,
+    stratify = TRUE
   )
-  return(invisible(NULL))
 }
