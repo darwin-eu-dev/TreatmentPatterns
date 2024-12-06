@@ -1,2 +1,2 @@
-"cdmSourceName","cdmSourceAbbreviation","cdmReleaseDate","vocabularyVersion","executionStartDate","packageVersion","rVersion","platform","execution_end_date"
-"Synthea synthetic health database","Synthea",2019-05-25,"v5.0 18-JAN-19","2024-11-20","2.6.8","R version 4.3.3 (2024-02-29 ucrt)","x86_64-w64-mingw32","2024-11-20"
+"execution_start","package_version","r_version","platform","execution_end","analysis_id"
+1733483515.64643,"2.7.0","R version 4.4.1 (2024-06-14 ucrt)","x86_64-w64-mingw32",1733483523.8647,1
