@@ -41,6 +41,8 @@ utils::globalVariables(
   c(
     "x",
     "y",
+    "targetCohortId",
+    "cohortId",
     "rowNumber",
     "pathway",
     "path",

@@ -14,7 +14,7 @@ test_that("empty treatmentHistory table", {
   tempDirLocal <- file.path(tempdir(), "output")
   localAndromeda <- Andromeda::andromeda()
   
-  localAndromeda$treatmentHistory <- data.frame(
+  localAndromeda$treatmentHistoryFinal <- data.frame(
     personId = numeric(0)
   )
   
@@ -679,7 +679,7 @@ test_that("stratify, none paths", {
     cdm = globals$cdm
   )
 
-  result <- TreatmentPatterns::export(
+  result <- export(
     andromeda = andromeda,
     nonePaths = TRUE,
     stratify = TRUE

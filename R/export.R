@@ -111,7 +111,7 @@ export <- function(
     stratify = FALSE) {
   validateExport()
   
-  nrows <- andromeda$treatmentHistory %>%
+  nrows <- andromeda$treatmentHistoryFinal %>%
     dplyr::summarize(n()) %>%
     dplyr::pull()
   
@@ -124,29 +124,24 @@ export <- function(
     dir.create(outputPath, showWarnings = FALSE, recursive = TRUE)
   }
 
-  treatmentHistory <- andromeda$treatmentHistory %>%
+  treatmentHistory <- andromeda$treatmentHistoryFinal %>%
+    dplyr::inner_join(andromeda$cohorts, join_by(targetCohortId == cohortId)) %>%
     dplyr::collect() %>%
     dplyr::select(
-      "personId", "indexYear", "age", "sex", "eventCohortName", "eventCohortId", "eventSeq", "durationEra")
-
-  treatmentHistory <- if (nonePaths) {
-    dplyr::bind_rows(
-      treatmentHistory,
-      getFilteredSubjects(andromeda)
+      "personId", "indexYear", "age", "sex", "eventCohortName", "eventCohortId",
+      targetCohortName = "cohortName",
+      "targetCohortId", "eventSeq", "durationEra"
     )
-  } else {
-    treatmentHistory
-  }
+
+  targetsTH <- treatmentHistory %>%
+    dplyr::group_by(.data$targetCohortName) %>%
+    dplyr::group_split()
   
   analysisId <- andromeda$analyses %>%
     dplyr::pull(.data$analysis_id)
-
+  
   analyses <- andromeda$analyses %>%
     dplyr::collect()
-
-  attrition <- andromeda$attrition %>%
-    dplyr::collect() %>%
-    dplyr::mutate(analysis_id = analysisId)
 
   metadata <- andromeda$metadata %>%
     dplyr::collect() %>%
@@ -156,38 +151,115 @@ export <- function(
     dplyr::collect() %>%
     dplyr::mutate(analysis_id = analysisId)
 
-  treatmentPathways <- computeTreatmentPathways(
-    treatmentHistory = treatmentHistory,
-    ageWindow = ageWindow,
-    minCellCount = minCellCount,
-    censorType = censorType,
-    stratify = stratify
-  ) %>%
-    dplyr::distinct() %>%
-    rename(
-      index_year = "indexYear",
-      pathway = "path"
+  results <- lapply(targetsTH, function(treatmentHistory) {
+    targetCohortId <- unique(treatmentHistory$targetCohortId)
+    targetCohortName <- unique(treatmentHistory$targetCohortName)
+
+    treatmentHistory <- if (nonePaths) {
+      dplyr::bind_rows(
+        treatmentHistory,
+        getFilteredSubjects(andromeda)
+      ) %>%
+        mutate(
+          targetCohortId = targetCohortId,
+          targetCohortName = targetCohortName
+        )
+    } else {
+      treatmentHistory
+    }
+    
+    attrition <- andromeda$attrition %>%
+      dplyr::collect() %>%
+      dplyr::mutate(
+        analysis_id = analysisId,
+        target_cohort_id = targetCohortId,
+        target_cohort_name = targetCohortName
+      )
+    
+    treatmentPathways <- computeTreatmentPathways(
+      treatmentHistory = treatmentHistory,
+      ageWindow = ageWindow,
+      minCellCount = minCellCount,
+      censorType = censorType,
+      stratify = stratify
     ) %>%
-    dplyr::mutate(analysis_id = analysisId)
+      dplyr::distinct() %>%
+      rename(
+        index_year = "indexYear",
+        pathway = "path"
+      ) %>%
+      dplyr::mutate(
+        analysis_id = analysisId,
+        target_cohort_id = targetCohortId,
+        target_cohort_name = targetCohortName
+      )
+    
+    summaryEventDuration <- computeStatsTherapy(treatmentHistory) %>%
+      dplyr::mutate(
+        analysis_id = analysisId,
+        target_cohort_id = targetCohortId,
+        target_cohort_name = targetCohortName
+      )
+    
+    counts <- computeCounts(treatmentHistory, minCellCount)
+    
+    counts <- lapply(counts, function(item) {
+      item %>%
+        dplyr::mutate(
+          analysis_id = analysisId,
+          target_cohort_id = targetCohortId,
+          target_cohort_name = targetCohortName
+        )
+    })
 
-  summaryEventDuration <- computeStatsTherapy(treatmentHistory) %>%
-    dplyr::mutate(analysis_id = analysisId)
-  
-  counts <- computeCounts(treatmentHistory, minCellCount)
-
-  counts <- lapply(counts, function(item) {
-    item %>%
-      dplyr::mutate(analysis_id = analysisId)
+    TreatmentPatternsResults$new(
+      attrition = attrition,
+      treatmentPathways = treatmentPathways,
+      summaryEventDuration = summaryEventDuration,
+      countsAge = counts$age,
+      countsSex = counts$sex,
+      countsYear = counts$year
+    )
   })
+
+  attrition <- lapply(results, function(tpr) {
+    tpr$attrition
+  }) %>%
+    dplyr::bind_rows()
+
+  treatmentPathways <- lapply(results, function(tpr) {
+    tpr$treatment_pathways
+  }) %>%
+    dplyr::bind_rows()
+
+  summaryEventDuration <- lapply(results, function(tpr) {
+    tpr$summary_event_duration
+  }) %>%
+    dplyr::bind_rows()
+
+  countsAge <- lapply(results, function(tpr) {
+    tpr$counts_age
+  }) %>%
+    dplyr::bind_rows()
+
+  countsSex <- lapply(results, function(tpr) {
+    tpr$counts_sex
+  }) %>%
+    dplyr::bind_rows()
+
+  countsYear <- lapply(results, function(tpr) {
+    tpr$counts_year
+  }) %>%
+    dplyr::bind_rows()
 
   tpr <- TreatmentPatternsResults$new(
     attrition = attrition,
     metadata = metadata,
     treatmentPathways = treatmentPathways,
     summaryEventDuration = summaryEventDuration,
-    countsAge = counts$age,
-    countsSex = counts$sex,
-    countsYear = counts$year,
+    countsAge = countsAge,
+    countsSex = countsSex,
+    countsYear = countsYear,
     cdmSourceInfo = cdmSourceInfo,
     analyses = analyses
   )
