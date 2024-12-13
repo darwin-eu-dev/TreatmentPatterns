@@ -157,41 +157,80 @@ CDMInterface <- R6::R6Class(
     # cohortTableName (`character(1)`)
     dbconFetchCohortTable = function(cohorts, cohortTableName, andromeda, andromedaTableName, minEraDuration) {
       targetCohortId <- getCohortIds(cohorts, "target")
-      n <- DatabaseConnector::renderTranslateQuerySql(
-        connection = private$.connection,
-        sql = "
+
+      n <- lapply(cohortTableName, function(cohortTable) {
+        DatabaseConnector::renderTranslateQuerySql(
+          connection = private$.connection,
+          sql = "
         SELECT COUNT(*)
         FROM @resultSchema.@cohortTable
         WHERE cohort_definition_id IN (@cohortIds)
         GROUP BY subject_id;",
-        resultSchema = private$.resultSchema,
-        cohortTable = cohortTableName,
-        cohortIds = cohorts$cohortId
-      ) |>
+          resultSchema = private$.resultSchema,
+          cohortTable = cohortTable,
+          cohortIds = cohorts$cohortId
+        ) |>
+          unlist() |>
+          as.numeric()
+      }) |>
         unlist() |>
-        as.numeric()
-      
+        sum()
+
       private$dbAppendAttrition(n, andromeda, sort(cohorts$cohortId))
 
       # Select relevant data
-      sql <- SqlRender::loadRenderTranslateSql(
-        sqlFilename = "selectData.sql",
-        packageName = "TreatmentPatterns",
-        dbms = private$.connection@dbms,
-        tempEmulationSchema = private$.tempEmulationSchema,
-        resultSchema = private$.resultSchema,
-        cdmSchema = private$.cdmSchema,
-        cohortTable = cohortTableName,
-        cohortIds = cohorts$cohortId,
-        minEraDuration = minEraDuration,
-        targetCohortId = targetCohortId
-      )
-      
-      DatabaseConnector::querySqlToAndromeda(
+      sql <- lapply(cohortTableName, function(tableName) {
+        SqlRender::loadRenderTranslateSql(
+          sqlFilename = "selectData.sql",
+          packageName = "TreatmentPatterns",
+          dbms = private$.connection@dbms,
+          tempEmulationSchema = private$.tempEmulationSchema,
+          resultSchema = private$.resultSchema,
+          cdmSchema = private$.cdmSchema,
+          cohortTable = tableName,
+          cohortIds = cohorts$cohortId,
+          minEraDuration = minEraDuration
+        )
+      })
+
+      renderedSql <- paste(sql, collapse = "\nUNION ALL\n")
+
+      DatabaseConnector::renderTranslateExecuteSql(
         connection = private$.connection,
-        sql = sql,
+        oracleTempSchema = private$.tempEmulationSchema,
+        sql = sprintf(
+          "DROP TABLE IF EXISTS #tp_dbc_cohort_table;
+          
+          SELECT * FROM (
+            %s
+          ) INTO #tp_dbc_cohort_table;",
+          renderedSql
+        ),
+        tempEmulationSchema = private$.tempEmulationSchema
+      )
+
+      DatabaseConnector::renderTranslateQuerySqlToAndromeda(
+        connection = private$.connection,
         andromeda = andromeda,
-        andromedaTableName = andromedaTableName
+        andromedaTableName = andromedaTableName,
+        tempEmulationSchema = private$.tempEmulationSchema,
+        sql = "
+        SELECT 
+          #tp_dbc_cohort_table.cohort_definition_id,
+          #tp_dbc_cohort_table.subject_id,
+          #tp_dbc_cohort_table.cohort_start_date,
+          #tp_dbc_cohort_table.cohort_end_date,
+          #tp_dbc_cohort_table.age,
+          #tp_dbc_cohort_table.sex,
+          #tp_dbc_cohort_table.subject_id_origin
+        FROM #tp_dbc_cohort_table
+        INNER JOIN (
+          SELECT #tp_dbc_cohort_table.subject_id
+          FROM #tp_dbc_cohort_table
+          WHERE #tp_dbc_cohort_table.cohort_definition_id IN (@targetCohortId)
+        ) AS cross_sec
+        ON cross_sec.subject_id = #tp_dbc_cohort_table.subject_id",
+        targetCohortId = targetCohortId
       )
       
       n <- andromeda[[andromedaTableName]] %>%
@@ -243,58 +282,65 @@ CDMInterface <- R6::R6Class(
         dplyr::select("cohortId") %>%
         dplyr::pull()
 
-      n <- private$.cdm[[cohortTableName]] %>%
-        dplyr::group_by(.data$subject_id) %>% 
-        dplyr::summarise(n = dplyr::n()) %>%
-        dplyr::pull()
+      n <- sapply(cohortTableName, function(tableName) {
+        private$.cdm[[tableName]] %>%
+          dplyr::group_by(.data$subject_id) %>% 
+          dplyr::summarise(n = dplyr::n()) %>%
+          dplyr::pull()
+      }) %>%
+        sum(na.rm = TRUE)
 
       private$dbAppendAttrition(n, andromeda, sort(cohorts$cohortId))
 
       cohortIds <- cohorts$cohortId
-      andromeda[[andromedaTableName]] <- private$.cdm[[cohortTableName]] %>%
-        dplyr::group_by(.data$subject_id) %>%
-        dplyr::mutate(
-          subject_id_origin = .data$subject_id
-        ) %>%
-        dplyr::ungroup() %>%
-        mutate(r = dplyr::row_number()) %>%
-        dplyr::group_by(.data$subject_id_origin) %>%
-        dplyr::mutate(
-          subject_id = min(.data$r, na.rm = TRUE)
-        ) %>%
-        dplyr::select(-"r") %>%
-        dplyr::ungroup() %>%
-        dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
-        dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date") >= minEraDuration) %>%
-        dplyr::group_by(.data$subject_id) %>%
-        dplyr::filter(any(.data$cohort_definition_id %in% targetCohortIds, na.rm = TRUE)) %>%
-        dplyr::ungroup() %>%
-        dplyr::inner_join(
-          private$.cdm$person,
-          by = dplyr::join_by(subject_id_origin == person_id)
-        ) %>%
-        dplyr::inner_join(
-          private$.cdm$concept,
-          by = dplyr::join_by(gender_concept_id == concept_id)) %>%
-        dplyr::mutate(
-          date_of_birth = as.Date(paste0(as.integer(year_of_birth), "-01-01"))) %>%
-        dplyr::mutate(
-          age = !!CDMConnector::datediff("date_of_birth", "cohort_start_date", interval = "year")) %>%
-        dplyr::mutate(
-          subject_id_origin = as.character(subject_id_origin)
-        ) %>%
-        dplyr::rename(sex = "concept_name") %>%
-        dplyr::select(
-          "cohort_definition_id",
-          "subject_id",
-          "subject_id_origin",
-          "cohort_start_date",
-          "cohort_end_date",
-          "age",
-          "sex"
-        ) %>%
-        dplyr::ungroup()
-      
+
+      andromeda[[andromedaTableName]] <- lapply(cohortTableName, function(tableName) {
+        private$.cdm[[tableName]] %>%
+          dplyr::group_by(.data$subject_id) %>%
+          dplyr::mutate(
+            subject_id_origin = .data$subject_id
+          ) %>%
+          dplyr::ungroup() %>%
+          mutate(r = dplyr::row_number()) %>%
+          dplyr::group_by(.data$subject_id_origin) %>%
+          dplyr::mutate(
+            subject_id = min(.data$r, na.rm = TRUE)
+          ) %>%
+          dplyr::select(-"r") %>%
+          dplyr::ungroup() %>%
+          dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
+          dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date") >= minEraDuration) %>%
+          dplyr::group_by(.data$subject_id) %>%
+          dplyr::ungroup() %>%
+          dplyr::inner_join(
+            private$.cdm$person,
+            by = dplyr::join_by(subject_id_origin == person_id)
+          ) %>%
+          dplyr::inner_join(
+            private$.cdm$concept,
+            by = dplyr::join_by(gender_concept_id == concept_id)) %>%
+          dplyr::mutate(
+            date_of_birth = as.Date(paste0(as.integer(year_of_birth), "-01-01"))) %>%
+          dplyr::mutate(
+            age = !!CDMConnector::datediff("date_of_birth", "cohort_start_date", interval = "year")) %>%
+          dplyr::mutate(
+            subject_id_origin = as.character(subject_id_origin)
+          ) %>%
+          dplyr::rename(sex = "concept_name") %>%
+          dplyr::select(
+            "cohort_definition_id",
+            "subject_id",
+            "subject_id_origin",
+            "cohort_start_date",
+            "cohort_end_date",
+            "age",
+            "sex"
+          ) %>%
+          dplyr::ungroup()
+      }) %>%
+        do.call(what = dplyr::union_all) %>%
+        dplyr::filter(any(.data$cohort_definition_id %in% targetCohortIds, na.rm = TRUE))
+
       n <- andromeda[[andromedaTableName]] %>%
         dplyr::group_by(.data$subject_id) %>% 
         dplyr::summarise(n = dplyr::n()) %>%

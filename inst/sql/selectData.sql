@@ -14,20 +14,13 @@ INNER JOIN @cdmSchema.concept
   ON @cdmSchema.person.gender_concept_id = @cdmSchema.concept.concept_id
 INNER JOIN
   (
-    SELECT @resultSchema.@cohortTable.subject_id
-    FROM @resultSchema.@cohortTable
-    WHERE @resultSchema.@cohortTable.cohort_definition_id IN (@targetCohortId)
-  ) AS cross_sec
-  ON cross_sec.subject_id = @resultSchema.@cohortTable.subject_id
-INNER JOIN
-  (
     SELECT
       ROW_NUMBER() OVER (PARTITION BY subject_id) AS subject_id,
       CAST(subject_id AS VARCHAR) AS subject_id_origin
-    FROM cohort_table
+    FROM @resultSchema.@cohortTable
     GROUP BY subject_id
   ) org_subject_table
   ON subject_id_origin = @resultSchema.@cohortTable.subject_id
 WHERE
   cohort_definition_id IN (@cohortIds)
-  AND DATEDIFF(d, cohort_start_date, cohort_end_date) >= @minEraDuration;
+  AND DATEDIFF(d, cohort_start_date, cohort_end_date) >= @minEraDuration

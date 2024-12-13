@@ -346,7 +346,6 @@ validateComputePathways <- function() {
   
   checkmate::assertCharacter(
     x = args$cohortTableName,
-    len = 1,
     null.ok = FALSE,
     .var.name = "cohortTableName"
   )
