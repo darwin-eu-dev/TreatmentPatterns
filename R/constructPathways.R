@@ -33,6 +33,12 @@ constructPathways <- function(settings, andromeda) {
   exitCohortIds <- getCohortIds(cohorts = settings$cohorts, cohortType = "exit")
 
   for (targetCohortId in targetCohortIds) {
+    targetCohortName <- andromeda$cohorts %>%
+      dplyr::filter(.data$cohortId == targetCohortId) %>%
+      dplyr::pull(.data$cohortName)
+
+    message(sprintf(">> Starting on target: %s (%s)", targetCohortId, targetCohortName))
+
     selectPeople <- andromeda$cohortTable %>%
       dplyr::filter(.data$cohortId == targetCohortId) %>%
       dplyr::distinct(.data$personId)
@@ -49,8 +55,7 @@ constructPathways <- function(settings, andromeda) {
       indexDateOffset = settings$indexDateOffset,
       includeTreatments = settings$includeTreatments
     )
-    
-    
+
     n <- andromeda$attrition %>%
       dplyr::collect() %>%
       tail(1) %>%
@@ -124,7 +129,7 @@ constructPathways <- function(settings, andromeda) {
             indexYear = floor(.data$indexYear / 365.25) + 1970)
       }
     } else {
-      warning("No cases found. Generating empty treatmentHistory table.")
+      warning(sprintf("No cases found for: %s (%s). Generating empty treatmentHistory table.", targetCohortId, targetCohortName))
     }
   
     if (is.null(andromeda$treatmentHistoryFinal)) {
@@ -348,15 +353,15 @@ doSplitEventCohorts <- function(
 doEraCollapse <- function(andromeda, eraCollapseSize) {
   andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
     dplyr::group_by(.data$eventCohortId, .data$personId) %>%
-    dbplyr::window_order(.data$eventCohortId,.data$eventStartDate, .data$eventEndDate) %>%
     dplyr::mutate(
       prevStart = dplyr::lag(.data$eventStartDate),
       prevEnd = dplyr::lag(.data$eventEndDate),
       gap = as.numeric(.data$eventStartDate - .data$prevEnd)
     ) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(row = row_number())
-  
+    dplyr::mutate(row = row_number()) %>%
+    dbplyr::window_order(.data$eventCohortId, .data$eventStartDate, .data$eventEndDate)
+
   rows <- andromeda$treatmentHistory %>%
     dplyr::filter(.data$gap <= eraCollapseSize) %>%
     dplyr::pull(.data$row)
