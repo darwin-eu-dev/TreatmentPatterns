@@ -5,7 +5,7 @@ library(testthat)
 test_that("multiple cohort_tables", {
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-  
+
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
     cohortName = c("X", "A", "B"),
@@ -14,22 +14,32 @@ test_that("multiple cohort_tables", {
 
   cohort_table_target <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01")
+    1L,                     5L,           as.Date("2014-01-01"), as.Date("2015-01-01")
   )
 
   cohort_table_event <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10")
+    2L,                     5L,           as.Date("2014-01-10"), as.Date("2014-03-10")
   )
 
-  copy_to(con, cohort_table_target, overwrite = TRUE)
-  copy_to(con, cohort_table_event, overwrite = TRUE)
-  
   cdm <- cdmFromCon(
     con = con,
     cdmSchema = "main",
-    writeSchema = "main",
-    cohortTables = c("cohort_table_target", "cohort_table_event")
+    writeSchema = "main"
+  )
+
+  cdm <- CDMConnector::insertTable(
+    cdm = cdm,
+    name = "cohort_table_event",
+    table = cohort_table_event,
+    overwrite = TRUE
+  )
+
+  cdm <- CDMConnector::insertTable(
+    cdm = cdm,
+    name = "cohort_table_target",
+    table = cohort_table_target,
+    overwrite = TRUE
   )
 
   andromeda <- TreatmentPatterns::computePathways(
@@ -50,7 +60,7 @@ test_that("multiple cohort_tables", {
   
   expect_identical(result$treatment_pathways$pathway, "A")
   
-  DBI::dbDisconnect(con)
+  DBI::dbDisconnect(con, shutdown = TRUE)
 })
 
 test_that("multiple cohort_tables", {

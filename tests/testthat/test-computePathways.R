@@ -680,11 +680,11 @@ test_that("Empty cohort table", {
   skip_if_not(ableToRun()$CDMC)
 
   params <- suppressWarnings(generateCohortTableCDMC())
-  
+
   params$cdm$cohort_table <- params$cdm$cohort_table %>%
     filter(.data$cohort_definition_id <= 0) %>%
     compute()
-  
+
   expect_warning({
     outputEnv <- computePathways(
       cohorts = params$cohorts,

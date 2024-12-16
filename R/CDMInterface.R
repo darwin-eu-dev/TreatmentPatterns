@@ -173,8 +173,7 @@ CDMInterface <- R6::R6Class(
           unlist() |>
           as.numeric()
       }) |>
-        unlist() |>
-        sum()
+        unlist()
 
       private$dbAppendAttrition(n, andromeda, sort(cohorts$cohortId))
 
@@ -232,7 +231,13 @@ CDMInterface <- R6::R6Class(
         ON cross_sec.subject_id = #tp_dbc_cohort_table.subject_id",
         targetCohortId = targetCohortId
       )
-      
+
+      andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+        dplyr::mutate(
+          cohort_start_date = as.integer(.data$cohort_start_date),
+          cohort_end_date = as.integer(.data$cohort_end_date)
+        )
+
       n <- andromeda[[andromedaTableName]] %>%
         dplyr::group_by(.data$subject_id) %>% 
         dplyr::summarise(n = dplyr::n()) %>%
@@ -287,15 +292,18 @@ CDMInterface <- R6::R6Class(
           dplyr::group_by(.data$subject_id) %>% 
           dplyr::summarise(n = dplyr::n()) %>%
           dplyr::pull()
-      }) %>%
-        sum(na.rm = TRUE)
+      }) |> unlist()
+
+      if (length(n) == 0) {
+        n <- 0
+      }
 
       private$dbAppendAttrition(n, andromeda, sort(cohorts$cohortId))
 
       cohortIds <- cohorts$cohortId
 
-      andromeda[[andromedaTableName]] <- lapply(cohortTableName, function(tableName) {
-        private$.cdm[[tableName]] %>%
+      for (tableName in cohortTableName) {
+        tbl <- private$.cdm[[tableName]] %>%
           dplyr::group_by(.data$subject_id) %>%
           dplyr::mutate(
             subject_id_origin = .data$subject_id
@@ -309,7 +317,7 @@ CDMInterface <- R6::R6Class(
           dplyr::select(-"r") %>%
           dplyr::ungroup() %>%
           dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
-          dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date") >= minEraDuration) %>%
+          dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date", interval = "day") >= minEraDuration) %>%
           dplyr::group_by(.data$subject_id) %>%
           dplyr::ungroup() %>%
           dplyr::inner_join(
@@ -335,17 +343,32 @@ CDMInterface <- R6::R6Class(
             "cohort_end_date",
             "age",
             "sex"
-          ) %>%
-          dplyr::ungroup()
-      }) %>%
-        do.call(what = dplyr::union_all) %>%
-        dplyr::filter(any(.data$cohort_definition_id %in% targetCohortIds, na.rm = TRUE))
+          )
+
+        if (is.null(andromeda[[andromedaTableName]])) {
+          andromeda[[andromedaTableName]] <- tbl
+        } else {
+          andromeda$tbl_temp <- tbl
+          andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+            dplyr::union_all(andromeda$tbl_temp)
+          andromeda$tbl_temp <- NULL
+        }
+      }
+
+      andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+        dplyr::group_by(.data$subject_id) %>%
+        dplyr::filter(any(.data$cohort_definition_id %in% targetCohortIds, na.rm = TRUE)) %>%
+        dplyr::ungroup() %>%
+        dplyr::mutate(
+          cohort_start_date = as.integer(.data$cohort_start_date),
+          cohort_end_date = as.integer(.data$cohort_end_date)
+        )
 
       n <- andromeda[[andromedaTableName]] %>%
         dplyr::group_by(.data$subject_id) %>% 
         dplyr::summarise(n = dplyr::n()) %>%
         dplyr::pull()
-      
+
       appendAttrition(
         toAdd = data.frame(
           number_records = sum(n),
