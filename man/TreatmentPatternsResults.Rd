@@ -27,6 +27,8 @@ to a file. Plotting methods are provided.
 \item{\code{cdm_source_info}}{(\code{data.frame})}
 
 \item{\code{analyses}}{(\code{data.frame})}
+
+\item{\code{arguments}}{(\code{list})}
 }
 \if{html}{\out{</div>}}
 }
@@ -60,6 +62,7 @@ Initializer method
   countsYear = NULL,
   cdmSourceInfo = NULL,
   analyses = NULL,
+  arguments = NULL,
   filePath = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -84,6 +87,8 @@ Initializer method
 \item{\code{cdmSourceInfo}}{(\code{data.frame}) cdmSourceInfo result.}
 
 \item{\code{analyses}}{(\code{data.frame}) Analyses result.}
+
+\item{\code{arguments}}{(\code{list}) Named list of arguments used.}
 
 \item{\code{filePath}}{(\code{character}) File path to either a directory or zip-file, containing the csv-files.}
 }

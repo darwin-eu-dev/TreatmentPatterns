@@ -17,6 +17,7 @@ test_that("Method: new(data.frame)", {
   expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$arguments, class = c("tbl_df", "tbl", "data.frame"))
 })
 
 test_that("Method: new(csvDirPath)", {
@@ -31,6 +32,7 @@ test_that("Method: new(csvDirPath)", {
   expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$arguments, class = c("tbl_df", "tbl", "data.frame"))
 
   result <- TreatmentPatternsResults$new(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
   expect_s3_class(result$analyses, class = c("tbl_df", "tbl", "data.frame"))
@@ -42,6 +44,7 @@ test_that("Method: new(csvDirPath)", {
   expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$arguments, class = c("tbl_df", "tbl", "data.frame"))
 })
 
 test_that("Method: new(zipFile)", {
@@ -56,6 +59,7 @@ test_that("Method: new(zipFile)", {
   expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$arguments, class = c("tbl_df", "tbl", "data.frame"))
 
   result <- TreatmentPatternsResults$new(filePath = system.file(package = "TreatmentPatterns", "DummyOutput", "output.zip"))
   expect_s3_class(result$analyses, class = c("tbl_df", "tbl", "data.frame"))
@@ -67,6 +71,7 @@ test_that("Method: new(zipFile)", {
   expect_s3_class(result$treatment_pathways, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$metadata, class = c("tbl_df", "tbl", "data.frame"))
   expect_s3_class(result$attrition, class = c("tbl_df", "tbl", "data.frame"))
+  expect_s3_class(result$arguments, class = c("tbl_df", "tbl", "data.frame"))
 })
 
 test_that("Method: new(wrongFile)", {
@@ -118,7 +123,7 @@ test_that("Method: saveAsCsv()", {
     list.files(tempDir) %in% c(
       "analyses.csv", "attrition.csv", "cdm_source_info.csv", "counts_age.csv",
       "counts_sex.csv", "counts_year.csv", "metadata.csv",
-      "summary_event_duration.csv", "treatment_pathways.csv"
+      "summary_event_duration.csv", "treatment_pathways.csv", "arguments.csv"
     )
   ))
 
