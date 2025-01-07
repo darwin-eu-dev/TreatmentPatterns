@@ -1,11 +1,12 @@
-"number_records","number_subjects","reason_id","reason","time_stamp","analysis_id"
-14041,2693,1,"Qualifying records for cohort definitions: 1, 2, 3, 4, 5, 6, 7, 8",1733483515.82708,1
-8207,2159,2,"Removing records < minEraDuration (14)",1733483516.28804,1
-5504,2159,3,"Removing events where index date < target index date + indexDateOffset (0)",1733483517.02387,1
-5369,2024,4,"splitEventCohorts",1733483517.28475,1
-5369,2024,5,"Collapsing eras, eraCollapse (30)",1733483517.69895,1
-4244,2024,6,"Iteration 1: minPostCombinationDuration (14), combinatinoWindow (14)",1733483519.86198,1
-4197,2024,6,"Iteration 2: minPostCombinationDuration (14), combinatinoWindow (14)",1733483522.03978,1
-4197,2024,7,"After Combination",1733483522.70811,1
-4196,2024,8,"filterTreatments (First)",1733483523.07731,1
-4196,2024,9,"treatment construction done",1733483524.00387,1
+"number_records","number_subjects","reason_id","reason","time_stamp","analysis_id","target_cohort_id","target_cohort_name"
+14041,2693,1,"Qualifying records for cohort definitions: 1, 2, 3, 4, 5, 6, 7, 8",1736250901.26933,1,8,"viralsinusitis"
+11347,2159,2,"Removing records < minEraDuration (7)",1736250901.72823,1,8,"viralsinusitis"
+8344,2159,3,"Removing events where index date < target index date + indexDateOffset (0)",1736250902.63306,1,8,"viralsinusitis"
+8327,2142,4,"splitEventCohorts",1736250902.8961,1,8,"viralsinusitis"
+8327,2142,5,"Collapsing eras, eraCollapse (30)",1736250903.26031,1,8,"viralsinusitis"
+6799,2142,6,"Iteration 1: minPostCombinationDuration (7), combinatinoWindow (7)",1736250905.46056,1,8,"viralsinusitis"
+6663,2142,6,"Iteration 2: minPostCombinationDuration (7), combinatinoWindow (7)",1736250907.69353,1,8,"viralsinusitis"
+6662,2142,6,"Iteration 3: minPostCombinationDuration (7), combinatinoWindow (7)",1736250909.93923,1,8,"viralsinusitis"
+6662,2142,7,"After Combination",1736250910.61262,1,8,"viralsinusitis"
+6657,2142,8,"filterTreatments (First)",1736250911.00258,1,8,"viralsinusitis"
+6653,2142,9,"treatment construction done",1736250912.04732,1,8,"viralsinusitis"
