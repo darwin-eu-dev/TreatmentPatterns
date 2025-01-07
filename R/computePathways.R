@@ -144,6 +144,13 @@ computePathways <- function(
 
   andromeda <- Andromeda::andromeda()
 
+  argsToSave <- jsonlite::toJSON(args[-grep("cdm|connectionDetails", names(args))])
+
+  andromeda$arguments <- data.frame(
+    analysis_id = analysisId,
+    arguments = argsToSave
+  )
+
   andromeda$analyses <- data.frame(
     analysis_id = analysisId,
     description = description

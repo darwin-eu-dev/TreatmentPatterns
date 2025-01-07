@@ -50,7 +50,10 @@ TreatmentPatternsResults <- R6::R6Class(
     cdm_source_info = function() return(private$.cdmSourceInfo),
 
     #' @field analyses (`data.frame`)
-    analyses = function() return(private$.analyses)
+    analyses = function() return(private$.analyses),
+
+    #' @field arguments (`list`)
+    arguments = function() return(private$.arguments)
   ),
 
   # Public ----
@@ -68,6 +71,7 @@ TreatmentPatternsResults <- R6::R6Class(
     #' @param countsYear (`data.frame)`) countsYear result.
     #' @param cdmSourceInfo (`data.frame`) cdmSourceInfo result.
     #' @param analyses (`data.frame`) Analyses result.
+    #' @param arguments (`list`) Named list of arguments used.
     #' @param filePath (`character`) File path to either a directory or zip-file, containing the csv-files.
     initialize = function(
     attrition = NULL,
@@ -79,6 +83,7 @@ TreatmentPatternsResults <- R6::R6Class(
     countsYear = NULL,
     cdmSourceInfo = NULL,
     analyses = NULL,
+    arguments = NULL,
     filePath = NULL) {
       if (!is.null(filePath)) {
         self$load(filePath)
@@ -92,6 +97,7 @@ TreatmentPatternsResults <- R6::R6Class(
         private$.countsYear <- countsYear
         private$.cdmSourceInfo <- cdmSourceInfo
         private$.analyses <- analyses
+        private$.arguments = arguments
       }
     },
 
@@ -119,7 +125,7 @@ TreatmentPatternsResults <- R6::R6Class(
       unlink(tempDir, recursive = TRUE)
 
       if (verbose) {
-        message(sprintf("Wrote zip-file to: %s", path))
+        message(sprintf("Wrote zip-file to: %s", normalizePath(path)))
       }
       return(invisible(self))
     },
@@ -147,9 +153,10 @@ TreatmentPatternsResults <- R6::R6Class(
       write.csv(private$.countsYear, file.path(path, "counts_year.csv"), row.names = FALSE)
       write.csv(private$.cdmSourceInfo, file.path(path, "cdm_source_info.csv"), row.names = FALSE)
       write.csv(private$.analyses, file.path(path, "analyses.csv"), row.names = FALSE)
-      
+      write.csv(private$.arguments, file.path(path, "arguments.csv"), row.names = FALSE)
+
       if (verbose) {
-        message(sprintf("Wrote csv-files to: %s", path))
+        message(sprintf("Wrote csv-files to: %s", normalizePath(path)))
       }
       return(invisible(self))
     },
@@ -300,6 +307,7 @@ TreatmentPatternsResults <- R6::R6Class(
     .countsYear = NULL,
     .cdmSourceInfo = NULL,
     .analyses = NULL,
+    .arguments = NULL,
     
     ## Methods ----
     assertSource = function(filePath) {
@@ -330,8 +338,9 @@ TreatmentPatternsResults <- R6::R6Class(
       private$.countsYear <- files$counts_year.csv
       private$.cdmSourceInfo <- files$cdm_source_info.csv
       private$.analyses <- files$analyses.csv
+      private$.arguments <- files$arguments.csv
     },
-    
+
     loadCsv = function(filePath) {
       private$.attrition <- read.csv(file.path(filePath, "attrition.csv"))
       private$.metadata <- read.csv(file.path(filePath, "metadata.csv"))
@@ -342,8 +351,9 @@ TreatmentPatternsResults <- R6::R6Class(
       private$.countsYear <- read.csv(file.path(filePath, "counts_year.csv"))
       private$.cdmSourceInfo <- read.csv(file.path(filePath, "cdm_source_info.csv"))
       private$.analyses <- read.csv(file.path(filePath, "analyses.csv"))
+      private$.arguments <- read.csv(file.path(filePath, "arguments.csv"))
     },
-    
+
     filterData = function(data, age, sex, indexYear, none) {
       data %>%
         dplyr::filter(

@@ -151,6 +151,9 @@ export <- function(
     dplyr::collect() %>%
     dplyr::mutate(analysis_id = analysisId)
 
+  arguments <- andromeda$arguments %>%
+    dplyr::collect()
+
   results <- lapply(targetsTH, function(treatmentHistory) {
     targetCohortId <- unique(treatmentHistory$targetCohortId)
     targetCohortName <- unique(treatmentHistory$targetCohortName)
@@ -261,7 +264,8 @@ export <- function(
     countsSex = countsSex,
     countsYear = countsYear,
     cdmSourceInfo = cdmSourceInfo,
-    analyses = analyses
+    analyses = analyses,
+    arguments = arguments
   )
 
   if (!is.null(outputPath)) {
