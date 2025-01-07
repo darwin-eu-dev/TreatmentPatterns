@@ -30,7 +30,8 @@ Imports:
     shiny,
     shinydashboard,
     ggplot2,
-    dbplyr
+    dbplyr,
+    jsonlite
 Suggests:
     knitr,
     rmarkdown,

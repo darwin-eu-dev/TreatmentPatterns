@@ -28,6 +28,7 @@
 #' @import shiny
 #' @import shinydashboard
 #' @import ggplot2
+#' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dbplyr window_order
 #' @importFrom networkD3 sankeyNetwork
 #' @importFrom htmlwidgets JS
