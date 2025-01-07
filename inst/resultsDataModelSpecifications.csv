@@ -6,13 +6,13 @@ attrition;reason;varchar;yes;no;Reason description
 attrition;time;bigint;yes;no;Time stamp in seconds since epoch (1970-01-01)
 attrition;analysis_id;int;yes;no;Analysis identifier foreign key
 counts_age;age;int;yes;no;Age in years
-counts_age;n;varchar;yes;no;"Count per age, may be ""<x"""
+counts_age;n;varchar;yes;no;Count per age, may be '<x'
 counts_age;analysis_id;int;yes;no;Analysis identifier foreign key
 counts_sex;sex;varchar;yes;no;Sex group
-counts_sex;n;varchar;yes;no;"Count per sex, may be ""<x"""
+counts_sex;n;varchar;yes;no;Count per sex, may be '<x'
 counts_sex;analysis_id;int;yes;no;Analysis identifier foreign key
 counts_year;year;int;yes;no;Calendar year
-counts_year;n;varchar;yes;no;"Count per year, may be ""<x"""
+counts_year;n;varchar;yes;no;Count per year, may be '<x'
 counts_year;analysis_id;int;yes;no;Analysis identifier foreign key
 metadata;execution_start;bigint;yes;no;Time stamp in seconds since epoch (1970-01-01)
 metadata;package_version;varchar;yes;no;TreatmentPatterns version
@@ -50,3 +50,5 @@ cdm_source_info;vocabulary_version;varchar;yes;no;Vocabulary version
 cdm_source_info;analysis_id;int;yes;no;Analysis identifier foreign key
 analyses;analysis_id;int;yes;no;Analysis identifier
 analyses;description;varchar;yes;no;Analysis description
+arguments;analysis_id;int;yes;no;Analysis identifier
+arguments;arguments;varchar;no;no;Arguments as JSON
