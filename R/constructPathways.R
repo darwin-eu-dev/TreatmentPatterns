@@ -184,8 +184,8 @@ createTreatmentHistory <- function(
   andromeda$targetCohorts <- andromeda$cohortTable %>%
     dplyr::filter(.data$cohortId %in% targetCohortId) %>%
     dplyr::mutate(type = "target") %>%
-    dplyr::mutate(indexYear = as.numeric(format(.data$startDate, "%Y"))) %>%
-    dplyr::mutate(indexDate = .data$startDate + indexDateOffset)
+    dplyr::mutate(indexYear = as.integer(substr(x = as.character(.data$startDate), start = 1, stop = 4))) %>%
+    dplyr::mutate(indexDate = dbplyr::sql(sprintf("DATE_ADD(startDate, %s)", indexDateOffset)))
   
   # Select event cohorts for target cohort and merge with start/end date and
   # index year

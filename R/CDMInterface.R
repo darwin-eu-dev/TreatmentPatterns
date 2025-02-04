@@ -232,11 +232,11 @@ CDMInterface <- R6::R6Class(
         targetCohortId = targetCohortId
       )
 
-      andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
-        dplyr::mutate(
-          cohort_start_date = as.integer(.data$cohort_start_date),
-          cohort_end_date = as.integer(.data$cohort_end_date)
-        )
+      # andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+      #   dplyr::mutate(
+      #     cohort_start_date = as.integer(.data$cohort_start_date),
+      #     cohort_end_date = as.integer(.data$cohort_end_date)
+      #   )
 
       names(andromeda[[andromedaTableName]]) <- tolower(names(andromeda[[andromedaTableName]]))
 
@@ -361,11 +361,11 @@ CDMInterface <- R6::R6Class(
       andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
         dplyr::group_by(.data$subject_id) %>%
         dplyr::filter(any(.data$cohort_definition_id %in% targetCohortIds, na.rm = TRUE)) %>%
-        dplyr::ungroup() %>%
-        dplyr::mutate(
-          cohort_start_date = as.integer(.data$cohort_start_date),
-          cohort_end_date = as.integer(.data$cohort_end_date)
-        )
+        dplyr::ungroup() #%>%
+        # dplyr::mutate(
+        #   cohort_start_date = as.integer(.data$cohort_start_date),
+        #   cohort_end_date = as.integer(.data$cohort_end_date)
+        # )
 
       n <- andromeda[[andromedaTableName]] %>%
         dplyr::group_by(.data$subject_id) %>% 
