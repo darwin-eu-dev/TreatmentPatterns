@@ -35,11 +35,10 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
-    tibble,
     testthat (>= 3.0.0),
-    usethis,
     Eunomia,
     CDMConnector,
+    omock,
     DatabaseConnector (>= 6.0.0),
     SqlRender,
     CohortGenerator,
@@ -49,8 +48,7 @@ Suggests:
     duckdb,
     DBI,
     withr,
-    plotly,
-    PaRe
+    plotly
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
@@ -58,7 +56,6 @@ RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/testthat/parallel: true
-Additional_repositories: https://ohdsi.github.io/drat
 Roxygen: list(markdown = TRUE)
 Collate: 
     'CDMInterface.R'

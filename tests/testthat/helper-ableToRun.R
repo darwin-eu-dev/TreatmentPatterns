@@ -4,7 +4,8 @@ ableToRun <- function() {
       require("CirceR", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
       require("CDMConnector", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
       require("DBI", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
-      require("duckdb", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
+      require("duckdb", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
+      require("omock", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
     ),
 
     CG = all(

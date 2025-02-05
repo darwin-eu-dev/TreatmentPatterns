@@ -4,8 +4,7 @@ library(dplyr)
 
 test_that("A", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-  
+
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
     cohortName = c("X", "A", "B"),
@@ -14,13 +13,11 @@ test_that("A", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -40,12 +37,11 @@ test_that("A", {
   
   expect_identical(result$treatment_pathways$pathway, "A")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -55,14 +51,12 @@ test_that("A-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    3,                     5,           as.Date("2014-03-12"), as.Date("2014-05-12")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    3,                     1,           as.Date("2014-03-12"), as.Date("2014-05-12")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -82,13 +76,12 @@ test_that("A-B", {
   
   expect_identical(result$treatment_pathways$pathway, "A-B")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 
 test_that("A-B-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -98,15 +91,13 @@ test_that("A-B-C", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    3,                     5,           as.Date("2014-03-12"), as.Date("2014-05-12"),
-    4,                     5,           as.Date("2014-05-14"), as.Date("2014-07-14")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    3,                     1,           as.Date("2014-03-12"), as.Date("2014-05-12"),
+    4,                     1,           as.Date("2014-05-14"), as.Date("2014-07-14")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -126,12 +117,11 @@ test_that("A-B-C", {
 
   expect_identical(result$treatment_pathways$pathway, "A-B-C")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-B+C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -146,11 +136,9 @@ test_that("A-B+C", {
     3,                     1,           as.Date("2014-03-10"), as.Date("2014-05-10"),
     4,                     1,           as.Date("2014-03-10"), as.Date("2014-05-10")
   )
-  
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
-  
+
+  cdm <- makeDummyCdm(cohort_table)
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
     cohortTableName = "cohort_table",
@@ -169,12 +157,11 @@ test_that("A-B+C", {
 
   expect_identical(result$treatment_pathways$pathway, "A-B+C")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A+B-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -184,15 +171,13 @@ test_that("A+B-C", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    3,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    4,                     5,           as.Date("2014-03-12"), as.Date("2014-05-12")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    3,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    4,                     1,           as.Date("2014-03-12"), as.Date("2014-05-12")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -212,12 +197,11 @@ test_that("A+B-C", {
 
   expect_identical(result$treatment_pathways$pathway, "A+B-C")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-A+B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -232,11 +216,9 @@ test_that("A-A+B", {
     2,                     1,           as.Date("2014-03-10"), as.Date("2014-05-10"),
     3,                     1,           as.Date("2014-03-10"), as.Date("2014-05-10")
   )
-  
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
-  
+
+  cdm <- makeDummyCdm(cohort_table)
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
     cohortTableName = "cohort_table",
@@ -255,12 +237,11 @@ test_that("A-A+B", {
     
   expect_identical(result$treatment_pathways$pathway, "A-A+B")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-B-A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -270,16 +251,14 @@ test_that("A-B-A-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-03"), as.Date("2014-03-02"),
-    3,                     5,           as.Date("2014-03-10"), as.Date("2014-05-10"),
-    2,                     5,           as.Date("2014-05-12"), as.Date("2014-07-12"),
-    3,                     5,           as.Date("2014-07-14"), as.Date("2014-09-14")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-03"), as.Date("2014-03-02"),
+    3,                     1,           as.Date("2014-03-10"), as.Date("2014-05-10"),
+    2,                     1,           as.Date("2014-05-12"), as.Date("2014-07-12"),
+    3,                     1,           as.Date("2014-07-14"), as.Date("2014-09-14")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -299,12 +278,11 @@ test_that("A-B-A-B", {
 
   expect_identical(result$treatment_pathways$pathway, "A-B-A-B")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-B-A", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -314,15 +292,13 @@ test_that("A-B-A", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     3,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     3,           as.Date("2014-01-03"), as.Date("2014-03-02"),
-    3,                     3,           as.Date("2014-03-10"), as.Date("2014-05-10"),
-    2,                     3,           as.Date("2014-05-12"), as.Date("2014-07-12")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-03"), as.Date("2014-03-02"),
+    3,                     1,           as.Date("2014-03-10"), as.Date("2014-05-10"),
+    2,                     1,           as.Date("2014-05-12"), as.Date("2014-07-12")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -342,12 +318,11 @@ test_that("A-B-A", {
   
   expect_identical(result$treatment_pathways$pathway, "A-B-A")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-B-B, collapse to A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -357,15 +332,13 @@ test_that("A-B-B, collapse to A-B", {
 
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     7,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     7,           as.Date("2014-01-03"), as.Date("2014-03-02"),
-    3,                     7,           as.Date("2014-03-10"), as.Date("2014-05-10"),
-    3,                     7,           as.Date("2014-05-12"), as.Date("2014-06-12")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-03"), as.Date("2014-03-02"),
+    3,                     1,           as.Date("2014-03-10"), as.Date("2014-05-10"),
+    3,                     1,           as.Date("2014-05-12"), as.Date("2014-06-12")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -385,12 +358,11 @@ test_that("A-B-B, collapse to A-B", {
   
   expect_identical(result$treatment_pathways$pathway, "A-B")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-B-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -400,15 +372,13 @@ test_that("A-B-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     7,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     7,           as.Date("2014-01-03"), as.Date("2014-03-02"),
-    3,                     7,           as.Date("2014-03-10"), as.Date("2014-05-10"),
-    3,                     7,           as.Date("2014-06-12"), as.Date("2014-07-12")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-03"), as.Date("2014-03-02"),
+    3,                     1,           as.Date("2014-03-10"), as.Date("2014-05-10"),
+    3,                     1,           as.Date("2014-06-12"), as.Date("2014-07-12")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -428,12 +398,11 @@ test_that("A-B-B", {
 
   expect_identical(result$treatment_pathways$pathway, "A-B-B")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A+B-A", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -443,15 +412,13 @@ test_that("A+B-A", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    3,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    2,                     5,           as.Date("2014-03-12"), as.Date("2014-05-12")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    3,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    2,                     1,           as.Date("2014-03-12"), as.Date("2014-05-12")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -471,12 +438,11 @@ test_that("A+B-A", {
 
   expect_identical(result$treatment_pathways$pathway, "A+B-A")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -486,15 +452,13 @@ test_that("A-A-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    2,                     5,           as.Date("2014-04-12"), as.Date("2014-06-12"),
-    3,                     5,           as.Date("2014-06-14"), as.Date("2014-08-14")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    2,                     1,           as.Date("2014-04-12"), as.Date("2014-06-12"),
+    3,                     1,           as.Date("2014-06-14"), as.Date("2014-08-14")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -514,12 +478,11 @@ test_that("A-A-B", {
 
   expect_identical(result$treatment_pathways$pathway, "A-A-B")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-A-B, collapse to A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -529,15 +492,13 @@ test_that("A-A-B, collapse to A-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    2,                     5,           as.Date("2014-03-12"), as.Date("2014-05-12"),
-    3,                     5,           as.Date("2014-05-14"), as.Date("2014-06-14")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    2,                     1,           as.Date("2014-03-12"), as.Date("2014-05-12"),
+    3,                     1,           as.Date("2014-05-14"), as.Date("2014-06-14")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -557,12 +518,11 @@ test_that("A-A-B, collapse to A-B", {
 
   expect_identical(result$treatment_pathways$pathway, "A-B")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A+B-A+B, collapse to A+B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -572,16 +532,14 @@ test_that("A+B-A+B, collapse to A+B", {
 
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    3,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    2,                     5,           as.Date("2014-03-12"), as.Date("2014-05-12"),
-    3,                     5,           as.Date("2014-03-12"), as.Date("2014-05-12")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    3,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    2,                     1,           as.Date("2014-03-12"), as.Date("2014-05-12"),
+    3,                     1,           as.Date("2014-03-12"), as.Date("2014-05-12")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -601,12 +559,11 @@ test_that("A+B-A+B, collapse to A+B", {
 
   expect_identical(result$treatment_pathways$pathway, "A+B")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A+B-A+B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -616,16 +573,14 @@ test_that("A+B-A+B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    3,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
-    2,                     5,           as.Date("2014-04-12"), as.Date("2014-06-12"),
-    3,                     5,           as.Date("2014-04-12"), as.Date("2014-06-12")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    3,                     1,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    2,                     1,           as.Date("2014-04-12"), as.Date("2014-06-12"),
+    3,                     1,           as.Date("2014-04-12"), as.Date("2014-06-12")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -645,12 +600,11 @@ test_that("A+B-A+B", {
 
   expect_identical(result$treatment_pathways$pathway, "A+B-A+B")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-A+B-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -660,14 +614,12 @@ test_that("A-A+B-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-01"), as.Date("2014-02-01"),
-    3,                     5,           as.Date("2014-01-15"), as.Date("2014-02-15")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-01"), as.Date("2014-02-01"),
+    3,                     1,           as.Date("2014-01-15"), as.Date("2014-02-15")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -687,12 +639,11 @@ test_that("A-A+B-B", {
 
   expect_identical(result$treatment_pathways$pathway, "A-A+B-B")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-A-C-A+B+C-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -702,15 +653,13 @@ test_that("A-A-C-A+B+C-C", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-01"), as.Date("2014-02-01"),
-    3,                     5,           as.Date("2014-01-10"), as.Date("2014-01-20"),
-    4,                     5,           as.Date("2014-01-01"), as.Date("2014-02-01")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-01"), as.Date("2014-02-01"),
+    3,                     1,           as.Date("2014-01-10"), as.Date("2014-01-20"),
+    4,                     1,           as.Date("2014-01-01"), as.Date("2014-02-01")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -730,12 +679,11 @@ test_that("A-A-C-A+B+C-C", {
 
   expect_identical(result$treatment_pathways$pathway, "A+C-A+B+C-A+C")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-A+B+C-A+C-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -745,15 +693,13 @@ test_that("A-A+B+C-A+C-C", {
 
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01"),
-    2,                     5,           as.Date("2014-01-01"), as.Date("2014-02-01"),
-    3,                     5,           as.Date("2014-01-10"), as.Date("2014-01-20"),
-    4,                     5,           as.Date("2014-01-10"), as.Date("2014-03-01")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-01"),
+    2,                     1,           as.Date("2014-01-01"), as.Date("2014-02-01"),
+    3,                     1,           as.Date("2014-01-10"), as.Date("2014-01-20"),
+    4,                     1,           as.Date("2014-01-10"), as.Date("2014-03-01")
   )
 
-  copy_to(con, cohort_table, overwrite = TRUE)
-
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
 
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -773,12 +719,11 @@ test_that("A-A+B+C-A+C-C", {
 
   expect_identical(result$treatment_pathways$pathway, "A-A+B+C-A+C-C")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("A-A+C-C-B+C-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -788,16 +733,14 @@ test_that("A-A+C-C-B+C-C", {
 
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-15"),
-    2,                     5,           as.Date("2014-01-01"), as.Date("2014-01-14"),
-    3,                     5,           as.Date("2014-01-16"), as.Date("2014-01-18"),
-    4,                     5,           as.Date("2014-01-09"), as.Date("2014-01-18"),
-    4,                     5,           as.Date("2014-03-09"), as.Date("2014-03-30")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-01-15"),
+    2,                     1,           as.Date("2014-01-01"), as.Date("2014-01-14"),
+    3,                     1,           as.Date("2014-01-16"), as.Date("2014-01-18"),
+    4,                     1,           as.Date("2014-01-09"), as.Date("2014-01-18"),
+    4,                     1,           as.Date("2014-03-09"), as.Date("2014-03-30")
   )
 
-  copy_to(con, cohort_table, overwrite = TRUE)
-
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
 
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -817,12 +760,11 @@ test_that("A-A+C-C-B+C-C", {
 
   expect_identical(result$treatment_pathways$pathway, "A-A+C-C-B+C-C")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("start event == start target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -832,13 +774,11 @@ test_that("start event == start target", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-10-10"), as.Date("2015-08-01"),
-    2,                     5,           as.Date("2014-10-10"), as.Date("2015-07-01")
+    1,                     1,           as.Date("2014-10-10"), as.Date("2015-08-01"),
+    2,                     1,           as.Date("2014-10-10"), as.Date("2015-07-01")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -858,12 +798,11 @@ test_that("start event == start target", {
 
   expect_identical(result$treatment_pathways$pathway, "A")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("end event == end target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -873,13 +812,11 @@ test_that("end event == end target", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-10-10"), as.Date("2015-08-01"),
-    2,                     5,           as.Date("2014-10-15"), as.Date("2015-08-01")
+    1,                     1,           as.Date("2014-10-10"), as.Date("2015-08-01"),
+    2,                     1,           as.Date("2014-10-15"), as.Date("2015-08-01")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -899,12 +836,11 @@ test_that("end event == end target", {
   
   expect_identical(result$treatment_pathways$pathway, "A")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("start-end event == start-end target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -914,13 +850,11 @@ test_that("start-end event == start-end target", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-10-10"), as.Date("2015-08-01"),
-    2,                     5,           as.Date("2014-10-10"), as.Date("2015-08-01")
+    1,                     1,           as.Date("2014-10-10"), as.Date("2015-08-01"),
+    2,                     1,           as.Date("2014-10-10"), as.Date("2015-08-01")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -940,12 +874,11 @@ test_that("start-end event == start-end target", {
   
   expect_identical(result$treatment_pathways$pathway, "A")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("start event < start target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -955,13 +888,11 @@ test_that("start event < start target", {
 
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-10-10"), as.Date("2015-08-01"),
-    2,                     5,           as.Date("2014-09-10"), as.Date("2015-08-01")
+    1,                     1,           as.Date("2014-10-10"), as.Date("2015-08-01"),
+    2,                     1,           as.Date("2014-09-10"), as.Date("2015-08-01")
   )
 
-  copy_to(con, cohort_table, overwrite = TRUE)
-
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
 
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -981,12 +912,11 @@ test_that("start event < start target", {
     TreatmentPatterns::export(andromeda, minCellCount = 1),
     "Treatment History table is empty. Nothing to export.")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("start event < start target, periodPrior = -60", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -996,13 +926,11 @@ test_that("start event < start target, periodPrior = -60", {
 
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-10-10"), as.Date("2015-08-01"),
-    2,                     5,           as.Date("2014-09-10"), as.Date("2015-08-01")
+    1,                     1,           as.Date("2014-10-10"), as.Date("2015-08-01"),
+    2,                     1,           as.Date("2014-09-10"), as.Date("2015-08-01")
   )
 
-  copy_to(con, cohort_table, overwrite = TRUE)
-
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
 
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -1022,12 +950,11 @@ test_that("start event < start target, periodPrior = -60", {
 
   expect_identical(result$treatment_pathways$pathway, "A")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("start event > end target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -1037,13 +964,11 @@ test_that("start event > end target", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-10-10"), as.Date("2015-08-01"),
-    2,                     5,           as.Date("2015-08-01"), as.Date("2015-10-01")
+    1,                     1,           as.Date("2014-10-10"), as.Date("2015-08-01"),
+    2,                     1,           as.Date("2015-08-01"), as.Date("2015-10-01")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -1064,12 +989,11 @@ test_that("start event > end target", {
     "Treatment History table is empty. Nothing to export."
   )
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("collapse A-B-B-B to A-A+B-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1079,16 +1003,14 @@ test_that("collapse A-B-B-B to A-A+B-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-12-31"),
-    2,                     5,           as.Date("2014-05-20"), as.Date("2014-08-17"),
-    3,                     5,           as.Date("2014-07-08"), as.Date("2014-08-25"),
-    3,                     5,           as.Date("2014-10-19"), as.Date("2015-02-22"),
-    3,                     5,           as.Date("2015-02-28"), as.Date("2015-09-26")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-12-31"),
+    2,                     1,           as.Date("2014-05-20"), as.Date("2014-08-17"),
+    3,                     1,           as.Date("2014-07-08"), as.Date("2014-08-25"),
+    3,                     1,           as.Date("2014-10-19"), as.Date("2015-02-22"),
+    3,                     1,           as.Date("2015-02-28"), as.Date("2015-09-26")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -1109,12 +1031,11 @@ test_that("collapse A-B-B-B to A-A+B-B", {
 
   expect_identical(result$treatment_pathways$pathway, "A-A+B-B")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("collapse A-B-B-B to A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1124,16 +1045,14 @@ test_that("collapse A-B-B-B to A-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-12-31"),
-    2,                     5,           as.Date("2014-01-01"), as.Date("2014-02-01"),
-    3,                     5,           as.Date("2014-02-03"), as.Date("2014-03-01"),
-    3,                     5,           as.Date("2014-03-03"), as.Date("2014-04-01"),
-    3,                     5,           as.Date("2014-04-03"), as.Date("2014-05-01")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-12-31"),
+    2,                     1,           as.Date("2014-01-01"), as.Date("2014-02-01"),
+    3,                     1,           as.Date("2014-02-03"), as.Date("2014-03-01"),
+    3,                     1,           as.Date("2014-03-03"), as.Date("2014-04-01"),
+    3,                     1,           as.Date("2014-04-03"), as.Date("2014-05-01")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -1152,12 +1071,11 @@ test_that("collapse A-B-B-B to A-B", {
 
   expect_identical(result$treatment_pathways$pathway, "A-B")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("collapse A-A-B-B to A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1167,16 +1085,14 @@ test_that("collapse A-A-B-B to A-B", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-12-31"),
-    2,                     5,           as.Date("2014-01-01"), as.Date("2014-02-01"),
-    2,                     5,           as.Date("2014-02-03"), as.Date("2014-03-01"),
-    3,                     5,           as.Date("2014-03-03"), as.Date("2014-04-01"),
-    3,                     5,           as.Date("2014-04-03"), as.Date("2014-05-01")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-12-31"),
+    2,                     1,           as.Date("2014-01-01"), as.Date("2014-02-01"),
+    2,                     1,           as.Date("2014-02-03"), as.Date("2014-03-01"),
+    3,                     1,           as.Date("2014-03-03"), as.Date("2014-04-01"),
+    3,                     1,           as.Date("2014-04-03"), as.Date("2014-05-01")
   )
   
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -1195,13 +1111,12 @@ test_that("collapse A-A-B-B to A-B", {
 
   expect_identical(result$treatment_pathways$pathway, "A-B")
   
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("collapse A-A-B-B to A-B 2", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-  
+
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
     cohortName = c("X", "A", "B"),
@@ -1210,16 +1125,14 @@ test_that("collapse A-A-B-B to A-B 2", {
   
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-12-31"),
-    2,                     5,           as.Date("2014-02-03"), as.Date("2014-03-01"),
-    3,                     5,           as.Date("2014-03-03"), as.Date("2014-04-01"),
-    2,                     5,           as.Date("2014-01-01"), as.Date("2014-02-01"),
-    3,                     5,           as.Date("2014-04-03"), as.Date("2014-05-01")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-12-31"),
+    2,                     1,           as.Date("2014-02-03"), as.Date("2014-03-01"),
+    3,                     1,           as.Date("2014-03-03"), as.Date("2014-04-01"),
+    2,                     1,           as.Date("2014-01-01"), as.Date("2014-02-01"),
+    3,                     1,           as.Date("2014-04-03"), as.Date("2014-05-01")
   )
 
-  copy_to(con, cohort_table, overwrite = TRUE)
-  
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
   
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -1238,12 +1151,11 @@ test_that("collapse A-A-B-B to A-B 2", {
 
   expect_identical(result$treatment_pathways$pathway, "A-B")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
 
 test_that("collapse A-A-B-B to A+B 2", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1253,16 +1165,14 @@ test_that("collapse A-A-B-B to A+B 2", {
 
   cohort_table <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1,                     5,           as.Date("2014-01-01"), as.Date("2015-12-31"),
-    2,                     5,           as.Date("2014-02-01"), as.Date("2014-03-01"),
-    3,                     5,           as.Date("2014-02-05"), as.Date("2014-03-03"),
-    2,                     5,           as.Date("2014-03-05"), as.Date("2014-04-01"),
-    3,                     5,           as.Date("2014-03-05"), as.Date("2014-04-07")
+    1,                     1,           as.Date("2014-01-01"), as.Date("2015-12-31"),
+    2,                     1,           as.Date("2014-02-01"), as.Date("2014-03-01"),
+    3,                     1,           as.Date("2014-02-05"), as.Date("2014-03-03"),
+    2,                     1,           as.Date("2014-03-05"), as.Date("2014-04-01"),
+    3,                     1,           as.Date("2014-03-05"), as.Date("2014-04-07")
   )
 
-  copy_to(con, cohort_table, overwrite = TRUE)
-
-  cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  cdm <- makeDummyCdm(cohort_table)
 
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -1283,5 +1193,5 @@ test_that("collapse A-A-B-B to A+B 2", {
 
   expect_identical(result$treatment_pathways$pathway, "A+B")
 
-  DBI::dbDisconnect(con)
+  CDMConnector::cdmDisconnect(cdm)
 })
