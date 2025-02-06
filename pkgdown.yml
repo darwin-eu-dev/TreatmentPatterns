@@ -1,0 +1,12 @@
+pandoc: 3.1.11
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  articles/bestPractices: bestPractices.html
+  articles/ComputingTreatmentPathways: ComputingTreatmentPathways.html
+  DefiningCohorts: DefiningCohorts.html
+  articles/usingTreatmentPatternsShinyModules: usingTreatmentPatternsShinyModules.html
+last_built: 2025-02-06T14:53Z
+urls:
+  reference: https://darwin-eu-dev.github.io/TreatmentPatterns/reference
+  article: https://darwin-eu-dev.github.io/TreatmentPatterns/articles
