@@ -25,14 +25,12 @@
 #' @import Andromeda
 #' @import R6
 #' @import sunburstR
-#' @import shiny
-#' @import shinydashboard
 #' @import ggplot2
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dbplyr window_order
 #' @importFrom networkD3 sankeyNetwork
-#' @importFrom htmlwidgets JS
 #' @importFrom stats sd median quantile
+#' @importFrom htmlwidgets JS
 #' @importFrom tidyr pivot_wider
 ## usethis namespace: end
 NULL

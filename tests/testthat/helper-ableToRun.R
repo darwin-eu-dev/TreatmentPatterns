@@ -19,14 +19,6 @@ ableToRun <- function() {
       require("ggplot2", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
       require("webshot2", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
       require("plotly", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
-    ),
-
-    shiny = all(
-      require("shiny", quietly = TRUE, mask.ok = TRUE, character.only = TRUE),
-      require("shinydashboard", quietly = TRUE, mask.ok = TRUE, character.only = TRUE),
-      require("ggplot2", quietly = TRUE, mask.ok = TRUE, character.only = TRUE),
-      require("plotly", quietly = TRUE, mask.ok = TRUE, character.only = TRUE),
-      require("dplyr", quietly = TRUE, mask.ok = TRUE, character.only = TRUE)
     )
   )
 }

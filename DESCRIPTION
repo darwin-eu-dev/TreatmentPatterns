@@ -27,8 +27,6 @@ Imports:
     sunburstR,
     networkD3,
     htmlwidgets,
-    shiny,
-    shinydashboard,
     ggplot2,
     dbplyr,
     jsonlite
@@ -61,13 +59,6 @@ Config/testthat/parallel: true
 Roxygen: list(markdown = TRUE)
 Collate: 
     'CDMInterface.R'
-    'ShinyModule.R'
-    'CharacterizationPlots.R'
-    'InputHandler.R'
-    'InteractivePlots.R'
-    'SankeyDiagram.R'
-    'ShinyApp.R'
-    'SunburstPlot.R'
     'TreatmentPatterns-package.R'
     'TreatmentPatternsResults.R'
     'attrition.R'
