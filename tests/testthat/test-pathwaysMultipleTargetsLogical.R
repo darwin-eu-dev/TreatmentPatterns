@@ -17,7 +17,7 @@ getValidPersonIds <- function(cdm) {
 test_that("Pathways", {
   skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   on.exit(DBI::dbDisconnect(con))
 
   cohorts <- data.frame(
@@ -173,7 +173,7 @@ test_that("Pathways", {
       filter(.data$subject_id == subjectId)
 
     suppressWarnings({
-      con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+      con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
       copy_to(con, tbl, overwrite = TRUE)
       cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "tbl", .softValidation = TRUE)
 
@@ -214,7 +214,7 @@ test_that("Pathways", {
 test_that("Events within target", {
   skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -268,7 +268,7 @@ test_that("Events within target", {
       filter(.data$subject_id == subjectId)
     
     suppressWarnings({
-      con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+      con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
       copy_to(con, tbl, overwrite = TRUE)
       cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "tbl", .softValidation = TRUE)
     
@@ -308,7 +308,7 @@ test_that("Events within target", {
 
 test_that("Events outside target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),

@@ -4,7 +4,7 @@ generateCohortTableCDMC <- function() {
     
     con <- DBI::dbConnect(
       duckdb::duckdb(),
-      dbdir = CDMConnector::eunomia_dir()
+      dbdir = CDMConnector::eunomiaDir()
     )
     
     cdm <- CDMConnector::cdmFromCon(

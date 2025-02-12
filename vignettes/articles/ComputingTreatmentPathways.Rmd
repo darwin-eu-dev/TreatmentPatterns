@@ -58,7 +58,7 @@ if (require("Eunomia", character.only = TRUE, quietly = TRUE)) {
 ```{r connectToCDM}
 con <- DBI::dbConnect(
   drv = duckdb::duckdb(),
-  dbdir = eunomia_dir()
+  dbdir = eunomiaDir()
 )
 
 cdm <- cdmFromCon(

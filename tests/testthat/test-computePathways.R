@@ -291,7 +291,7 @@ test_that("combinationWindow", {
 
 test_that("minPostCombinationDuration: 30", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -552,7 +552,7 @@ test_that("filterTreatments", {
 
 test_that("FRFS combination", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -605,7 +605,7 @@ test_that("FRFS combination", {
 
 test_that("LRFS combination", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),

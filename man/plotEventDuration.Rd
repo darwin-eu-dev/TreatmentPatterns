@@ -59,7 +59,7 @@ if (ableToRun) {
     }
   }, error = function(e) NA)
 
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
 
   cohortSet <- readCohortSet(

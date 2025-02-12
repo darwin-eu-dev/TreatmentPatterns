@@ -5,7 +5,7 @@ library(dplyr)
 if (ableToRun()$CDMC) {
   andromeda <- Andromeda::andromeda()
   
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   
   withr::defer({
     Andromeda::close(andromeda)
