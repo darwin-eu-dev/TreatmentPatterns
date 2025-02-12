@@ -78,4 +78,5 @@ Collate:
     'executeTreatmentPatterns.R'
     'export.R'
     'getResultsDataModelSpecification.R'
+    'ggSunburst.R'
     'plotEventDuration.R'
