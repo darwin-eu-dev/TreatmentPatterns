@@ -4,7 +4,7 @@ library(dplyr)
 
 test_that("A", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -46,7 +46,7 @@ test_that("A", {
 
 test_that("A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -90,7 +90,7 @@ test_that("A-B", {
 
 test_that("A-B-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -134,7 +134,7 @@ test_that("A-B-C", {
 
 test_that("A-B+C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -178,7 +178,7 @@ test_that("A-B+C", {
 
 test_that("A+B-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -223,7 +223,7 @@ test_that("A+B-C", {
 test_that("A-A+B", {
   skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -266,7 +266,7 @@ test_that("A-A+B", {
 
 test_that("A-B-A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -311,7 +311,7 @@ test_that("A-B-A-B", {
 
 test_that("A-B-A", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -355,7 +355,7 @@ test_that("A-B-A", {
 
 test_that("A-B-B, collapse to A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -399,7 +399,7 @@ test_that("A-B-B, collapse to A-B", {
 
 test_that("A-B-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -443,7 +443,7 @@ test_that("A-B-B", {
 
 test_that("A+B-A", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -487,7 +487,7 @@ test_that("A+B-A", {
 
 test_that("A-A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -531,7 +531,7 @@ test_that("A-A-B", {
 
 test_that("A-A-B, collapse to A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -575,7 +575,7 @@ test_that("A-A-B, collapse to A-B", {
 
 test_that("A+B-A+B, collapse to A+B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -620,7 +620,7 @@ test_that("A+B-A+B, collapse to A+B", {
 
 test_that("A+B-A+B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -665,7 +665,7 @@ test_that("A+B-A+B", {
 
 test_that("A-A+B-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -708,7 +708,7 @@ test_that("A-A+B-B", {
 
 test_that("A-A-C-A+B+C-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -752,7 +752,7 @@ test_that("A-A-C-A+B+C-C", {
 
 test_that("A-A+B+C-A+C-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
 
   cohorts <- data.frame(
@@ -796,7 +796,7 @@ test_that("A-A+B+C-A+C-C", {
 
 test_that("A-A+C-C-B+C-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
 
   cohorts <- data.frame(
@@ -841,7 +841,7 @@ test_that("A-A+C-C-B+C-C", {
 
 test_that("start event == start target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -883,7 +883,7 @@ test_that("start event == start target", {
 
 test_that("end event == end target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -925,7 +925,7 @@ test_that("end event == end target", {
 
 test_that("start-end event == start-end target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -967,7 +967,7 @@ test_that("start-end event == start-end target", {
 
 test_that("start event < start target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
 
   cohorts <- data.frame(
@@ -1009,7 +1009,7 @@ test_that("start event < start target", {
 
 test_that("start event < start target, periodPrior = -60", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
 
   cohorts <- data.frame(
@@ -1051,7 +1051,7 @@ test_that("start event < start target, periodPrior = -60", {
 
 test_that("start event > end target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -1094,7 +1094,7 @@ test_that("start event > end target", {
 
 test_that("collapse A-B-B-B to A-A+B-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -1140,7 +1140,7 @@ test_that("collapse A-B-B-B to A-A+B-B", {
 
 test_that("collapse A-B-B-B to A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -1184,7 +1184,7 @@ test_that("collapse A-B-B-B to A-B", {
 
 test_that("collapse A-A-B-B to A-B", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -1228,7 +1228,7 @@ test_that("collapse A-A-B-B to A-B", {
 
 test_that("collapse A-A-B-B to A-B 2", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
   
   cohorts <- data.frame(
@@ -1272,7 +1272,7 @@ test_that("collapse A-A-B-B to A-B 2", {
 
 test_that("collapse A-A-B-B to A+B 2", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
 
   cohorts <- data.frame(
