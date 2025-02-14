@@ -4,12 +4,7 @@
 \alias{ggSunburst}
 \title{ggSunburst}
 \usage{
-ggSunburst(
-  treatmentPathways,
-  groupCombinations = FALSE,
-  unit = "percent",
-  mergeEvents = FALSE
-)
+ggSunburst(treatmentPathways, groupCombinations = FALSE, unit = "percent")
 }
 \arguments{
 \item{treatmentPathways}{(\code{data.frame()})\cr

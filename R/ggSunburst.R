@@ -82,20 +82,12 @@ mergeLayerEvens <- function(table) {
     )
 }
 
-formatDataSunburst <- function(treatmentPathways, size, groupCombinations, mergeEvents) {
-  res <- treatmentPathways %>%
+formatDataSunburst <- function(treatmentPathways, size, groupCombinations) {
+  treatmentPathways %>%
     computeXCoords(size) %>%
     splitPaths() %>%
     splitCombinations(groupCombinations) %>%
     computeYCoords(size)
-  
-  res <- if (mergeEvents) {
-    res %>%
-      mergeLayerEvens()  
-  } else {
-    res
-  }
-  return(res)
 }
 
 makeGgSunburst <- function(data) {
@@ -110,12 +102,12 @@ makeGgSunburst <- function(data) {
         data = data %>%
           dplyr::filter(.data$layer == layer),
         mapping = aes(
-          ymin = ymin,
-          ymax = ymax,
+          ymin = .data$ymin,
+          ymax = .data$ymax,
           # Width
-          xmin = xmin,
-          xmax = xmax,
-          fill = label
+          xmin = .data$xmin,
+          xmax = .data$xmax,
+          fill = .data$label
         ),
         colour = "#000000"
       )
@@ -152,13 +144,13 @@ makeGgSunburst <- function(data) {
 #' )
 #' 
 #' ggSunburst(treatmentPatwhays)
-ggSunburst <- function(treatmentPathways, groupCombinations = FALSE, unit = "percent", mergeEvents = FALSE) {
+ggSunburst <- function(treatmentPathways, groupCombinations = FALSE, unit = "percent") {
   size <- if (unit == "percent") {
     100
   } else if (unit == "count") {
     sum(treatmentPathways$freq)
   }
 
-  formatDataSunburst(treatmentPathways, size, groupCombinations, mergeEvents) %>%
+  formatDataSunburst(treatmentPathways, size, groupCombinations) %>%
     makeGgSunburst()
 }
