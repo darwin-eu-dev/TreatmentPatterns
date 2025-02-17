@@ -61,27 +61,6 @@ computeYCoords <- function(table, size) {
     )
 }
 
-mergeLayerEvens <- function(table) {
-  maxLayer <- max(table$layer)
-  table %>%
-    group_by(.data$label, .data$layer, .data$is_combo, .data$age, .data$sex, .data$index_year) %>%
-    dplyr::mutate(
-      freq = sum(.data$freq),
-      next_xmin = dplyr::case_when(
-        .data$layer != maxLayer ~ lead(.data$xmin, default = max(.data$xmax)),
-        .default = lead(.data$xmin)
-      ),
-      xmin = dplyr::case_when(
-        .data$next_xmin == .data$xmax ~ min(.data$xmin),
-        .default = .data$xmin
-      ),
-      xmax = dplyr::case_when(
-        .data$next_xmin == .data$xmax ~ max(.data$xmax),
-        .default = .data$xmax
-      )
-    )
-}
-
 formatDataSunburst <- function(treatmentPathways, size, groupCombinations) {
   treatmentPathways %>%
     computeXCoords(size) %>%
@@ -91,17 +70,17 @@ formatDataSunburst <- function(treatmentPathways, size, groupCombinations) {
 }
 
 makeGgSunburst <- function(data) {
-  gg <- ggplot(data = data)
+  gg <- ggplot2::ggplot(data = data)
   
   nLayers <- max(data$layer)
   yMax <- max(data$ymax)
   
   for (layer in seq_len(nLayers)) {
     gg <- gg +
-      geom_rect(
+      ggplot2::geom_rect(
         data = data %>%
           dplyr::filter(.data$layer == layer),
-        mapping = aes(
+        mapping = ggplot2::aes(
           ymin = .data$ymin,
           ymax = .data$ymax,
           # Width
@@ -114,13 +93,13 @@ makeGgSunburst <- function(data) {
   }
   
   gg +
-    coord_polar() +
-    theme_bw() +
-    theme(
-      axis.text.y = element_blank(),
-      axis.ticks = element_blank()
+    ggplot2::coord_polar() +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank()
     ) +
-    ylim(0, yMax)
+    ggplot2::ylim(0, yMax)
 }
 
 #' ggSunburst
