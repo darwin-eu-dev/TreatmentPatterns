@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">TreatmentPatterns</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,6 @@
 <li><a class="dropdown-item" href="../articles/bestPractices.html">Best practices</a></li>
     <li><a class="dropdown-item" href="../articles/ComputingTreatmentPathways.html">Computing Treatment Pathways</a></li>
     <li><a class="dropdown-item" href="../articles/DefiningCohorts.html">Defining Cohorts</a></li>
-    <li><a class="dropdown-item" href="../articles/usingTreatmentPatternsShinyModules.html">Using TreatmentPatterns' Shiny Modules</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -63,7 +62,7 @@
       <h1>Computing Treatment Pathways</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/v3.0.0/vignettes/articles/ComputingTreatmentPathways.Rmd" class="external-link"><code>vignettes/articles/ComputingTreatmentPathways.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/main/vignettes/articles/ComputingTreatmentPathways.Rmd" class="external-link"><code>vignettes/articles/ComputingTreatmentPathways.Rmd</code></a></small>
       <div class="d-none name"><code>ComputingTreatmentPathways.Rmd</code></div>
     </div>
 
@@ -110,28 +109,18 @@ Eunomia.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span></span>
 <span>  drv <span class="op">=</span> <span class="fu">duckdb</span><span class="fu">::</span><span class="fu"><a href="https://r.duckdb.org/reference/duckdb.html" class="external-link">duckdb</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  dbdir <span class="op">=</span> <span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/eunomiaDir.html" class="external-link">eunomia_dir</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  dbdir <span class="op">=</span> <span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/eunomiaDir.html" class="external-link">eunomiaDir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: `eunomia_dir()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please use `eunomiaDir()` instead.</span></span>
-<span><span class="co">## <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
-<span><span class="co">## <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
-<span><span class="co">## <span style="color: #555555;">generated.</span></span></span></code></pre>
-<pre><code><span><span class="co">## Creating CDM database /tmp/RtmpCN9Wxq/file26ef3c496c80/GiBleed_5.3.zip</span></span></code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## Creating CDM database /tmp/RtmpiR2BOy/file259a3fe35ab0/GiBleed_5.3.zip</span></span></code></pre>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cdm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/cdmFromCon.html" class="external-link">cdmFromCon</a></span><span class="op">(</span></span>
 <span>  con <span class="op">=</span> <span class="va">con</span>,</span>
 <span>  cdmSchema <span class="op">=</span> <span class="st">"main"</span>,</span>
 <span>  writeSchema <span class="op">=</span> <span class="st">"main"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Note: method with signature 'DBIConnection#Id' chosen for function 'dbExistsTable',</span></span>
-<span><span class="co">##  target signature 'duckdb_connection#Id'.</span></span>
-<span><span class="co">##  "duckdb_connection#ANY" would also be valid</span></span>
-<span><span class="co">## <span style="color: #BBBB00;">!</span> cdm name not specified and could not be inferred from the cdm source table</span></span></code></pre>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cdm</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="va">cdm</span></span></code></pre></div>
 <pre><code><span><span class="co">## </span></span>
-<span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># OMOP CDM reference (duckdb) of An OMOP CDM database</span> <span style="color: #00BBBB;">───────────────────────</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;"># OMOP CDM reference (duckdb) of Synthea</span> <span style="color: #00BBBB;">────────────────────────────────────</span></span></span>
 <span><span class="co">## • <span style="font-weight: bold;">omop tables:</span> person, observation_period, visit_occurrence, visit_detail,</span></span>
 <span><span class="co">## condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
 <span><span class="co">## measurement, observation, death, note, note_nlp, specimen, fact_relationship,</span></span>
@@ -144,7 +133,7 @@ Eunomia.</p>
 <span><span class="co">## • <span style="font-weight: bold;">other tables:</span> -</span></span></code></pre>
 <p>Finally we can generate our cohort set as a cohort table into the
 database</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cdm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/generateCohortSet.html" class="external-link">generateCohortSet</a></span><span class="op">(</span></span>
 <span>  cdm <span class="op">=</span> <span class="va">cdm</span>,</span>
 <span>  cohortSet <span class="op">=</span> <span class="va">cohortSet</span>,</span>
@@ -153,30 +142,30 @@ database</p>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating 8 cohorts</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (1/8) - acetaminophen</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (1/8) - acetaminophen <span style="color: #B2B2B2;">[359ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (1/8) - acetaminophen <span style="color: #B2B2B2;">[363ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (2/8) - amoxicillin</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (2/8) - amoxicillin <span style="color: #B2B2B2;">[181ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (2/8) - amoxicillin <span style="color: #B2B2B2;">[197ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (3/8) - aspirin</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (3/8) - aspirin <span style="color: #B2B2B2;">[166ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (3/8) - aspirin <span style="color: #B2B2B2;">[163ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (4/8) - clavulanate</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (4/8) - clavulanate <span style="color: #B2B2B2;">[157ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (4/8) - clavulanate <span style="color: #B2B2B2;">[154ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (5/8) - death</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (5/8) - death <span style="color: #B2B2B2;">[120ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (5/8) - death <span style="color: #B2B2B2;">[125ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (6/8) - doxylamine</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (6/8) - doxylamine <span style="color: #B2B2B2;">[147ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (6/8) - doxylamine <span style="color: #B2B2B2;">[152ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (7/8) - penicillinv</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (7/8) - penicillinv <span style="color: #B2B2B2;">[154ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (7/8) - penicillinv <span style="color: #B2B2B2;">[149ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (8/8) - viralsinusitis</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (8/8) - viralsinusitis <span style="color: #B2B2B2;">[228ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (8/8) - viralsinusitis <span style="color: #B2B2B2;">[242ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://darwin-eu.github.io/omopgenerics/reference/cohortCount.html" class="external-link">cohortCount</a></span><span class="op">(</span><span class="va">cdm</span><span class="op">$</span><span class="va">cohort_table</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 8 × 3</span></span></span>
 <span><span class="co">##   cohort_definition_id number_records number_subjects</span></span>
@@ -219,7 +208,7 @@ remove the <code>cohort</code> and <code>json</code> columns, add a
 <code>type</code> column, and rename <code>cohort_definition_id</code>
 to <code>cohortId</code> and <code>cohort_name</code> to
 <code>cohortName</code>.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cohorts</span> <span class="op">&lt;-</span> <span class="va">cohortSet</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -246,7 +235,7 @@ to <code>cohortId</code> and <code>cohort_name</code> to
 <p>With our <code>data.frame</code> of cohort types, CDM reference, and
 the cohort table name in our database we can compute the treatment
 pathways, with all of the other settings as their defaults.</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/darwin-eu/TreatmentPatterns" class="external-link">TreatmentPatterns</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">defaultSettings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computePathways.html">computePathways</a></span><span class="op">(</span></span>
@@ -285,10 +274,10 @@ pathways, with all of the other settings as their defaults.</p>
 <pre><code><span><span class="co">## -- treatment construction done</span></span>
 <span><span class="co">##  Records: 553</span></span>
 <span><span class="co">##  Subjects: 512</span></span></code></pre>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">defaultSettings</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># Andromeda object</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># Physical location:  /tmp/RtmpCN9Wxq/file26ef7a1f64fe.sqlite</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Physical location:  /tmp/RtmpiR2BOy/file259ad0b6e0f.sqlite</span></span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Tables:</span></span>
 <span><span class="co">## $addRowsFRFS_1 (personId, indexYear, eventCohortId, eventStartDate, eventEndDate, type, age, sex, targetCohortId, durationEra, sortOrder, gapPrevious, selectedRows, switch, combinationFRFS, combinationLRFS, eventStartDateNext, eventEndDatePrevious, eventEndDateNext, eventCohortIdPrevious)</span></span>
@@ -326,34 +315,34 @@ pathways, with all of the other settings as their defaults.</p>
 <p>The output of <code>computePathways</code> is an <a href="https://ohdsi.github.io/Andromeda/" class="external-link">Andromeda</a> environment,
 which allows us to investigate intermediate results and patient-level
 data. <strong>This data is not sharable.</strong></p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># treatmentHistory table</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">defaultSettings</span><span class="op">$</span><span class="va">treatmentHistory</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># Source:   SQL [?? x 12]</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># Database: sqlite 3.47.1 [/tmp/RtmpCN9Wxq/file26ef7a1f64fe.sqlite]</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Database: sqlite 3.47.1 [/tmp/RtmpiR2BOy/file259ad0b6e0f.sqlite]</span></span></span>
 <span><span class="co">##   eventCohortId personId indexYear targetCohortId eventStartDate   age sex   </span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> 1                   35      <span style="text-decoration: underline;">1</span>961              8          -<span style="color: #BB0000; text-decoration: underline;">3</span><span style="color: #BB0000;">073</span>     2 MALE  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> 1                   10      <span style="text-decoration: underline;">1</span>960              8          -<span style="color: #BB0000; text-decoration: underline;">3</span><span style="color: #BB0000;">589</span>     4 FEMALE</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> 1                  625      <span style="text-decoration: underline;">1</span>960              8           -<span style="color: #BB0000;">510</span>    13 FEMALE</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span> 1                  898      <span style="text-decoration: underline;">1</span>969              8           <span style="text-decoration: underline;">4</span>934    16 MALE  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">5</span> 1                  723      <span style="text-decoration: underline;">1</span>957              8           <span style="text-decoration: underline;">1</span>235    18 MALE  </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">6</span> 1                  684      <span style="text-decoration: underline;">1</span>979              8           <span style="text-decoration: underline;">4</span>999    18 MALE  </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> 1                  616      <span style="text-decoration: underline;">1</span>968              8           -<span style="color: #BB0000;">644</span>     4 MALE  </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> 1                 <span style="text-decoration: underline;">1</span>231      <span style="text-decoration: underline;">1</span>974              8           <span style="text-decoration: underline;">1</span>525     6 FEMALE</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> 1                 <span style="text-decoration: underline;">1</span>384      <span style="text-decoration: underline;">1</span>951              8          -<span style="color: #BB0000; text-decoration: underline;">6</span><span style="color: #BB0000;">845</span>     2 FEMALE</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> 1                  177      <span style="text-decoration: underline;">1</span>958              8           -<span style="color: #BB0000;">103</span>    12 FEMALE</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> 1                  569      <span style="text-decoration: underline;">1</span>955              8          -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">850</span>    13 MALE  </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> 1                  859      <span style="text-decoration: underline;">1</span>970              8            141     3 MALE  </span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 5 more variables: eventEndDate &lt;int&gt;, durationEra &lt;int&gt;, sortOrder &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   eventSeq &lt;int&gt;, eventCohortName &lt;chr&gt;</span></span></span></code></pre>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># metadata table</span></span>
 <span><span class="va">defaultSettings</span><span class="op">$</span><span class="va">metadata</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># Source:   table&lt;`metadata`&gt; [?? x 5]</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># Database: sqlite 3.47.1 [/tmp/RtmpCN9Wxq/file26ef7a1f64fe.sqlite]</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Database: sqlite 3.47.1 [/tmp/RtmpiR2BOy/file259ad0b6e0f.sqlite]</span></span></span>
 <span><span class="co">##   execution_start package_version r_version               platform execution_end</span></span>
 <span><span class="co">##             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span>     <span style="text-decoration: underline;">1</span>738<span style="text-decoration: underline;">853</span>987. 3.0.0           R version 4.4.2 (2024-… x86_64-…   <span style="text-decoration: underline;">1</span>738<span style="text-decoration: underline;">853</span>994.</span></span></code></pre>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<span><span class="co">## <span style="color: #BCBCBC;">1</span>     <span style="text-decoration: underline;">1</span>741<span style="text-decoration: underline;">679</span>552. 3.0.1           R version 4.4.3 (2025-… x86_64-…   <span style="text-decoration: underline;">1</span>741<span style="text-decoration: underline;">679</span>559.</span></span></code></pre>
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First Recieved First Stopped</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">defaultSettings</span><span class="op">$</span><span class="va">addRowsFRFS_1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># Source:   SQL [?? x 20]</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># Database: sqlite 3.47.1 [/tmp/RtmpCN9Wxq/file26ef7a1f64fe.sqlite]</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Database: sqlite 3.47.1 [/tmp/RtmpiR2BOy/file259ad0b6e0f.sqlite]</span></span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 20 variables: personId &lt;lgl&gt;, indexYear &lt;dbl&gt;, eventCohortId &lt;lgl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   eventStartDate &lt;int&gt;, eventEndDate &lt;lgl&gt;, type &lt;lgl&gt;, age &lt;dbl&gt;, sex &lt;chr&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   targetCohortId &lt;int&gt;, durationEra &lt;lgl&gt;, sortOrder &lt;lgl&gt;,</span></span></span>
@@ -361,19 +350,19 @@ data. <strong>This data is not sharable.</strong></p>
 <span><span class="co">## <span style="color: #949494;">#   combinationLRFS &lt;lgl&gt;, eventStartDateNext &lt;lgl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   eventEndDatePrevious &lt;lgl&gt;, eventEndDateNext &lt;lgl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   eventCohortIdPrevious &lt;lgl&gt;</span></span></span></code></pre>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Last Recieved Last Stopped</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">defaultSettings</span><span class="op">$</span><span class="va">addRowsLRFS_1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># Source:   SQL [?? x 21]</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># Database: sqlite 3.47.1 [/tmp/RtmpCN9Wxq/file26ef7a1f64fe.sqlite]</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># Database: sqlite 3.47.1 [/tmp/RtmpiR2BOy/file259ad0b6e0f.sqlite]</span></span></span>
 <span><span class="co">##   personId indexYear eventCohortId eventStartDate eventEndDate type    age sex  </span></span>
 <span><span class="co">##      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span>        5      <span style="text-decoration: underline;">1</span>845 2                       <span style="text-decoration: underline;">9</span>364         <span style="text-decoration: underline;">9</span>364 event    31 MALE </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span>        7      <span style="text-decoration: underline;">1</span>227 2                       <span style="text-decoration: underline;">5</span>965         <span style="text-decoration: underline;">5</span>965 event    18 MALE </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span>        8      -<span style="color: #BB0000;">604</span> 2                       <span style="text-decoration: underline;">7</span>785         <span style="text-decoration: underline;">7</span>785 event    28 MALE </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span>       12      <span style="text-decoration: underline;">3</span>657 2                      <span style="text-decoration: underline;">10</span>855        <span style="text-decoration: underline;">10</span>855 event    25 FEMA…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">5</span>       13      <span style="text-decoration: underline;">2</span>202 2                       <span style="text-decoration: underline;">4</span>512         <span style="text-decoration: underline;">4</span>512 event     9 FEMA…</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">6</span>       14      <span style="text-decoration: underline;">3</span>877 1                       <span style="text-decoration: underline;">3</span>891         <span style="text-decoration: underline;">3</span>891 event     3 FEMA…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span>        3     -<span style="color: #BB0000; text-decoration: underline;">3</span><span style="color: #BB0000;">875</span> 4                      -<span style="color: #BB0000; text-decoration: underline;">2</span><span style="color: #BB0000;">027</span>        -<span style="color: #BB0000; text-decoration: underline;">2</span><span style="color: #BB0000;">027</span> event     8 MALE </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span>        4     -<span style="color: #BB0000; text-decoration: underline;">4</span><span style="color: #BB0000;">941</span> 4                      -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">679</span>        -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">679</span> event    11 MALE </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span>        5     -<span style="color: #BB0000; text-decoration: underline;">2</span><span style="color: #BB0000;">945</span> 4                      -<span style="color: #BB0000; text-decoration: underline;">2</span><span style="color: #BB0000;">663</span>        -<span style="color: #BB0000; text-decoration: underline;">2</span><span style="color: #BB0000;">663</span> event     3 MALE </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span>        7     -<span style="color: #BB0000; text-decoration: underline;">2</span><span style="color: #BB0000;">003</span> 4                      -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">996</span>        -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">996</span> event     9 MALE </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span>       11      <span style="text-decoration: underline;">3</span>657 2                      <span style="text-decoration: underline;">10</span>855        <span style="text-decoration: underline;">10</span>855 event    25 FEMA…</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span>       13      <span style="text-decoration: underline;">3</span>877 1                       <span style="text-decoration: underline;">3</span>891         <span style="text-decoration: underline;">3</span>891 event     3 FEMA…</span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 13 more variables: targetCohortId &lt;int&gt;, durationEra &lt;int&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   sortOrder &lt;dbl&gt;, gapPrevious &lt;int&gt;, selectedRows &lt;dbl&gt;, switch &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   combinationFRFS &lt;dbl&gt;, combinationLRFS &lt;dbl&gt;, eventStartDateNext &lt;int&gt;,</span></span></span>
@@ -398,7 +387,7 @@ created.</li>
 <p>The following code snippet works with <code>Eunomia</code>, a cohort
 table (cohort_table) exists in the database, and a <code>cohorts</code>
 data frame has been created.</p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/computePathways.html">computePathways</a></span><span class="op">(</span></span>
 <span>  cohorts <span class="op">=</span> <span class="va">cohorts</span>,</span>
 <span>  cohortTableName <span class="op">=</span> <span class="va">cohortTableName</span>,</span>
@@ -475,7 +464,7 @@ computation of the treatment pathway.</p>
 <code>computePathways</code> function call. Lets see what happens when
 we set our <code>minEraDuration</code> to <strong>60</strong>, but keep
 the rest of the settings mentioned as their default values.</p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">minEra60</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computePathways.html">computePathways</a></span><span class="op">(</span></span>
 <span>  cohorts <span class="op">=</span> <span class="va">cohorts</span>,</span>
 <span>  cohortTableName <span class="op">=</span> <span class="st">"cohort_table"</span>,</span>
@@ -523,14 +512,14 @@ the rest of the settings mentioned as their default values.</p>
 <span><span class="co">##  Subjects: 279</span></span></code></pre>
 <p>Number of treatments with a minimum duration of greater or equal to 0
 days.</p>
-<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">defaultSettings</span><span class="op">$</span><span class="va">treatmentHistory</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 553</span></span></code></pre>
 <p>Number of treatments with a minimum duration of greater or equal to
 60 days.</p>
-<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">minEra60</span><span class="op">$</span><span class="va">treatmentHistory</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -572,7 +561,7 @@ The length of <code>splitTime</code> must equal the length of
 </table>
 <p>Let’s say we want to assume that the first 60 days of our treatment
 is acute, and beyond that therapy.</p>
-<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">splitAcuteTherapy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computePathways.html">computePathways</a></span><span class="op">(</span></span>
 <span>  cohorts <span class="op">=</span> <span class="va">cohorts</span>,</span>
 <span>  cohortTableName <span class="op">=</span> <span class="st">"cohort_table"</span>,</span>
@@ -612,7 +601,7 @@ is acute, and beyond that therapy.</p>
 <pre><code><span><span class="co">## -- treatment construction done</span></span>
 <span><span class="co">##  Records: 553</span></span>
 <span><span class="co">##  Subjects: 512</span></span></code></pre>
-<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">splitAcuteTherapy</span><span class="op">$</span><span class="va">treatmentHistory</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">.data</span><span class="op">$</span><span class="va">eventCohortName</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "acetaminophen (acute)"             "acetaminophen (acute)+amoxicillin"</span></span>
@@ -634,7 +623,7 @@ the start date of our target cohort and on wards, or we can look before
 the end date of our target cohort. By default
 <code>TreatmentPatterns</code> looks from the start date and
 onwards.</p>
-<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">includeEndDate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computePathways.html">computePathways</a></span><span class="op">(</span></span>
 <span>  cohorts <span class="op">=</span> <span class="va">cohorts</span>,</span>
 <span>  cohortTableName <span class="op">=</span> <span class="st">"cohort_table"</span>,</span>
@@ -673,7 +662,7 @@ onwards.</p>
 <pre><code><span><span class="co">## -- treatment construction done</span></span>
 <span><span class="co">##  Records: 553</span></span>
 <span><span class="co">##  Subjects: 512</span></span></code></pre>
-<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span></span>
 <span>  <span class="va">includeEndDate</span><span class="op">$</span><span class="va">treatmentHistory</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">personId</span><span class="op">)</span>,</span>
 <span>  <span class="va">defaultSettings</span><span class="op">$</span><span class="va">treatmentHistory</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">personId</span><span class="op">)</span></span>
@@ -695,7 +684,7 @@ are allowed to share.</p>
 </h3>
 <p>Let’s say we are only able to share results of groups of subjects
 that have at least 5 subjects in them.</p>
-<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
 <span>  andromeda <span class="op">=</span> <span class="va">defaultSettings</span>,</span>
 <span>  minCellCount <span class="op">=</span> <span class="fl">5</span></span>
@@ -707,14 +696,14 @@ that fall below are specified <code>minCellCount</code>. These types are
 <p>We could say we want to censor all pathways that fall below the
 <code>minCellCount</code> to be censored <em>to</em> the
 <code>minCellCount</code>.</p>
-<div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resultsA</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
 <span>  andromeda <span class="op">=</span> <span class="va">minEra60</span>,</span>
 <span>  minCellCount <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  censorType <span class="op">=</span> <span class="st">"minCellCount"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Or we could completely remove them</p>
-<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resultsB</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
 <span>  andromeda <span class="op">=</span> <span class="va">minEra60</span>,</span>
 <span>  minCellCount <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -722,7 +711,7 @@ that fall below are specified <code>minCellCount</code>. These types are
 <span><span class="op">)</span></span></code></pre></div>
 <p>Or finally we can censor them as the mean of all the groups that fall
 below the <code>minCellCount</code>.</p>
-<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resultsC</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
 <span>  andromeda <span class="op">=</span> <span class="va">minEra60</span>,</span>
 <span>  minCellCount <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -733,7 +722,7 @@ below the <code>minCellCount</code>.</p>
 <h3 id="agewindow">ageWindow<a class="anchor" aria-label="anchor" href="#agewindow"></a>
 </h3>
 <p>We can also specify an age window.</p>
-<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resultsD</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
 <span>  andromeda <span class="op">=</span> <span class="va">splitAcuteTherapy</span>,</span>
 <span>  minCellCount <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -741,7 +730,7 @@ below the <code>minCellCount</code>.</p>
 <span>  ageWindow <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Or a collection of ages.</p>
-<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resultsE</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
 <span>  andromeda <span class="op">=</span> <span class="va">splitAcuteTherapy</span>,</span>
 <span>  minCellCount <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -754,7 +743,7 @@ below the <code>minCellCount</code>.</p>
 </h3>
 <p>Finally we can also specify an <code>archiveName</code> which is the
 name of a zip-file to zip all our output csv-files to.</p>
-<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resultsF</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
 <span>  andromeda <span class="op">=</span> <span class="va">includeEndDate</span>,</span>
 <span>  minCellCount <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -771,7 +760,7 @@ name of a zip-file to zip all our output csv-files to.</p>
 <code>export</code>, instead we could use
 <code>executeTreatmentPatterns</code>. Which is an all-in-one function
 that trades full control for convenience.</p>
-<div class="sourceCode" id="cb118"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resultsG</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/executeTreatmentPatterns.html">executeTreatmentPatterns</a></span><span class="op">(</span></span>
 <span>  cohorts <span class="op">=</span> <span class="va">cohorts</span>,</span>
 <span>  cohortTableName <span class="op">=</span> <span class="st">"cohort_table"</span>,</span>
@@ -817,7 +806,7 @@ that trades full control for convenience.</p>
 <code>cdm</code> object with <code>connectionDetails</code>,
 <code>cdmSchema</code>, <code>resultSchema</code>, and
 <code>tempEmulationSchema</code>.</p>
-<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/executeTreatmentPatterns.html">executeTreatmentPatterns</a></span><span class="op">(</span></span>
 <span>  cohorts <span class="op">=</span> <span class="va">cohorts</span>,</span>
 <span>  cohortTableName <span class="op">=</span> <span class="st">"cohort_table"</span>,</span>
@@ -845,7 +834,7 @@ summaryStatsTherapyDuraion.csv, and <strong>6</strong>) metadata.csv</p>
 </h3>
 <p>The treatmentPathways file contains all the pathways found, with a
 frequency, pairwise stratified by age group, sex and index year.</p>
-<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="va">treatment_pathways</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 12 × 8</span></span></span>
 <span><span class="co">##    pathway              freq age   sex   index_year analysis_id target_cohort_id</span></span>
@@ -882,7 +871,7 @@ switches to <em>Aspirin</em>.</p>
 </h3>
 <p>The countsAge, countsSex, and countsYear contain counts per age, sex,
 and index year.</p>
-<div class="sourceCode" id="cb134"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">counts_age</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
 <span><span class="co">##     age n     analysis_id target_cohort_id target_cohort_name</span></span>
@@ -893,14 +882,14 @@ and index year.</p>
 <span><span class="co">## <span style="color: #BCBCBC;">4</span>     4 37              1                8 viralsinusitis    </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">5</span>     5 33              1                8 viralsinusitis    </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">6</span>     6 32              1                8 viralsinusitis</span></span></code></pre>
-<div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb133"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">counts_sex</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 2 × 5</span></span></span>
 <span><span class="co">##   sex    n     analysis_id target_cohort_id target_cohort_name</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">1</span> FEMALE 254             1                8 viralsinusitis    </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">2</span> MALE   258             1                8 viralsinusitis</span></span></code></pre>
-<div class="sourceCode" id="cb138"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb135"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">counts_year</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 5</span></span></span>
 <span><span class="co">##   index_year n     analysis_id target_cohort_id target_cohort_name</span></span>
@@ -920,11 +909,11 @@ different events, across all found “lines”. A “line” is equal to the
 level in the Sunburst or Sankey diagrams. The summary statistics allow
 for plotting of boxplots with the <code><a href="../reference/plotEventDuration.html">plotEventDuration()</a></code>
 function.</p>
-<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb137"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="fu">plotEventDuration</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ComputingTreatmentPathways_files/figure-html/summaryStatsTherapyDuration-1.png" width="700">
 Or we can use the function</p>
-<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb138"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotEventDuration.html">plotEventDuration</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">summary_event_duration</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ComputingTreatmentPathways_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 </div>
@@ -934,19 +923,19 @@ Or we can use the function</p>
 <p>The metadata file is a file that contains information about the
 circumstances the analysis was performed in, and information about R,
 and the CDM.</p>
-<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb139"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="va">metadata</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
 <span><span class="co">##   execution_start package_version r_version   platform execution_end analysis_id</span></span>
 <span><span class="co">##             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span>     <span style="text-decoration: underline;">1</span>738<span style="text-decoration: underline;">853</span>987. 3.0.0           R version … x86_64-…   <span style="text-decoration: underline;">1</span>738<span style="text-decoration: underline;">853</span>994.           1</span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span>     <span style="text-decoration: underline;">1</span>741<span style="text-decoration: underline;">679</span>552. 3.0.1           R version … x86_64-…   <span style="text-decoration: underline;">1</span>741<span style="text-decoration: underline;">679</span>559.           1</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="sunburst-plot-sankey-diagram">Sunburst Plot &amp; Sankey Diagram<a class="anchor" aria-label="anchor" href="#sunburst-plot-sankey-diagram"></a>
 </h3>
 <p>From the filtered treatmentPathways file we are able to create a
 sunburst plot.</p>
-<div class="sourceCode" id="cb144"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="fu">plotSunburst</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="sunburst html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:700px;height:432.632880098888px; position:relative;">
 <div>
@@ -963,7 +952,7 @@ sunburst plot.</p>
 </div>
 </div>
 <script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"data":{"children":[{"name":"aspirin","children":[{"name":"acetaminophen","size":12,"colname":"X2"},{"name":"amoxicillin+clavulanate","size":6,"colname":"X2"}],"size":211,"colname":"X1"},{"name":"acetaminophen","children":[{"name":"aspirin","size":14,"colname":"X2"},{"name":"amoxicillin+clavulanate","size":6,"colname":"X2"}],"size":206,"colname":"X1"},{"name":"amoxicillin+clavulanate","children":[{"name":"aspirin","size":2,"colname":"X2"},{"name":"acetaminophen","size":1,"colname":"X2"}],"size":48,"colname":"X1"},{"name":"clavulanate","children":[],"size":3,"colname":"X1"},{"name":"amoxicillin","children":[],"size":2,"colname":"X1"},{"name":"acetaminophen+amoxicillin","children":[],"size":1,"colname":"X1"}],"name":"root"},"options":{"legendOrder":null,"colors":null,"valueField":"size","percent":true,"count":false,"explanation":null,"breadcrumb":[],"legend":[],"sortFunction":"function (a, b) {return a.value - b.value;}","sumNodes":true}},"evals":["options.sortFunction"],"jsHooks":[]}</script><p>Or a Sankey Diagram.</p>
-<div class="sourceCode" id="cb145"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="fu">plotSankey</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="sankeyNetwork html-widget html-fill-item" id="htmlwidget-e5c8c404fe174e4c81bd" style="width:700px;height:432.632880098888px;"></div>
 <script type="application/json" data-for="htmlwidget-e5c8c404fe174e4c81bd">{"x":{"links":{"source":[0,0,0,1,2,3,3,3,4,4,4,5],"target":[6,7,8,8,8,7,8,9,6,8,9,8],"value":[1.17,2.73,40.23,0.2,0.39,0.39,9.380000000000001,0.2,1.17,41.21,2.34,0.59]},"nodes":{"name":["1.acetaminophen","1.acetaminophen+amoxicillin","1.amoxicillin","1.amoxicillin+clavulanate","1.aspirin","1.clavulanate","2.amoxicillin+clavulanate","2.aspirin","2.Stopped","2.acetaminophen"],"group":["1.acetaminophen","1.acetaminophen+amoxicillin","1.amoxicillin","1.amoxicillin+clavulanate","1.aspirin","1.clavulanate","2.amoxicillin+clavulanate","2.aspirin","2.Stopped","2.acetaminophen"]},"options":{"NodeID":"names","NodeGroup":"names","LinkGroup":null,"colourScale":"d3.scaleOrdinal(d3.schemeCategory20)","fontSize":7,"fontFamily":null,"nodeWidth":15,"nodePadding":10,"units":"%","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":true}},"evals":[],"jsHooks":[]}</script><p>Both plots are interactive in an HTML-environment, and are easy to
