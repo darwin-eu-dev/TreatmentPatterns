@@ -110,6 +110,7 @@ generateCohortTableCG <- function(cohortTableName) {
 
 test_that("Snowflake", {
   skip_if(Sys.getenv("SNOWFLAKE_CONNECTION_STRING") == "")
+  fail()
 
   ## Prepare ----
   cohortTableName <- "tp_cohort_table"
