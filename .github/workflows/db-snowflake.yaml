@@ -39,5 +39,5 @@ jobs:
       - name: Run test-snowflake.R
         run: |
           print(getwd())
-          testthat::test_file(package = "TreatmentPatterns", path = "test-snowflake.R")
+          testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-snowflake.R")
         shell: Rscript {0}
