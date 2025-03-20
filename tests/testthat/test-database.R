@@ -4,30 +4,41 @@ library(withr)
 library(TreatmentPatterns)
 library(dplyr)
 
+# Set global vars ----
+JDBC_FOLDER <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
+DATABASE <- Sys.getenv("DATABASE")
+RESULT_SCHEMA <- Sys.getenv("SNOWFLAKE_RESULT_SCHEMA")
+CDM_SCHEMA <- Sys.getenv("SNOWFLAKE_CDM_SCHEMA")
+
 # Install Respective JDBC ----
-if (dir.exists(Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"))) {
-  jdbcDriverFolder <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
+if (dir.exists(JDBC_FOLDER)) {
+  jdbcDriverFolder <- JDBC_FOLDER
 } else {
   jdbcDriverFolder <- "~/.jdbcDrivers"
   dir.create(jdbcDriverFolder, showWarnings = FALSE, recursive = TRUE)
-  DatabaseConnector::downloadJdbcDrivers(Sys.getenv("DATABASE"), pathToDriver = jdbcDriverFolder)
+  DatabaseConnector::downloadJdbcDrivers(DATABASE, pathToDriver = jdbcDriverFolder)
   withr::defer({
     unlink(jdbcDriverFolder, recursive = TRUE, force = TRUE)
   }, envir = testthat::teardown_env())
 }
 
-# Helper function ----
-generateCohortTableCG <- function(connectionDetails, cohortTableName) {
-  resultSchema <- Sys.getenv("SNOWFLAKE_CDM_SCHEMA")
-  cdmSchema <- Sys.getenv("SNOWFLAKE_CDM_SCHEMA")
+CONNECTION_DETAILS <- DatabaseConnector::createConnectionDetails(
+  dbms = Sys.getenv("DATABASE"),
+  user = Sys.getenv("SNOWFLAKE_USER"),
+  password = Sys.getenv("SNOWFLAKE_PASSWORD"),
+  connectionString = paste0(Sys.getenv("SNOWFLAKE_CONNECTION_STRING"), "&JDBC_QUERY_RESULT_FORMAT=JSON"),
+  # connectionString = Sys.getenv("SNOWFLAKE_CONNECTION_STRING"),
+  pathToDriver = jdbcDriverFolder
+)
 
+# Helper function ----
+generateCohortTableCG <- function(cohortTableName) {
   cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
 
   cohortJsonFiles <- list.files(
-    system.file(
-      package = "TreatmentPatterns",
-      "exampleCohorts"),
-    full.names = TRUE)
+    system.file(package = "TreatmentPatterns", "exampleCohorts"),
+    full.names = TRUE
+  )
 
   for (i in seq_len(length(cohortJsonFiles))) {
     cohortJsonFileName <- cohortJsonFiles[i]
@@ -46,24 +57,28 @@ generateCohortTableCG <- function(connectionDetails, cohortTableName) {
         cohortId = i,
         cohortName = cohortName,
         sql = cohortSql,
-        stringsAsFactors = FALSE))
+        stringsAsFactors = FALSE
+      )
+    )
   }
 
-  cohortTableNames <- CohortGenerator::getCohortTableNames(
-    cohortTable = cohortTableName)
+  cohortTableNames <- CohortGenerator::getCohortTableNames(cohortTableName)
 
   CohortGenerator::createCohortTables(
-    connectionDetails = connectionDetails,
-    cohortDatabaseSchema = resultSchema,
-    cohortTableNames = cohortTableNames)
+    connectionDetails = CONNECTION_DETAILS,
+    cohortDatabaseSchema = RESULT_SCHEMA,
+    cohortTableNames = cohortTableNames
+  )
 
   # Generate the cohorts
   cohortsGenerated <- CohortGenerator::generateCohortSet(
-    connectionDetails = connectionDetails,
-    cdmDatabaseSchema = cdmSchema,
-    cohortDatabaseSchema = resultSchema,
+    connectionDetails = CONNECTION_DETAILS,
+    cdmDatabaseSchema = CDM_SCHEMA,
+    cohortDatabaseSchema = RESULT_SCHEMA,
     cohortTableNames = cohortTableNames,
-    cohortDefinitionSet = cohortsToCreate)
+    cohortDefinitionSet = cohortsToCreate,
+    tempEmulationSchema = RESULT_SCHEMA
+  )
 
   # Select Viral Sinusitis Cohort
   targetCohorts <- cohortsGenerated %>%
@@ -87,7 +102,6 @@ generateCohortTableCG <- function(connectionDetails, cohortTableName) {
 
   return(list(
     cohorts = cohorts,
-    connectionDetails = connectionDetails,
     cohortTableName = cohortTableName,
     cohortTableNames = cohortTableNames,
     resultSchema = resultSchema,
@@ -99,24 +113,32 @@ test_that("Snowflake", {
   skip_if(Sys.getenv("SNOWFLAKE_CONNECTION_STRING") == "")
 
   ## Prepare ----
-  connectionDetails <- DatabaseConnector::createConnectionDetails(
-    dbms = Sys.getenv("DATABASE"),
-    user = Sys.getenv("SNOWFLAKE_USER"),
-    password = Sys.getenv("SNOWFLAKE_PASSWORD"),
-    connectionString = Sys.getenv("SNOWFLAKE_CONNECTION_STRING"),
-    pathToDriver = jdbcDriverFolder
-  )
-
   cohortTableName <- "tp_cohort_table"
 
-  generateCohortTableCG(connectionDetails, cohortTableName)
+  generateCohortTableCG(cohortTableName)
+  withr::defer({
+    # When defered drop all created tables
+    CohortGenerator::dropCohortStatsTables(
+      connectionDetails = CONNECTION_DETAILS,
+      cohortDatabaseSchema = RESULT_SCHEMA,
+      cohortTableNames = globals$cohortTableNames,
+      dropCohortTable = TRUE
+    )
+  })
 
   ## new() ----
   cdmInterface <- TreatmentPatterns:::CDMInterface$new(
-    connectionDetails = connectionDetails,
-    cdmSchema = Sys.getenv("SNOWFLAKE_CDM_SCHEMA"),
-    resultSchema = Sys.getenv("SNOWFLAKE_RESULT_SCHEMA")
+    connectionDetails = CONNECTION_DETAILS,
+    cdmSchema = CDM_SCHEMA,
+    resultSchema = RESULT_SCHEMA,
+    tempEmulationSchema = RESULT_SCHEMA
   )
+
+  ## disconnect() ----
+  # When defered
+  withr::defer({
+    cdmInterface$disconnect()
+  })
 
   expect_true(R6::is.R6(
     cdmInterface
@@ -131,33 +153,36 @@ test_that("Snowflake", {
     collect()
 
   expect_in(
-    c("cdmSourceName", "cdmSourceAbbreviation", "cdmReleaseDate", "vocabularyVersion"),
+    c("execution_start", "package_version", "r_version", "platform"),
     names(metadata)
   )
 
-  expect_identical(metadata$rVersion, base::version$version.string)
+  expect_true(is.numeric(metadata$execution_start))
   expect_identical(metadata$platform, base::version$platform)
   expect_identical(nrow(metadata), 1L)
-  expect_identical(ncol(metadata), 8L)
+  expect_identical(ncol(metadata), 4L)
 
-  cdmInterface$fetchCohortTable(
+  ## fetchCdmSource()
+  andromeda <- cdmInterface$fetchCdmSource(andromeda)
+  # Close when defered
+  withr::defer({
+    Andromeda::close(andromeda)
+  })
+
+  cdm_source <- andromeda$cdm_source_info %>%
+    collect()
+
+  expect_equal(ncol(cdm_source), 10)
+
+  ## fetchCohortTable()
+  andromeda <- cdmInterface$fetchCohortTable(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     andromeda = andromeda,
-    andromedaTableName = andromedaTableName,
+    andromedaTableName = "cohort_table",
     minEraDuration = 0
   )
 
-  expect_true(andromedaTableName %in% names(andromeda))
-
-  ## Clean up ----
-  CohortGenerator::dropCohortStatsTables(
-    connectionDetails = connectionDetails,
-    cohortDatabaseSchema = Sys.getenv("SNOWFLAKE_RESULT_SCHEMA"),
-    cohortTableNames = ,
-    dropCohortTable = TRUE
-  )
-
-  ## disconnect() ----
-  cdmInterface$disconnect()
+  expect_true("cohort_table" %in% names(andromeda))
+  expect_true(all(c("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date", "age", "sex", "subject_id_origin") %in% names(andromeda$cohort_table)))
 })
