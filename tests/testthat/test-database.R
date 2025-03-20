@@ -26,8 +26,7 @@ CONNECTION_DETAILS <- DatabaseConnector::createConnectionDetails(
   dbms = Sys.getenv("DATABASE"),
   user = Sys.getenv("SNOWFLAKE_USER"),
   password = Sys.getenv("SNOWFLAKE_PASSWORD"),
-  connectionString = paste0(Sys.getenv("SNOWFLAKE_CONNECTION_STRING"), "&JDBC_QUERY_RESULT_FORMAT=JSON"),
-  # connectionString = Sys.getenv("SNOWFLAKE_CONNECTION_STRING"),
+  connectionString = Sys.getenv("SNOWFLAKE_CONNECTION_STRING"),
   pathToDriver = jdbcDriverFolder
 )
 
@@ -104,8 +103,8 @@ generateCohortTableCG <- function(cohortTableName) {
     cohorts = cohorts,
     cohortTableName = cohortTableName,
     cohortTableNames = cohortTableNames,
-    resultSchema = resultSchema,
-    cdmSchema = cdmSchema
+    resultSchema = RESULT_SCHEMA,
+    cdmSchema = CDM_SCHEMA
   ))
 }
 
