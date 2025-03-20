@@ -13,7 +13,9 @@ if (dir.exists(Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"))) {
 }
 
 test_that("Snowflake", {
-  skip_if(is.null(Sys.getenv("SNOWFLAKE_SERVER")))
+  skip_if(Sys.getenv("SNOWFLAKE_SERVER") == "")
+  print(sprintf(">> %s", Sys.getenv("DATABASE")))
+
   connectionDetails <- DatabaseConnector::createConnectionDetails(
     dbms = Sys.getenv("DATABASE"),
     user = Sys.getenv("SNOWFLAKE_USER"),
