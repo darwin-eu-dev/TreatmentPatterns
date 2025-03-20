@@ -14,6 +14,7 @@ jobs:
         config:
           - {os: ubuntu-latest,   r: 'release'}
     env:
+      DATABASE: 'snowflake'
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       CDM_SNOWFLAKE_CDM53_SCHEMA: ${{ secrets.CDM_SNOWFLAKE_CDM53_SCHEMA }}
@@ -21,7 +22,7 @@ jobs:
       CDM_SNOWFLAKE_PASSWORD: ${{ secrets.CDM_SNOWFLAKE_PASSWORD }}
       CDM_SNOWFLAKE_CONNECTION_STRING: ${{ secrets.CDM_SNOWFLAKE_CONNECTION_STRING }}
       CDM_SNOWFLAKE_USER: ${{ secrets.CDM_SNOWFLAKE_USER }}
-    
+
     steps:
       - uses: actions/checkout@v3
 
@@ -35,6 +36,9 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           dependencies: '"all"'
+
+      - name: Install TreatmentPatterns
+        run: R CMD INSTALL --with-keep.source --no-multiarch TreatmentPatterns
 
       - name: Run test-snowflake.R
         run: |
