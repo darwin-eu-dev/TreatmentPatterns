@@ -114,7 +114,7 @@ test_that("Snowflake", {
   ## Prepare ----
   cohortTableName <- "tp_cohort_table"
 
-  generateCohortTableCG(cohortTableName)
+  globals <- generateCohortTableCG(cohortTableName)
   withr::defer({
     # When defered drop all created tables
     CohortGenerator::dropCohortStatsTables(

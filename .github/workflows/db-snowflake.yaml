@@ -14,7 +14,6 @@ jobs:
         config:
           - {os: ubuntu-latest,   r: 'release'}
     env:
-      STATUS: 0
       DATABASE: 'snowflake'
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
@@ -45,13 +44,7 @@ jobs:
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
 
       - name: Run test-database.R
-        run: |
-          tryCatch({
-            testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")
-          }, error = function(e) {
-            Sys.setenv(STATUS = 1)
-          })
-        shell: Rscript {0}
+        run: R -e testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")
       
       - name: Report status
-        run: exit ${ STATUS }
+        run: exit $STATUS
