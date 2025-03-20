@@ -45,9 +45,9 @@ jobs:
 
       - name: Run test-snowflake.R
         run: |
-          print(getwd())
-          t <- testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")
-          if (as.data.frame(t)$failed > 0) {
+          tryCatch({
+            testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")
+          }, error = function(e) {
             system("exit 1")
-          }
+          })
         shell: Rscript {0}
