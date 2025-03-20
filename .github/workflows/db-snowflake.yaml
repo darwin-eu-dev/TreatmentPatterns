@@ -41,7 +41,7 @@ jobs:
           dependencies: '"all"'
 
       - name: Install TreatmentPatterns
-        run: R CMD INSTALL --with-keep.source --no-multiarch ./TreatmentPatterns/TreatmentPatterns/
+        run: R CMD INSTALL --with-keep.source --no-multiarch ./
 
       - name: Run test-snowflake.R
         run: |
