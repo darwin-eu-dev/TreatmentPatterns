@@ -44,7 +44,4 @@ jobs:
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
 
       - name: Run test-database.R
-        run: R -e testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")
-      
-      - name: Report status
-        run: exit $STATUS
+        run: R -e 'testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")'
