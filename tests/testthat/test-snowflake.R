@@ -1,3 +1,17 @@
+library(testthat)
+library(withr)
+
+if (dir.exists(Sys.getenv("DATABASECONNECTOR_JAR_FOLDER"))) {
+  jdbcDriverFolder <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
+} else {
+  jdbcDriverFolder <- "~/.jdbcDrivers"
+  dir.create(jdbcDriverFolder)
+  DatabaseConnector::downloadJdbcDrivers("snowflake", pathToDriver = jdbcDriverFolder)
+  withr::defer({
+    unlink(jdbcDriverFolder, recursive = TRUE, force = TRUE)
+  }, envir = testthat::teardown_env())
+}
+
 test_that("Snowflake", {
   skip_if(is.null(Sys.getenv("SNOWFLAKE_SERVER")))
   connectionDetails <- DatabaseConnector::createConnectionDetails(
