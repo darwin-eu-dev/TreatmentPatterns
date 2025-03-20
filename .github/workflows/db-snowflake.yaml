@@ -43,7 +43,7 @@ jobs:
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
 
-      - name: Run test-snowflake.R
+      - name: Run test-database.R
         run: |
           tryCatch({
             testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")
