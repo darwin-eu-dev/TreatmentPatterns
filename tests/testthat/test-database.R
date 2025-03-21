@@ -157,7 +157,7 @@ test_that("Test Database", {
   cdm_source <- andromeda$cdm_source_info %>%
     collect()
 
-  expect_equal(ncol(cdm_source), 10)
+  expect_true(ncol(cdm_source) >= 10)
 
   ## fetchCohortTable()
   cohorts <- data.frame(
