@@ -9,20 +9,13 @@ JDBC_FOLDER <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
 RESULT_SCHEMA <- Sys.getenv("RESULT_SCHEMA")
 CDM_SCHEMA <- Sys.getenv("CDM_SCHEMA")
 
+USER <- Sys.getenv("USER")
+PASSWORD <- Sys.getenv("PASSWORD")
+
 DBMS <- if (Sys.getenv("DBMS") == "") {
   NULL
 } else {
   Sys.getenv("DBMS")
-}
-USER <- if (Sys.getenv("USER") == "") {
-  NULL
-} else {
-  Sys.getenv("USER")
-}
-PASSWORD <- if (Sys.getenv("PASSWORD") == "") {
-  NULL
-} else {
-  Sys.getenv("PASSWORD")
 }
 CONNECTION_STRING <- if (Sys.getenv("CONNECTION_STRING") == "") {
   NULL
