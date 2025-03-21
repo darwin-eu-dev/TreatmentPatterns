@@ -1,0 +1,56 @@
+on:
+  push:
+    branches: [292]
+
+name: PostgreSQL
+
+jobs:
+  PostgreSQL-test:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest,   r: 'release'}
+    env:
+      STATUS: 0
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+      DBMS: 'postgresql'
+
+      USER: ${{ secrets.POSTGRESQL_USER }}
+      PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
+      SERVER: ${{ secrets.POSTGRESQL_SERVER }}
+      
+      CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA  }}
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: list files
+        run: ls -lah
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+          extra-repositories: 'https://OHDSI.github.io/drat'
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"all"'
+
+      - name: Install TreatmentPatterns
+        run: R CMD INSTALL --with-keep.source --no-multiarch ./
+
+      - name: Run test-database.R
+        run: |
+          Rscript -e 'testthat::test_file(
+            path = "./tests/testthat/test-database.R",
+            reporter = c("summary", "fail"),
+            package = "TreatmentPatterns"
+          )'
