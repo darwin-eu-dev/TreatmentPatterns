@@ -14,7 +14,6 @@ jobs:
         config:
           - {os: ubuntu-latest,   r: 'release'}
     env:
-      STATUS: 0
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
@@ -26,13 +25,7 @@ jobs:
           use-public-rspm: true
           extra-repositories: 'https://OHDSI.github.io/drat'
 
-      - name: Run Test
+      - name: Fail from R
         run: |
-          Sys.setenv(STATUS = 1)
+          system("exit 1")
         shell: Rscript {0}
-        
-      - name: Report status
-        run: echo $STATUS
-      
-      - name:
-        run: exit 1
