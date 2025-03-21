@@ -6,7 +6,6 @@ library(dplyr)
 
 # Set global vars ----
 JDBC_FOLDER <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
-DATABASE <- Sys.getenv("DATABASE")
 RESULT_SCHEMA <- Sys.getenv("RESULT_SCHEMA")
 CDM_SCHEMA <- Sys.getenv("CDM_SCHEMA")
 
