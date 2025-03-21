@@ -46,4 +46,8 @@ jobs:
 
       - name: Run test-database.R
         run: |
-          Rscript -e 'testthat::test_file(path = "./tests/testthat/test-database.R", reporter = c("summary", "fail")), package = "TreatmentPatterns")'
+          Rscript -e 'testthat::test_file(
+            path = "./tests/testthat/test-database.R",
+            reporter = c("summary", "fail"),
+            package = "TreatmentPatterns"
+          )'
