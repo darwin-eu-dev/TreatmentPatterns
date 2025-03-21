@@ -27,5 +27,12 @@ jobs:
 
       - name: Fail from R
         run: |
-          system("exit 1")
-        shell: Rscript {0}
+          if Rscript -e 'stop("error')
+          then
+            echo passed
+            exit 0
+          else
+            echo failed
+            exit 1
+          fi
+        shell: bash{0}
