@@ -46,11 +46,4 @@ jobs:
 
       - name: Run test-database.R
         run: |
-          if Rscript -e 'testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")'
-          then
-            echo passed
-            exit 0
-          else
-            echo failed
-            exit 1
-          fi
+          Rscript -e 'testthat::test_file(path = "./tests/testthat/test-database.R", reporter = c("summary", "fail")), package = "TreatmentPatterns")'
