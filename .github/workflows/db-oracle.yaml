@@ -1,6 +1,8 @@
 on:
+  schedule:
+    - cron: '0 8 * * 6'
   push:
-    branches: [292]
+    branches: [main, rc, dev, 292]
 
 name: Oracle
 
