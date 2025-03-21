@@ -54,10 +54,3 @@ jobs:
             reporter = c("summary", "fail"),
             package = "TreatmentPatterns"
           )'
-      - name: Error report
-        run: |
-          if test -f /home/runner/work/TreatmentPatterns/TreatmentPatterns/tests/testthat/errorReportSql.txt
-          then
-            cat /home/runner/work/TreatmentPatterns/TreatmentPatterns/tests/testthat/errorReportSql.txt
-          else
-            echo 'No queries failed.'
