@@ -7,8 +7,44 @@ library(dplyr)
 # Set global vars ----
 JDBC_FOLDER <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER")
 DATABASE <- Sys.getenv("DATABASE")
-RESULT_SCHEMA <- Sys.getenv("SNOWFLAKE_RESULT_SCHEMA")
-CDM_SCHEMA <- Sys.getenv("SNOWFLAKE_CDM_SCHEMA")
+RESULT_SCHEMA <- Sys.getenv("RESULT_SCHEMA")
+CDM_SCHEMA <- Sys.getenv("CDM_SCHEMA")
+
+DBMS <- if (Sys.getenv("DBMS") == "") {
+  NULL
+} else {
+  Sys.getenv("DBMS")
+}
+USER <- if (Sys.getenv("USER") == "") {
+  NULL
+} else {
+  Sys.getenv("USER")
+}
+PASSWORD <- if (Sys.getenv("PASSWORD")) {
+  NULL
+} else {
+  Sys.getenv("PASSWORD")
+}
+CONNECTION_STRING <- if (Sys.getenv("CONNECTION_STRING")) {
+  NULL
+} else {
+  Sys.getenv("CONNECTION_STRING")
+}
+SERVER <- if (Sys.getenv("SERVER")) {
+  NULL
+} else {
+  Sys.getenv("SERVER")
+}
+PORT <- if (Sys.getenv("PORT")) {
+  NULL
+} else {
+  Sys.getenv("PORT")
+}
+EXTRA_SETTINGS <- if (Sys.getenv("EXTRA_SETTINGS")) {
+  NULL
+} else {
+  Sys.getenv("EXTRA_SETTINGS")
+}
 
 # Install Respective JDBC ----
 if (dir.exists(JDBC_FOLDER)) {
@@ -22,107 +58,56 @@ if (dir.exists(JDBC_FOLDER)) {
   }, envir = testthat::teardown_env())
 }
 
+# Connection Details ----
 CONNECTION_DETAILS <- DatabaseConnector::createConnectionDetails(
-  dbms = Sys.getenv("DATABASE"),
-  user = Sys.getenv("SNOWFLAKE_USER"),
-  password = Sys.getenv("SNOWFLAKE_PASSWORD"),
-  connectionString = Sys.getenv("SNOWFLAKE_CONNECTION_STRING"),
+  dbms = DBMS,
+  user = USER,
+  password = PASSWORD,
+  connectionString = CONNECTION_STRING,
+  server = SERVER,
+  port = PORT,
+  extraSettings = EXTRA_SETTINGS,
   pathToDriver = jdbcDriverFolder
 )
-
-# Helper function ----
-generateCohortTableCG <- function(cohortTableName) {
-  cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
-
-  cohortJsonFiles <- list.files(
-    system.file(package = "TreatmentPatterns", "exampleCohorts"),
-    full.names = TRUE
-  )
-
-  for (i in seq_len(length(cohortJsonFiles))) {
-    cohortJsonFileName <- cohortJsonFiles[i]
-    cohortName <- tools::file_path_sans_ext(basename(cohortJsonFileName))
-    cohortJson <- readChar(cohortJsonFileName, file.info(
-      cohortJsonFileName)$size)
-    
-    cohortExpression <- CirceR::cohortExpressionFromJson(cohortJson)
-    
-    cohortSql <- CirceR::buildCohortQuery(
-      cohortExpression,
-      options = CirceR::createGenerateOptions(generateStats = FALSE))
-    cohortsToCreate <- rbind(
-      cohortsToCreate,
-      data.frame(
-        cohortId = i,
-        cohortName = cohortName,
-        sql = cohortSql,
-        stringsAsFactors = FALSE
-      )
-    )
-  }
-
-  cohortTableNames <- CohortGenerator::getCohortTableNames(cohortTableName)
-
-  CohortGenerator::createCohortTables(
-    connectionDetails = CONNECTION_DETAILS,
-    cohortDatabaseSchema = RESULT_SCHEMA,
-    cohortTableNames = cohortTableNames
-  )
-
-  # Generate the cohorts
-  cohortsGenerated <- CohortGenerator::generateCohortSet(
-    connectionDetails = CONNECTION_DETAILS,
-    cdmDatabaseSchema = CDM_SCHEMA,
-    cohortDatabaseSchema = RESULT_SCHEMA,
-    cohortTableNames = cohortTableNames,
-    cohortDefinitionSet = cohortsToCreate,
-    tempEmulationSchema = RESULT_SCHEMA
-  )
-
-  # Select Viral Sinusitis Cohort
-  targetCohorts <- cohortsGenerated %>%
-    dplyr::filter(cohortName == "ViralSinusitis") %>%
-    dplyr::select(cohortId, cohortName)
-
-  # Select everything BUT Viral Sinusitis cohorts
-  eventCohorts <- cohortsGenerated %>%
-    dplyr::filter(cohortName != "ViralSinusitis" & cohortName != "Death") %>%
-    dplyr::select(cohortId, cohortName)
-
-  exitCohorts <- cohortsGenerated %>%
-    dplyr::filter(cohortName == "Death") %>%
-    dplyr::select(cohortId, cohortName)
-  
-  cohorts <- dplyr::bind_rows(
-    targetCohorts %>% dplyr::mutate(type = "target"),
-    eventCohorts %>% dplyr::mutate(type = "event"),
-    exitCohorts %>% dplyr::mutate(type = "exit")
-  )
-
-  return(list(
-    cohorts = cohorts,
-    cohortTableName = cohortTableName,
-    cohortTableNames = cohortTableNames,
-    resultSchema = RESULT_SCHEMA,
-    cdmSchema = CDM_SCHEMA
-  ))
-}
 
 test_that("Snowflake", {
   skip_if(Sys.getenv("SNOWFLAKE_USER") == "")
 
   ## Prepare ----
-  cohortTableName <- "tp_cohort_table"
+  cohortTableName <- "temp_tp_cohort_table"
 
-  globals <- generateCohortTableCG(cohortTableName)
+  connection <- DatabaseConnector::connect(CONNECTION_DETAILS)
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection,
+    sql = "
+    DROP TABLE IF EXISTS @resultSchema.@cohortTableName;
+
+    SELECT
+      1 AS cohort_definition_id,
+      person_id AS subject_id,
+      observation_period_start_date AS cohort_start_date,
+      observation_period_end_date AS cohort_end_date
+    INTO @resultSchema.@cohortTableName
+    FROM @cdmSchema.observation_period
+    LIMIT 10;",
+    cdmSchema = CDM_SCHEMA,
+    resultSchema = RESULT_SCHEMA,
+    cohortTableName = cohortTableName
+  )
+
+  DatabaseConnector::disconnect(connection)
+
   withr::defer({
-    # When defered drop all created tables
-    CohortGenerator::dropCohortStatsTables(
-      connectionDetails = CONNECTION_DETAILS,
-      cohortDatabaseSchema = RESULT_SCHEMA,
-      cohortTableNames = globals$cohortTableNames,
-      dropCohortTable = TRUE
+    connection <- DatabaseConnector::connect(connectionDetails)
+    DatabaseConnector::renderTranslateExecuteSql(
+      connection = connection,
+      sql = "
+      DROP TABLE IF EXISTS @resultSchema.@cohortTableName;
+      ",
+      resultSchema = RESULT_SCHEMA,
+      cohortTableName = cohortTableName
     )
+    DatabaseConnector::disconnect(connection)
   })
 
   ## new() ----
@@ -146,7 +131,7 @@ test_that("Snowflake", {
   ## fetchMetadata() ----
   andromeda <- Andromeda::andromeda()
 
-  cdmInterface$fetchMetadata(andromeda)
+  andromeda <- cdmInterface$fetchMetadata(andromeda)
   
   metadata <- andromeda$metadata %>%
     collect()
@@ -174,9 +159,15 @@ test_that("Snowflake", {
   expect_equal(ncol(cdm_source), 10)
 
   ## fetchCohortTable()
+  cohorts <- data.frame(
+    cohortId = 1,
+    cohortName = "foo",
+    type = "target"
+  )
+
   andromeda <- cdmInterface$fetchCohortTable(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
+    cohorts = cohorts,
+    cohortTableName = cohortTableName,
     andromeda = andromeda,
     andromedaTableName = "cohort_table",
     minEraDuration = 0
@@ -184,4 +175,9 @@ test_that("Snowflake", {
 
   expect_true("cohort_table" %in% names(andromeda))
   expect_true(all(c("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date", "age", "sex", "subject_id_origin") %in% names(andromeda$cohort_table)))
+
+  cohort_table <- andromeda$cohort_table %>%
+    collect()
+
+  expect_true(nrow(cohort_table) == 10)
 })
