@@ -98,7 +98,7 @@ test_that("Snowflake", {
   DatabaseConnector::disconnect(connection)
 
   withr::defer({
-    connection <- DatabaseConnector::connect(connectionDetails)
+    connection <- DatabaseConnector::connect(CONNECTION_DETAILS)
     DatabaseConnector::renderTranslateExecuteSql(
       connection = connection,
       sql = "
