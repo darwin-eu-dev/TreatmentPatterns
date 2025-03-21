@@ -20,7 +20,7 @@ INNER JOIN
     FROM @resultSchema.@cohortTable
     GROUP BY subject_id
   ) org_subject_table
-  ON subject_id_origin = @resultSchema.@cohortTable.subject_id
+  ON CAST(subject_id_origin AS VARCHAR) = CAST(@resultSchema.@cohortTable.subject_id AS VARCHAR)
 WHERE
   cohort_definition_id IN (@cohortIds)
   AND DATEDIFF(d, cohort_start_date, cohort_end_date) >= @minEraDuration
