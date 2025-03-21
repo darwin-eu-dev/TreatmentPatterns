@@ -52,7 +52,7 @@ if (dir.exists(JDBC_FOLDER)) {
 } else {
   jdbcDriverFolder <- "~/.jdbcDrivers"
   dir.create(jdbcDriverFolder, showWarnings = FALSE, recursive = TRUE)
-  DatabaseConnector::downloadJdbcDrivers(DATABASE, pathToDriver = jdbcDriverFolder)
+  DatabaseConnector::downloadJdbcDrivers(DBMS, pathToDriver = jdbcDriverFolder)
   withr::defer({
     unlink(jdbcDriverFolder, recursive = TRUE, force = TRUE)
   }, envir = testthat::teardown_env())
