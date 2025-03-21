@@ -20,27 +20,27 @@ USER <- if (Sys.getenv("USER") == "") {
 } else {
   Sys.getenv("USER")
 }
-PASSWORD <- if (Sys.getenv("PASSWORD")) {
+PASSWORD <- if (Sys.getenv("PASSWORD") == "") {
   NULL
 } else {
   Sys.getenv("PASSWORD")
 }
-CONNECTION_STRING <- if (Sys.getenv("CONNECTION_STRING")) {
+CONNECTION_STRING <- if (Sys.getenv("CONNECTION_STRING") == "") {
   NULL
 } else {
   Sys.getenv("CONNECTION_STRING")
 }
-SERVER <- if (Sys.getenv("SERVER")) {
+SERVER <- if (Sys.getenv("SERVER") == "") {
   NULL
 } else {
   Sys.getenv("SERVER")
 }
-PORT <- if (Sys.getenv("PORT")) {
+PORT <- if (Sys.getenv("PORT") == "") {
   NULL
 } else {
   Sys.getenv("PORT")
 }
-EXTRA_SETTINGS <- if (Sys.getenv("EXTRA_SETTINGS")) {
+EXTRA_SETTINGS <- if (Sys.getenv("EXTRA_SETTINGS") == "") {
   NULL
 } else {
   Sys.getenv("EXTRA_SETTINGS")
@@ -71,7 +71,7 @@ CONNECTION_DETAILS <- DatabaseConnector::createConnectionDetails(
 )
 
 test_that("Snowflake", {
-  skip_if(Sys.getenv("SNOWFLAKE_USER") == "")
+  skip_if(is.null(USER))
 
   ## Prepare ----
   cohortTableName <- "temp_tp_cohort_table"
