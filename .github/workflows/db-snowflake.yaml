@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main]
+    branches: [292]
 
 name: Snowflake
 
@@ -46,12 +46,10 @@ jobs:
 
       - name: Run test-database.R
         run: |
-          tryCatch({
-            testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")
-          }, error = function(e) {
-            Sys.setenv(STATUS = 1)
-          })
-        shell: Rscript {0}
-        
-      - name: Report status
-        run: exit $STATUS
+          if Rscript -e 'testthat::test_file(package = "TreatmentPatterns", path = "./tests/testthat/test-database.R")'
+          then
+            echo passed
+            exit 0
+          else
+            echo failed
+            exit 1
