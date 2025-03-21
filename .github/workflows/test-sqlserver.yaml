@@ -15,9 +15,11 @@ jobs:
           - {os: ubuntu-latest,   r: 'release'}
     env:
       STATUS: 0
-      DBMS: 'snowflake'
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+
+      DBMS: 'sql server'
+
       USER: ${{ secrets.SQL_SERVER_USER }}
       PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
       SERVER: ${{ secrets.SQL_SERVER_SERVER }}
