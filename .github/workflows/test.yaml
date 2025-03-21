@@ -27,7 +27,7 @@ jobs:
 
       - name: Fail from R
         run: |
-          if Rscript -e 'stop("error')
+          if Rscript -e 'stop("error")'
           then
             echo passed
             exit 0
