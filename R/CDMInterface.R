@@ -202,7 +202,7 @@ CDMInterface <- R6::R6Class(
           
           SELECT * INTO #tp_dbc_cohort_table FROM (
             %s
-          );",
+          ) a;",
           renderedSql
         ),
         tempEmulationSchema = private$.tempEmulationSchema
