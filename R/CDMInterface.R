@@ -200,10 +200,11 @@ CDMInterface <- R6::R6Class(
         sql = sprintf(
           "DROP TABLE IF EXISTS #tp_dbc_cohort_table;
           
-          SELECT * INTO #tp_dbc_cohort_table
+          SELECT *
+          INTO #tp_dbc_cohort_table
           FROM (
             %s
-          ) a",
+          ) a;",
           renderedSql
         ),
         tempEmulationSchema = private$.tempEmulationSchema
