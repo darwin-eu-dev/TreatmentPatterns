@@ -26,6 +26,8 @@ jobs:
       
       CDM_SCHEMA: ${{ secrets.SPARK_CDM_SCHEMA }}
       RESULT_SCHEMA: ${{ secrets.SPARK_RESULT_SCHEMA  }}
+      
+      JAVA_HOME: '/opt/hostedtoolcache/Java_Corretto_jdk/8.442.06-1/x64'
 
     steps:
       - uses: actions/checkout@v3
