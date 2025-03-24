@@ -63,7 +63,7 @@ CONNECTION_DETAILS <- DatabaseConnector::createConnectionDetails(
 )
 
 test_that("Test Database", {
-  skip_if(is.null(USER))
+  skip_if(DBMS == "")
 
   ## Prepare ----
   cohortTableName <- "temp_tp_cohort_table"
