@@ -79,12 +79,12 @@ test_that("Test Database", {
     FROM (
       SELECT TOP 10
         1 AS cohort_definition_id,
-        @cdmSchema.person.person_id AS subject_id,
-        @cdmSchema.observation_period.observation_period_start_date AS cohort_start_date,
-        @cdmSchema.observation_period.observation_period_start_date AS cohort_end_date
+        person.person_id AS subject_id,
+        observation_period.observation_period_start_date AS cohort_start_date,
+        observation_period.observation_period_start_date AS cohort_end_date
       FROM @cdmSchema.observation_period
       INNER JOIN @cdmSchema.person
-        ON @cdmSchema.observation_period.person_id = @cdmSchema.person.person_id
+        ON observation_period.person_id = person.person_id
     ) a;",
     cdmSchema = CDM_SCHEMA,
     resultSchema = RESULT_SCHEMA,
