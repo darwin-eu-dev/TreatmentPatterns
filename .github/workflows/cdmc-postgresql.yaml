@@ -20,15 +20,21 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      DRIVER: 'RPostgres::Postgres()'
-
       USER: ${{ secrets.POSTGRESQL_USER }}
       PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
       HOST: ${{ secrets.POSTGRESQL_HOST }}
       DBNAME: ${{ secrets.POSTGRESQL_DBNAME }}
-      
+
+      ARGS: 'list(
+        drv = RPostgres::Postgres(),
+        dbname = ${DBNAME},
+        host = ${HOST},
+        user = ${USER},
+        password = ${PASSWORD}
+      )'
+
       CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA  }}
+      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA }}
 
     steps:
       - uses: actions/checkout@v3

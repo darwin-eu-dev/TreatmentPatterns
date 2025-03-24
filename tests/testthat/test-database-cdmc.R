@@ -4,14 +4,11 @@ library(RPostgres)
 library(dplyr)
 
 test_that("Test Database", {
-  skip_if(Sys.getenv("DRIVER") == "")
+  skip_if(Sys.getenv("ARGS") == "")
 
-  con <- DBI::dbConnect(
-    drv = eval(parse(text = Sys.getenv("DRIVER"))),
-    dbname = Sys.getenv("DBNAME"),
-    host = Sys.getenv("HOST"),
-    user = Sys.getenv("USER"),
-    password = Sys.getenv("PASSWORD")
+  con <- do.call(
+    what = DBI::dbConnect,
+    args = eval(parse(text = Sys.getenv("ARGS")))
   )
 
   cdm <- CDMConnector::cdmFromCon(
