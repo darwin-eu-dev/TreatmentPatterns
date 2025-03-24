@@ -60,7 +60,7 @@ jobs:
               password = Sys.getenv(PASSWORD)
             ),
             file = "./args.rds"
-          )'
+          )
         shell: Rscript {0}
 
       - name: Run test-database.R
