@@ -2,7 +2,7 @@ on:
   schedule:
     - cron: '0 8 * * 6'
   push:
-    branches: [main, rc, 292]
+    branches: [main, rc]
 
 name: Big Query
 
@@ -49,12 +49,6 @@ jobs:
         run: |
           writeLines(Sys.getenv("KEY_FILE"), "key_file.json")
         shell: Rscript {0}
-      
-      - name: List files
-        run: ls -lah
-      
-      - name: Full path
-        run: readlink -f ./key_file.json
 
       - name: Run test-database.R
         run: |
