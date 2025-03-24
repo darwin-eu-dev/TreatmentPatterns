@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [292]
+    branches: [never]
 
 name: Test
 

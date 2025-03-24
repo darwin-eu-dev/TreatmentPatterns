@@ -2,12 +2,12 @@ on:
   schedule:
     - cron: '0 8 * * 6'
   push:
-    branches: [main, rc, 292]
+    branches: [main, rc]
 
 name: CDMConnector (ODBC)
 
 jobs:
-  CDMConnector-PostgreSQL-test:
+  SqlServer-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -20,13 +20,14 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      USER: ${{ secrets.POSTGRESQL_USER }}
-      PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
-      HOST: ${{ secrets.POSTGRESQL_HOST }}
-      DBNAME: ${{ secrets.POSTGRESQL_DBNAME }}
+      DRIVER: 'odbc::odbc'
 
-      CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA }}
+      USER: ${{ secrets.SQL_SERVER_USER }}
+      PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
+      SERVER: ${{ secrets.SQL_SERVER_SERVER }}
+      
+      CDM_SCHEMA: ${{ secrets.SQL_SERVER_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.SQL_SERVER_RESULT_SCHEMA  }}
 
     steps:
       - uses: actions/checkout@v3
@@ -43,25 +44,11 @@ jobs:
           dependencies: '"all"'
 
       - name: Install Driver
-        run: install.packages("RPostgres")
+        run: install.packages("odbc")
         shell: Rscript {0}
 
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
-
-      - name: Connection Args
-        run: |
-          saveRDS(
-            object = list(
-              drv = RPostgres::Postgres(),
-              dbname = Sys.getenv(DBNAME),
-              host = Sys.getenv(HOST),
-              user = Sys.getenv(USER),
-              password = Sys.getenv(PASSWORD)
-            ),
-            file = "./args.rds"
-          )'
-        shell: Rscript {0}
 
       - name: Run test-database.R
         run: |
