@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: A
-        run: echo A
+        run: echo ${A}
 
       - name: B
-        run: echo B
+        run: echo ${B}
