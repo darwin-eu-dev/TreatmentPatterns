@@ -4,11 +4,11 @@ library(RPostgres)
 library(dplyr)
 
 test_that("Test Database", {
-  skip_if(Sys.getenv("ARGS") == "")
+  skip_if_not(file.exists("/home/runner/work/TreatmentPatterns/TreatmentPatterns/args.rds"))
 
   con <- do.call(
     what = DBI::dbConnect,
-    args = eval(parse(text = Sys.getenv("ARGS")))
+    args = readRDS("/home/runner/work/TreatmentPatterns/TreatmentPatterns/args.rds")
   )
 
   cdm <- CDMConnector::cdmFromCon(
