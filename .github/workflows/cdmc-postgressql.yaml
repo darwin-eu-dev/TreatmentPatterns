@@ -4,10 +4,10 @@ on:
   push:
     branches: [main, rc, 292]
 
-name: CDMC PostgreSQL
+name: CDMConnector PostgreSQL
 
 jobs:
-  PostgreSQL-test:
+  CDMConnector-PostgreSQL-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
