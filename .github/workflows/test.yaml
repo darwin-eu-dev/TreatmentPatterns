@@ -1,11 +1,11 @@
 on:
   push:
-    branches: [main]
+    branches: [292]
 
-name: Snowflake
+name: Test
 
 jobs:
-  Snowflake-test:
+  CDMConnector-PostgreSQL-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -14,24 +14,20 @@ jobs:
         config:
           - {os: ubuntu-latest,   r: 'release'}
     env:
+      STATUS: 0
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-    steps:
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
-          extra-repositories: 'https://OHDSI.github.io/drat'
+      FOO: 'foo'
+      BAR: 'bar'
+      BAZ: 'baz'
 
-      - name: Fail from R
-        run: |
-          if Rscript -e 'stop("error")'
-          then
-            echo passed
-            exit 0
-          else
-            echo failed
-            exit 1
-          fi
+      A: "${FOO} ${BAR}"
+      B: '${FOO} ${BAR}'
+
+    steps:
+      - name: A
+        run: echo A
+
+      - name: B
+        run: echo B
