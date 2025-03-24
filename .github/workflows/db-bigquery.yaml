@@ -47,7 +47,7 @@ jobs:
 
       - name: Setup key-file
         run: |
-          writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), "key_file.json")
+          writeLines(Sys.getenv("BIG_QUERY_KEY_FILE"), "key_file.json")
         shell: Rscript {0}
       
       - name: List files
