@@ -49,6 +49,9 @@ jobs:
         run: |
           writeLines(Sys.getenv("CDM_BIG_QUERY_KEY_FILE"), "key_file.json")
         shell: Rscript {0}
+      
+      - name: List files
+        run: ls -lah
 
       - name: Run test-database.R
         run: |
