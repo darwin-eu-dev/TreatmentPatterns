@@ -54,10 +54,10 @@ jobs:
           saveRDS(
             object = list(
               drv = RPostgres::Postgres(),
-              dbname = Sys.getenv(DBNAME),
-              host = Sys.getenv(HOST),
-              user = Sys.getenv(USER),
-              password = Sys.getenv(PASSWORD)
+              dbname = Sys.getenv("DBNAME"),
+              host = Sys.getenv("HOST"),
+              user = Sys.getenv("USER"),
+              password = Sys.getenv("PASSWORD")
             ),
             file = "./args.rds"
           )
