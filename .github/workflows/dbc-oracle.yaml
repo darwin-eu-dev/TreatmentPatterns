@@ -4,10 +4,10 @@ on:
   push:
     branches: [main, rc]
 
-name: Big Query
+name: DatabaseConnector (JDBC)
 
 jobs:
-  Big-Query-test:
+  Oracle-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -20,13 +20,14 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      DBMS: 'bigquery'
+      DBMS: 'oracle'
 
-      CONNECTION_STRING: ${{ secrets.BIG_QUERY_CONNECTION_STRING }}
-      KEY_FILE: ${{ secrets.BIG_QUERY_KEY_FILE}}
-
-      CDM_SCHEMA: ${{ secrets.BIG_QUERY_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.BIG_QUERY_RESULT_SCHEMA  }}
+      USER: ${{ secrets.ORACLE_USER }}
+      PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
+      SERVER: ${{ secrets.ORACLE_SERVER }}
+      
+      CDM_SCHEMA: ${{ secrets.ORACLE_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.ORACLE_RESULT_SCHEMA  }}
 
     steps:
       - uses: actions/checkout@v3
@@ -44,11 +45,6 @@ jobs:
 
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
-
-      - name: Setup key-file
-        run: |
-          writeLines(Sys.getenv("KEY_FILE"), "key_file.json")
-        shell: Rscript {0}
 
       - name: Run test-database.R
         run: |

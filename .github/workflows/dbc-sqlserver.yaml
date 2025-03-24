@@ -4,10 +4,10 @@ on:
   push:
     branches: [main, rc]
 
-name: Iris
+name: DatabaseConnector (JDBC)
 
 jobs:
-  Iris-test:
+  SqlServer-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -20,14 +20,14 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      DBMS: 'iris'
+      DBMS: 'sql server'
 
-      USER: ${{ secrets.IRIS_USER }}
-      PASSWORD: ${{ secrets.IRIS_PASSWORD }}
-      CONNECTION_STRING: ${{ secrets.IRIS_CONNECTION_STRING }}
-
-      CDM_SCHEMA: ${{ secrets.IRIS_CDM54_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.IRIS_RESULT_SCHEMA  }}
+      USER: ${{ secrets.SQL_SERVER_USER }}
+      PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
+      SERVER: ${{ secrets.SQL_SERVER_SERVER }}
+      
+      CDM_SCHEMA: ${{ secrets.SQL_SERVER_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.SQL_SERVER_RESULT_SCHEMA  }}
 
     steps:
       - uses: actions/checkout@v3

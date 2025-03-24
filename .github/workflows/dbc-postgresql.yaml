@@ -4,10 +4,10 @@ on:
   push:
     branches: [main, rc]
 
-name: Snowflake
+name: DatabaseConnector (JDBC)
 
 jobs:
-  Snowflake-test:
+  PostgreSQL-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -17,14 +17,17 @@ jobs:
           - {os: ubuntu-latest,   r: 'release'}
     env:
       STATUS: 0
-      DBMS: 'snowflake'
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      CDM_SCHEMA: ${{ secrets.SNOWFLAKE_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.SNOWFLAKE_RESULT_SCHEMA }}
-      CONNECTION_STRING: ${{ secrets.SNOWFLAKE_CONNECTION_STRING }}
-      USER: ${{ secrets.SNOWFLAKE_USER }}
-      PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+
+      DBMS: 'postgresql'
+
+      USER: ${{ secrets.POSTGRESQL_USER }}
+      PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
+      SERVER: ${{ secrets.POSTGRESQL_SERVER }}
+      
+      CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA  }}
 
     steps:
       - uses: actions/checkout@v3

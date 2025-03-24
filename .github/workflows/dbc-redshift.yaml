@@ -4,10 +4,10 @@ on:
   push:
     branches: [main, rc]
 
-name: PostgreSQL
+name: DatabaseConnector (JDBC)
 
 jobs:
-  PostgreSQL-test:
+  Redshift-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -20,14 +20,14 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      DBMS: 'postgresql'
+      DBMS: 'redshift'
 
-      USER: ${{ secrets.POSTGRESQL_USER }}
-      PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
-      SERVER: ${{ secrets.POSTGRESQL_SERVER }}
+      USER: ${{ secrets.REDSHIFT_USER }}
+      PASSWORD: ${{ secrets.REDSHIFT_PASSWORD }}
+      SERVER: ${{ secrets.REDSHIFT_SERVER }}
       
-      CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA  }}
+      CDM_SCHEMA: ${{ secrets.REDSHIFT_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.REDSHIFT_RESULT_SCHEMA  }}
 
     steps:
       - uses: actions/checkout@v3

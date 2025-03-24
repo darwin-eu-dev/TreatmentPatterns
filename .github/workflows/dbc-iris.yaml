@@ -4,10 +4,10 @@ on:
   push:
     branches: [main, rc]
 
-name: Redshift
+name: DatabaseConnector (JDBC)
 
 jobs:
-  Redshift-test:
+  Iris-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -20,14 +20,14 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      DBMS: 'redshift'
+      DBMS: 'iris'
 
-      USER: ${{ secrets.REDSHIFT_USER }}
-      PASSWORD: ${{ secrets.REDSHIFT_PASSWORD }}
-      SERVER: ${{ secrets.REDSHIFT_SERVER }}
-      
-      CDM_SCHEMA: ${{ secrets.REDSHIFT_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.REDSHIFT_RESULT_SCHEMA  }}
+      USER: ${{ secrets.IRIS_USER }}
+      PASSWORD: ${{ secrets.IRIS_PASSWORD }}
+      CONNECTION_STRING: ${{ secrets.IRIS_CONNECTION_STRING }}
+
+      CDM_SCHEMA: ${{ secrets.IRIS_CDM54_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.IRIS_RESULT_SCHEMA  }}
 
     steps:
       - uses: actions/checkout@v3
