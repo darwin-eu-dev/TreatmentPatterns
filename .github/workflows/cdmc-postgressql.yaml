@@ -54,7 +54,7 @@ jobs:
       - name: Run test-database.R
         run: |
           Rscript -e 'testthat::test_file(
-            path = "./tests/testthat/test-database-odbc.R",
+            path = "./tests/testthat/test-database-cdmc.R",
             reporter = c("summary", "fail"),
             package = "TreatmentPatterns"
           )'
