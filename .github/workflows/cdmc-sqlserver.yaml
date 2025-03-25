@@ -7,7 +7,7 @@ on:
 name: CDMConnector (ODBC)
 
 jobs:
-  CDMConnector-PostgreSQL-test:
+  CDMConnector-SQLServer-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
