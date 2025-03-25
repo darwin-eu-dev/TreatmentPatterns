@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: windows-latest, r: 'release'}
+          - {os: ubuntu-latest,   r: 'release'}
     env:
       STATUS: 0
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -42,6 +42,9 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           dependencies: '"all"'
+
+      - name: Install unixODBC
+        run: apt-get install unixodbc unixodbc-dev
 
       - name: Install Driver
         run: install.packages("odbc")
