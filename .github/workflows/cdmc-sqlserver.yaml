@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, rc, 292]
 
-name: SQL Server
+name: SQL Server (FreeTDS)
 
 jobs:
   CDMConnector-SQLServer-test:
@@ -52,15 +52,6 @@ jobs:
       - name: Install Driver
         run: install.packages("odbc")
         shell: Rscript {0}
-
-      - name: inst
-        run: odbcinst -j
-
-      - name: odbcinst
-        run: cat /etc/odbcinst.ini
-
-      - name: odbc
-        run: cat /etc/odbc.ini
 
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
