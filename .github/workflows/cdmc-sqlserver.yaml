@@ -44,7 +44,7 @@ jobs:
           dependencies: '"all"'
 
       - name: Install unixODBC
-        run: apt-get install unixodbc unixodbc-dev
+        run: sudo apt-get install unixodbc unixodbc-dev
 
       - name: Install Driver
         run: install.packages("odbc")
