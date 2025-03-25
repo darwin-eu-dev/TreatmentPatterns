@@ -56,6 +56,12 @@ jobs:
       - name: inst
         run: odbcinst -j
 
+      - name: odbcinst
+        run: cat /etc/odbcinst.ini
+
+      - name: odbc
+        run: cat /etc/odbc.ini
+
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
 
