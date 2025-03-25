@@ -1,6 +1,5 @@
 library(CDMConnector)
 library(DBI)
-library(RPostgres)
 library(dplyr)
 
 test_that("Test Database", {
