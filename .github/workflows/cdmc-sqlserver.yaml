@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: windows-latest, r: 'release'}
+          - {os: ubuntu-latest,   r: 'release'}
     env:
       STATUS: 0
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -43,6 +43,9 @@ jobs:
         with:
           dependencies: '"all"'
 
+      - name: Install unixODBC
+        run: sudo apt-get install unixodbc unixodbc-dev
+        
       - name: Install Driver
         run: install.packages("odbc")
         shell: Rscript {0}
@@ -55,10 +58,12 @@ jobs:
           saveRDS(
             object = list(
               drv = odbc::odbc(),
+              Driver   = "ODBC Driver 18 for SQL Server",
               Server = Sys.getenv("SERVER"),
               UID = Sys.getenv("USER"),
               PWD = Sys.getenv("PASSWORD"),
-              TrustServerCertificate = "yes"
+              TrustServerCertificate = "yes",
+              Port = 1433
             ),
             file = "./args.rds"
           )
@@ -66,9 +71,8 @@ jobs:
 
       - name: Run test-database.R
         run: |
-          testthat::test_file(
+          Rscript -e 'testthat::test_file(
             path = "./tests/testthat/test-database-cdmc.R",
             reporter = c("summary", "fail"),
             package = "TreatmentPatterns"
-          )
-        shell: Rscript {0}
+          )'
