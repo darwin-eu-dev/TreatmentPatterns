@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, rc, 292]
 
-name: CDMConnector (ODBC)
+name: PostgreSQL
 
 jobs:
   CDMConnector-PostgreSQL-test:
@@ -27,6 +27,8 @@ jobs:
 
       CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
       RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA }}
+
+      DRIVER_PKG: 'RPostgres'
 
     steps:
       - uses: actions/checkout@v3

@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, rc, 292]
 
-name: CDMConnector (ODBC)
+name: SQL Server
 
 jobs:
   CDMConnector-SQLServer-test:
@@ -26,6 +26,8 @@ jobs:
 
       CDM_SCHEMA: ${{ secrets.SQL_SERVER_CDM_SCHEMA }}
       RESULT_SCHEMA: ${{ secrets.SQL_SERVER_RESULT_SCHEMA }}
+
+      DRIVER_PKG: 'odbc'
 
     steps:
       - uses: actions/checkout@v3

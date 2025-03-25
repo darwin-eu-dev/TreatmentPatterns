@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, rc]
 
-name: DatabaseConnector (JDBC)
+name: Snowflake
 
 jobs:
   Snowflake-test:
