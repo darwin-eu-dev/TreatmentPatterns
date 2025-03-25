@@ -46,6 +46,9 @@ jobs:
       - name: Install unixODBC
         run: sudo apt-get install unixodbc unixodbc-dev
 
+      - name: find ODBC
+        run: odbcinst -j
+
       - name: Install Driver
         run: install.packages("odbc")
         shell: Rscript {0}
@@ -61,8 +64,7 @@ jobs:
               Server = Sys.getenv("SERVER"),
               UID = Sys.getenv("USER"),
               PWD = Sys.getenv("PASSWORD"),
-              TrustServerCertificate = "yes",
-              Port = 1433
+              TrustServerCertificate = "yes"
             ),
             file = "./args.rds"
           )
