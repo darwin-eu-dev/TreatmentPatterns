@@ -2,12 +2,12 @@ on:
   schedule:
     - cron: '0 8 * * 6'
   push:
-    branches: [main, rc]
+    branches: [main, rc, 292]
 
 name: CDMConnector (ODBC)
 
 jobs:
-  SqlServer-test:
+  CDMConnector-PostgreSQL-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -20,14 +20,12 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      DRIVER: 'odbc::odbc'
-
       USER: ${{ secrets.SQL_SERVER_USER }}
       PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
-      SERVER: ${{ secrets.SQL_SERVER_SERVER }}
-      
+      SERVER: ${{ secrets.SQL_SERVER_SERVER}}
+
       CDM_SCHEMA: ${{ secrets.SQL_SERVER_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.SQL_SERVER_RESULT_SCHEMA  }}
+      RESULT_SCHEMA: ${{ secrets.SQL_SERVER_RESULT_SCHEMA }}
 
     steps:
       - uses: actions/checkout@v3
@@ -49,6 +47,22 @@ jobs:
 
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
+
+      - name: Connection Args
+        run: |
+          saveRDS(
+            object = list(
+              drv = odbc::odbc(),
+              Driver = "ODBC Driver 18 for SQL Server",
+              Server = Sys.getenv("SERVER"),
+              UID = Sys.getenv("USER"),
+              PWD = Sys.getenv("PASSWORD"),
+              TrustServerCertificate = "yes",
+              Port = 1433
+            ),
+            file = "./args.rds"
+          )
+        shell: Rscript {0}
 
       - name: Run test-database.R
         run: |
