@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, rc, 292]
 
-name: SQL Server
+name: Snowflake
 
 jobs:
   CDMConnector-SQLServer-test:
