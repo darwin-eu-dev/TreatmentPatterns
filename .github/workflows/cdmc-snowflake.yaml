@@ -4,10 +4,10 @@ on:
   push:
     branches: [main, rc, 292]
 
-name: Redshift
+name: SQL Server
 
 jobs:
-  CDMConnector-Redshift-test:
+  CDMConnector-SQLServer-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
@@ -20,15 +20,14 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      USER: ${{ secrets.REDSHIFT_USER }}
-      PASSWORD: ${{ secrets.REDSHIFT_PASSWORD }}
-      HOST: ${{ secrets.REDSHIFT_HOST }}
-      DBNAME: ${{ secrets.REDSHIFT_DBNAME }}
+      USER: ${{ secrets.SQL_SERVER_USER }}
+      PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
+      SERVER: ${{ secrets.SQL_SERVER_SERVER}}
 
-      CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA }}
+      CDM_SCHEMA: ${{ secrets.SQL_SERVER_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.SQL_SERVER_RESULT_SCHEMA }}
 
-      DRIVER_PKG: 'RPostgres'
+      DRIVER_PKG: 'odbc'
 
     steps:
       - uses: actions/checkout@v3
@@ -44,8 +43,14 @@ jobs:
         with:
           dependencies: '"all"'
 
+      - name: Install unixODBC
+        run: sudo apt-get install unixodbc unixodbc-dev
+
+      - name: Install Snowflake Drivers
+        run: sudo apt-get install snowflake-odbc
+
       - name: Install Driver
-        run: install.packages("RPostgres")
+        run: install.packages("odbc")
         shell: Rscript {0}
 
       - name: Install TreatmentPatterns
@@ -55,11 +60,13 @@ jobs:
         run: |
           saveRDS(
             object = list(
-              drv = RPostgres::Redshift(),
-              dbname = Sys.getenv("DBNAME"),
-              host = Sys.getenv("HOST"),
-              user = Sys.getenv("USER"),
-              password = Sys.getenv("PASSWORD")
+              drv = odbc::odbc(),
+              Driver   = "libtdsodbc.so",
+              Server = Sys.getenv("SERVER"),
+              UID = Sys.getenv("USER"),
+              PWD = Sys.getenv("PASSWORD"),
+              TrustServerCertificate = "yes",
+              Port = 1433
             ),
             file = "./args.rds"
           )
