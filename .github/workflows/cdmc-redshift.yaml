@@ -1,0 +1,74 @@
+on:
+  schedule:
+    - cron: '0 8 * * 6'
+  push:
+    branches: [main, rc, 292]
+
+name: PostgreSQL
+
+jobs:
+  CDMConnector-Redshift-test:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest,   r: 'release'}
+    env:
+      STATUS: 0
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+      USER: ${{ secrets.REDSHIFT_USER }}
+      PASSWORD: ${{ secrets.REDSHIFT_PASSWORD }}
+      HOST: ${{ secrets.REDSHIFT_HOST }}
+      DBNAME: ${{ secrets.REDSHIFT_DBNAME }}
+
+      CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA }}
+
+      DRIVER_PKG: 'RPostgres'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+          extra-repositories: 'https://OHDSI.github.io/drat'
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"all"'
+
+      - name: Install Driver
+        run: install.packages("RPostgres")
+        shell: Rscript {0}
+
+      - name: Install TreatmentPatterns
+        run: R CMD INSTALL --with-keep.source --no-multiarch ./
+
+      - name: Connection Args
+        run: |
+          saveRDS(
+            object = list(
+              drv = RPostgres::Redshift(),
+              dbname = Sys.getenv("DBNAME"),
+              host = Sys.getenv("HOST"),
+              user = Sys.getenv("USER"),
+              password = Sys.getenv("PASSWORD")
+            ),
+            file = "./args.rds"
+          )
+        shell: Rscript {0}
+
+      - name: Run test-database.R
+        run: |
+          Rscript -e 'testthat::test_file(
+            path = "./tests/testthat/test-database-cdmc.R",
+            reporter = c("summary", "fail"),
+            package = "TreatmentPatterns"
+          )'
