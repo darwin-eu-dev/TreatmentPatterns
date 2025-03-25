@@ -5,6 +5,8 @@ library(dplyr)
 test_that("Test Database", {
   skip_if_not(file.exists("/home/runner/work/TreatmentPatterns/TreatmentPatterns/args.rds"))
 
+  library(Sys.getenv("DRIVER_PKG"), character.only = TRUE)
+
   con <- do.call(
     what = DBI::dbConnect,
     args = readRDS("/home/runner/work/TreatmentPatterns/TreatmentPatterns/args.rds")
