@@ -310,6 +310,17 @@ CDMInterface <- R6::R6Class(
       for (tableName in cohortTableName) {
         tbl <- private$.cdm[[tableName]] %>%
           dplyr::group_by(.data$subject_id) %>%
+          dplyr::mutate(
+            subject_id_origin = .data$subject_id
+          ) %>%
+          dplyr::ungroup() %>%
+          mutate(r = dplyr::row_number()) %>%
+          dplyr::group_by(.data$subject_id_origin) %>%
+          dplyr::mutate(
+            subject_id = min(.data$r, na.rm = TRUE)
+          ) %>%
+          dplyr::select(-"r") %>%
+          dplyr::ungroup() %>%
           dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
           dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date", interval = "day") >= minEraDuration) %>%
           dplyr::group_by(.data$subject_id) %>%
