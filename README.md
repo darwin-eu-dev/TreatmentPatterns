@@ -15,8 +15,8 @@ coverage](https://codecov.io/gh/darwin-eu-dev/TreatmentPatterns/branch/master/gr
 
 | Database | DatabaseConnector (JDBC) | CDMConnector (ODBC) | CDMConnector using DatabaseConnector (ODBC) |
 |----|----|----|----|
-| PostgreSQL | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/db-postgresql.yaml/badge.svg) |  |  |
-| SQL Server | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/db-sqlserver.yaml/badge.svg) |  |  |
+| PostgreSQL | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/db-postgresql.yaml/badge.svg) | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/cdmc-postgresql.yaml/badge.svg) |  |
+| SQL Server | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/db-sqlserver.yaml/badge.svg) | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/cdmc-sqlserver.yaml/badge.svg) |  |
 | Snowflake | ![Snowflake](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/db-snowflake.yaml/badge.svg) |  |  |
 | Oracle | ![Oracle](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/db-oracle.yaml/badge.svg) |  |  |
 | Redshift | ![Redshift](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/db-redshift.yaml/badge.svg) |  |  |
