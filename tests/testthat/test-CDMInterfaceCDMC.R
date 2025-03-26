@@ -1,6 +1,7 @@
 library(testthat)
 library(TreatmentPatterns)
 library(dplyr)
+library(CDMConnector)
 
 if (ableToRun()$CDMC) {
   andromeda <- Andromeda::andromeda()

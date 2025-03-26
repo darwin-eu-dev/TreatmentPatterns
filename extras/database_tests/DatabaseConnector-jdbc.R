@@ -38,32 +38,32 @@ EXTRA_SETTINGS <- if (Sys.getenv("EXTRA_SETTINGS") == "") {
   Sys.getenv("EXTRA_SETTINGS")
 }
 
-# Install Respective JDBC ----
-if (dir.exists(JDBC_FOLDER)) {
-  jdbcDriverFolder <- JDBC_FOLDER
-} else {
-  jdbcDriverFolder <- "~/.jdbcDrivers"
-  dir.create(jdbcDriverFolder, showWarnings = FALSE, recursive = TRUE)
-  DatabaseConnector::downloadJdbcDrivers(DBMS, pathToDriver = jdbcDriverFolder)
-  withr::defer({
-    unlink(jdbcDriverFolder, recursive = TRUE, force = TRUE)
-  }, envir = testthat::teardown_env())
-}
-
-# Connection Details ----
-CONNECTION_DETAILS <- DatabaseConnector::createConnectionDetails(
-  dbms = DBMS,
-  user = USER,
-  password = PASSWORD,
-  connectionString = CONNECTION_STRING,
-  server = SERVER,
-  port = PORT,
-  extraSettings = EXTRA_SETTINGS,
-  pathToDriver = jdbcDriverFolder
-)
-
 test_that("Test Database", {
   skip_if(DBMS == "")
+
+  # Install Respective JDBC ----
+  if (dir.exists(JDBC_FOLDER)) {
+    jdbcDriverFolder <- JDBC_FOLDER
+  } else {
+    jdbcDriverFolder <- "~/.jdbcDrivers"
+    dir.create(jdbcDriverFolder, showWarnings = FALSE, recursive = TRUE)
+    DatabaseConnector::downloadJdbcDrivers(DBMS, pathToDriver = jdbcDriverFolder)
+    withr::defer({
+      unlink(jdbcDriverFolder, recursive = TRUE, force = TRUE)
+    }, envir = testthat::teardown_env())
+  }
+  
+  # Connection Details ----
+  CONNECTION_DETAILS <- DatabaseConnector::createConnectionDetails(
+    dbms = DBMS,
+    user = USER,
+    password = PASSWORD,
+    connectionString = CONNECTION_STRING,
+    server = SERVER,
+    port = PORT,
+    extraSettings = EXTRA_SETTINGS,
+    pathToDriver = jdbcDriverFolder
+  )
 
   ## Prepare ----
   cohortTableName <- "temp_tp_cohort_table"
