@@ -49,7 +49,7 @@ jobs:
       - name: Run test-database.R
         run: |
           Rscript -e 'testthat::test_file(
-            path = "./tests/testthat/test-database.R",
+            path = "./extras/database_tests/DatabaseConnector-jdbc.R",
             reporter = c("summary", "fail"),
             package = "TreatmentPatterns"
           )'

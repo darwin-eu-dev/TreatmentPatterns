@@ -2,7 +2,7 @@ on:
   schedule:
     - cron: '0 8 * * 6'
   push:
-    branches: [main, rc, 292]
+    branches: [main, rc]
 
 name: Snowflake
 
@@ -75,7 +75,7 @@ jobs:
       - name: Run test-database.R
         run: |
           Rscript -e 'testthat::test_file(
-            path = "./tests/testthat/test-database-cdmc.R",
+            path = "./extras/database_tests/CDMConnector-odbc.R",
             reporter = c("summary", "fail"),
             package = "TreatmentPatterns"
           )'
