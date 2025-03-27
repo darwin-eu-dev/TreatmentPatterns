@@ -26,8 +26,8 @@ jobs:
       PASSWORD: ${{ secrets.REDSHIFT_PASSWORD }}
       SERVER: ${{ secrets.REDSHIFT_SERVER }}
       
-      CDM_SCHEMA: ${{ secrets.REDSHIFT_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.REDSHIFT_RESULT_SCHEMA  }}
+      CDM_SCHEMA: ${{ secrets.REDSHIFT_CDM54_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.REDSHIFT_RESULT_SCHEMA }}
 
     steps:
       - uses: actions/checkout@v3

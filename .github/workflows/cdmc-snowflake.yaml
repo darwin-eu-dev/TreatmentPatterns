@@ -50,7 +50,7 @@ jobs:
         run: wget https://sfc-repo.snowflakecomputing.com/odbc/linux/3.6.0/snowflake-odbc-3.6.0.x86_64.deb
 
       - name: Install Snowflake Driver
-        run: sudo dpkg -i snowflake-odbc-3.6.0.aarch64.deb
+        run: sudo dpkg -i snowflake-odbc-3.6.0.x86_64.deb
 
       - name: Install Driver Package
         run: install.packages("odbc")
