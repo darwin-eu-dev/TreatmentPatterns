@@ -46,11 +46,8 @@ jobs:
       - name: Install unixODBC
         run: sudo apt-get install unixodbc unixodbc-dev
 
-      - name: Download Snowlfake Driver
-        run: sudo wget https://sfc-repo.snowflakecomputing.com/odbc/linuxaarch64/3.6.0/snowflake_linux_aarch64_odbc-3.6.0.tgz
-
       - name: Install Snowflake Driver
-        run: sudo apt-get install -f ./snowflake_linux_aarch64_odbc-3.6.0.tgz
+        run: sudo dpkg -i snowflake-odbc-3.6.0.aarch64.deb
 
       - name: Install Driver
         run: install.packages("odbc")
