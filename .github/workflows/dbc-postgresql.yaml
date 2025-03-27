@@ -41,7 +41,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          dependencies: '"all"'
+          extra-packages: any::rcmdcheck
+          needs: check
 
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
