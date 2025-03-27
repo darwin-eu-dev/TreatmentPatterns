@@ -59,6 +59,12 @@ jobs:
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
 
+      - name: Fetch driver details
+        run: odbcinst -j
+
+      - name: find dirver
+        run: find / -type f -name "libSnowflake.so"
+
       - name: Connection Args
         run: |
           saveRDS(
@@ -67,7 +73,7 @@ jobs:
               SERVER = Sys.getenv("SERVER"),
               UID = Sys.getenv("USER"),
               PWD = Sys.getenv("PASSWORD"),
-              DRIVER = "SnowflakeDSIIDriver"
+              DRIVER = "/lib/snowflake/odbc/lib/libSnowflake.so"
             ),
             file = "./args.rds"
           )
