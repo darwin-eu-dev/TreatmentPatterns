@@ -24,6 +24,7 @@ jobs:
       PASSWORD: ${{ secrets.REDSHIFT_PASSWORD }}
       HOST: ${{ secrets.REDSHIFT_HOST }}
       DBNAME: ${{ secrets.REDSHIFT_DBNAME }}
+      PORT: ${{ secrets.REDSHIFT_PORT }}
 
       CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
       RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA }}
@@ -58,6 +59,7 @@ jobs:
               drv = RPostgres::Redshift(),
               dbname = Sys.getenv("DBNAME"),
               host = Sys.getenv("HOST"),
+              port = Sys.getenv("PORT"),
               user = Sys.getenv("USER"),
               password = Sys.getenv("PASSWORD")
             ),
