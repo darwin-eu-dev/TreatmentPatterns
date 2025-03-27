@@ -47,7 +47,7 @@ jobs:
         run: sudo apt-get install unixodbc unixodbc-dev
 
       - name: Install Snowflake Drivers
-        run: sudo yum install snowflake-odbc
+        run: sudo apt-get install snowflake-odbc
 
       - name: Install Driver
         run: install.packages("odbc")
