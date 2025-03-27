@@ -16,8 +16,8 @@ SELECT
   	    DISTINCT @cohortTable.subject_id
       FROM
         @resultSchema.@cohortTable
-    ) tmp
-  )
+    ) unique_subjects
+  ) new_subject_ids
     ON @cohortTable.subject_id = subject_id_origin
   INNER JOIN @cdmSchema.person
     ON subject_id_origin = person.person_id
