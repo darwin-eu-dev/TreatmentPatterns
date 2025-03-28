@@ -23,6 +23,8 @@ jobs:
       USER: ${{ secrets.SNOWFLAKE_USER }}
       PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SERVER: ${{ secrets.SNOWFLAKE_SERVER}}
+      DATABASE: ${{ secrets.SNOWFLAKE_DATABASE}}
+      WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
       CDM_SCHEMA: ${{ secrets.SNOWFLAKE_CDM_SCHEMA }}
       RESULT_SCHEMA: ${{ secrets.SNOWFLAKE_RESULT_SCHEMA }}
@@ -82,6 +84,8 @@ jobs:
               SERVER = Sys.getenv("SERVER"),
               UID = Sys.getenv("USER"),
               PWD = Sys.getenv("PASSWORD"),
+              DATABASE = Sys.getenv("DATABASE"),
+              WAREHOUSE = Sys.getenv("WAREHOUSE"),
               DRIVER = "/usr/lib/snowflake/odbc/lib/libSnowflake.so"
             ),
             file = "./args.rds"
