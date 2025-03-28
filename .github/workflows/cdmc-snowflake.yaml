@@ -52,11 +52,17 @@ jobs:
       - name: Run odbc inst
         run: odbcinst -j
 
-      - name: Downlaod Driver
+      - name: Download Driver
         run: wget https://sfc-repo.snowflakecomputing.com/odbc/linux/3.6.0/snowflake-odbc-3.6.0.x86_64.deb
 
       - name: Install Snowflake Driver
         run: sudo dpkg -i snowflake-odbc-3.6.0.x86_64.deb
+
+      - name: odbcinst.ini
+        run: cat /etc/odbcinst.ini
+
+      - name: odbcini
+        run: cat /etc/odbc.ini
 
       - name: Install Driver Package
         run: install.packages("odbc")
