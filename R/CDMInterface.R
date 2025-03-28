@@ -351,7 +351,8 @@ CDMInterface <- R6::R6Class(
           )
 
         if (is.null(andromeda[[andromedaTableName]])) {
-          andromeda[[andromedaTableName]] <- tbl
+          dplyr::copy_to(dest = andromeda, df = tbl, name = andromedaTableName, overwrite = TRUE)
+          # andromeda[[andromedaTableName]] <- tbl
         } else {
           andromeda$tbl_temp <- tbl
           andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
