@@ -26,8 +26,8 @@ jobs:
       DBNAME: ${{ secrets.REDSHIFT_DBNAME }}
       PORT: ${{ secrets.REDSHIFT_PORT }}
 
-      CDM_SCHEMA: ${{ secrets.POSTGRESQL_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.POSTGRESQL_RESULT_SCHEMA }}
+      CDM_SCHEMA: ${{ secrets.REDSHIFT_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.REDSHIFT_RESULT_SCHEMA }}
 
       DRIVER_PKG: 'RPostgres'
 
