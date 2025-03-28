@@ -50,7 +50,7 @@ jobs:
         run: sudo apt-get install odbcinst
         
       - name: Fix symlink
-        run: ln -s /usr/lib/x86_64-linux-gnu/libodbcinst.so.2 /usr/lib/x86_64-linux-gnu/libodbcinst.so.1
+        run: sudo ln -s /usr/lib/x86_64-linux-gnu/libodbcinst.so.2 /usr/lib/x86_64-linux-gnu/libodbcinst.so.1
 
       - name: Run odbc inst
         run: odbcinst -j
