@@ -20,12 +20,12 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      USER: ${{ secrets.SQL_SERVER_USER }}
-      PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
-      SERVER: ${{ secrets.SQL_SERVER_SERVER}}
+      USER: ${{ secrets.SNOWFLAKE_USER }}
+      PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SERVER: ${{ secrets.SNOWFLAKE_SERVER}}
 
-      CDM_SCHEMA: ${{ secrets.SQL_SERVER_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.SQL_SERVER_RESULT_SCHEMA }}
+      CDM_SCHEMA: ${{ secrets.SNOWFLAKE_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.SNOWFLAKE_RESULT_SCHEMA }}
 
       DRIVER_PKG: 'odbc'
 
