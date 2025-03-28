@@ -87,8 +87,8 @@ jobs:
             object = list(
               odbc::databricks(),
               httpPath = Sys.getenv("HTTP_PATH"),
-              workspace = Sys.getenv("WORKSPACE")
-              uid = Sys.getenv("USER")
+              workspace = Sys.getenv("WORKSPACE"),
+              uid = Sys.getenv("USER"),
               pwd = Sys.getenv("PASSWORD")            
             ),
             file = "./args.rds"
