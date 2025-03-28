@@ -59,9 +59,6 @@ jobs:
       - name: Install TreatmentPatterns
         run: R CMD INSTALL --with-keep.source --no-multiarch ./
 
-      - name: Fetch driver details
-        run: odbcinst -j
-
       - name: find dirver
         run: find / -type f -name "libSnowflake.so"
 
