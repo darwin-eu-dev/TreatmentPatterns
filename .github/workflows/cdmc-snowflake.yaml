@@ -47,7 +47,7 @@ jobs:
         run: sudo apt-get install unixodbc unixodbc-dev
 
       - name: Install odbcinst
-        run: sudo apt-get install odbcinst
+        run: sudo apt-get install unixodbc-common libodbcinst2
 
       - name: Run odbc inst
         run: odbcinst -j
