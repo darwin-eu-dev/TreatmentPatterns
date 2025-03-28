@@ -4,39 +4,33 @@ on:
   push:
     branches: [main, rc, 292]
 
-name: Spark
+name: Oracle
 
 jobs:
-  Spark-test:
+  Oracle-test:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'release'}
     env:
       STATUS: 0
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-      DBMS: 'spark'
+      DBMS: 'oracle'
 
-      USER: ${{ secrets.SPARK_USER }}
-      PASSWORD: ${{ secrets.SPARK_PASSWORD }}
-      CONNECTION_STRING: ${{ secrets.SPARK_CONNECTION_STRING }}
+      USER: ${{ secrets.ORACLE_USER }}
+      PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
+      SERVER: ${{ secrets.ORACLE_SERVER }}
       
-      CDM_SCHEMA: ${{ secrets.SPARK_CDM_SCHEMA }}
-      RESULT_SCHEMA: ${{ secrets.SPARK_RESULT_SCHEMA  }}
+      CDM_SCHEMA: ${{ secrets.ORACLE_CDM_SCHEMA }}
+      RESULT_SCHEMA: ${{ secrets.ORACLE_RESULT_SCHEMA  }}
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'corretto'
-          java-version: '8'
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -55,7 +49,7 @@ jobs:
       - name: Run test-database.R
         run: |
           Rscript -e 'testthat::test_file(
-            path = "./extras/database_tests/DatabaseConnector-jdbc.R",
+            path = "./extras/database_tests/CDMConnector-jdbc.R",
             reporter = c("summary", "fail"),
             package = "TreatmentPatterns"
           )'
