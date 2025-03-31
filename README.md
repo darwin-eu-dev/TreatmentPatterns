@@ -13,16 +13,16 @@ coverage](https://codecov.io/gh/darwin-eu-dev/TreatmentPatterns/branch/master/gr
 
 ## Supported Databases
 
-| Database | DatabaseConnector (JDBC) | CDMConnector (ODBC) | CDMConnector (JDBC) |
-|----|----|----|----|
-| PostgreSQL | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-postgresql.yaml/badge.svg) | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-postgresql.yaml/badge.svg) | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-cdmc-postgresql.yaml/badge.svg) |
-| SQL Server | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-sqlserver.yaml/badge.svg) | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-sqlserver.yaml/badge.svg) | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-cdmc-sqlserver.yaml/badge.svg) |
-| Snowflake | ![Snowflake](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-snowflake.yaml/badge.svg) | ![Snowflake](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-snowflake.yaml/badge.svg) | ![Snowflake](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-cdmc-snowflake.yaml/badge.svg) |
-| Oracle | ![Oracle](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-oracle.yaml/badge.svg) |  | ![Oracle](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-cdmc-oracle.yaml/badge.svg) |
-| Redshift | ![Redshift](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-redshift.yaml/badge.svg) | ![Redshift](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-redshift.yaml/badge.svg) | ![Redshift](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-cdmc-redshift.yaml/badge.svg) |
-| Spark | ![Spark](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-spark.yaml/badge.svg) | ![Spark](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-spark.yaml/badge.svg) | ![Spark](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-cdmc-spark.yaml/badge.svg) |
-| Iris | ![Iris](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-iris.yaml/badge.svg)\* |  | ![Iris](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-cdmc-iris.yaml/badge.svg) |
-| BigQuery | ![BigQuery](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-bigquery.yaml/badge.svg) |  | ![BigQuery](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-cdmc-bigquery.yaml/badge.svg) |
+| Database | DatabaseConnector (JDBC) | CDMConnector (ODBC) |
+|----|----|----|
+| PostgreSQL | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-postgresql.yaml/badge.svg) | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-postgresql.yaml/badge.svg) |
+| SQL Server | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-sqlserver.yaml/badge.svg) | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-sqlserver.yaml/badge.svg) |
+| Snowflake | ![Snowflake](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-snowflake.yaml/badge.svg) | ![Snowflake](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-snowflake.yaml/badge.svg) |
+| Oracle | ![Oracle](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-oracle.yaml/badge.svg) |  |
+| Redshift | ![Redshift](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-redshift.yaml/badge.svg) | ![Redshift](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-redshift.yaml/badge.svg) |
+| Spark | ![Spark](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-spark.yaml/badge.svg) | ![Spark](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-spark.yaml/badge.svg) |
+| Iris | ![Iris](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-iris.yaml/badge.svg)\* |  |
+| BigQuery | ![BigQuery](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-bigquery.yaml/badge.svg) |  |
 
 *\*Faulty Test Environment*
 
