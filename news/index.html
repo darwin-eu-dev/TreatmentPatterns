@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">TreatmentPatterns</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,17 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/v3.0.1/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="3.0.2" id="id_-treatmentpatterns-302"># TreatmentPatterns 3.0.2<a class="anchor" aria-label="anchor" href="#id_-treatmentpatterns-302"></a></h2><p class="text-muted">CRAN release: 2025-04-04</p>
+<ul><li>Added unit-testing for <code>CDMInterface</code> on Postgres, Redshift, SQL Server, Oracle, BigQuery, Spark, Snowflake</li>
+<li>Fixed some SQL issues for specific databases</li>
+<li>Fixed issue where a crash occurred on R 4.2.x, when saving the input arguments.</li>
+<li>Uncapped pathway length from 5.</li>
+<li>Fixed edge case on long repeating events to collapse.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="3.0.1" id="id_-treatmentpatterns-301"># TreatmentPatterns 3.0.1<a class="anchor" aria-label="anchor" href="#id_-treatmentpatterns-301"></a></h2><p class="text-muted">CRAN release: 2025-03-10</p>
 <ul><li>Deprecated shiny app</li>

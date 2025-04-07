@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">TreatmentPatterns</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,9 +59,69 @@
 </h1></div>
 <!-- badges: start -->
 
+<div class="section level2">
+<h2 id="supported-databases">Supported Databases<a class="anchor" aria-label="anchor" href="#supported-databases"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Database</th>
+<th>DatabaseConnector (JDBC)</th>
+<th>CDMConnector (ODBC)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>PostgreSQL</td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-postgresql.yaml/badge.svg" alt="PostgreSQL"></td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-postgresql.yaml/badge.svg" alt="PostgreSQL"></td>
+</tr>
+<tr class="even">
+<td>SQL Server</td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-sqlserver.yaml/badge.svg" alt="SQL Server"></td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-sqlserver.yaml/badge.svg" alt="SQL Server"></td>
+</tr>
+<tr class="odd">
+<td>Snowflake</td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-snowflake.yaml/badge.svg" alt="Snowflake"></td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-snowflake.yaml/badge.svg" alt="Snowflake"></td>
+</tr>
+<tr class="even">
+<td>Oracle</td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-oracle.yaml/badge.svg" alt="Oracle"></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Redshift</td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-redshift.yaml/badge.svg" alt="Redshift"></td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-redshift.yaml/badge.svg" alt="Redshift"></td>
+</tr>
+<tr class="even">
+<td>Spark</td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-spark.yaml/badge.svg" alt="Spark"></td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-spark.yaml/badge.svg" alt="Spark"></td>
+</tr>
+<tr class="odd">
+<td>Iris</td>
+<td>
+<img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-iris.yaml/badge.svg" alt="Iris">*</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>BigQuery</td>
+<td><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-bigquery.yaml/badge.svg" alt="BigQuery"></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><em>*Faulty Test Environment</em></p>
 <!-- badges: end -->
 <p><a href="https://doi.org/10.1016/j.cmpb.2022.107081" class="external-link"><em>Markus A, Verhamme K, Kors J, Rijnbeek P (2022). “TreatmentPatterns: An R package to facilitate the standardized development and analysis of treatment patterns across disease domains.” Computer Methods and Programs in Biomedicine.</em></a></p>
 <p>This R package contains the resources for performing a treatment pathway analysis of a study population of interest in observational databases. The package partially relies on the Observational Medical Outcomes Partnership Common Data Model (OMOP CDM), but the main parts of the package are also usable with different data formats.</p>
+</div>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
@@ -135,7 +195,7 @@
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle:stable"></a></li>
 <li><a href="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/R-CMD-check.yaml/badge.svg?branch=dev" alt="R-CMD-check"></a></li>
 <li><a href="https://CRAN.R-project.org/package=TreatmentPatterns" class="external-link"><img src="https://www.r-pkg.org/badges/version/TreatmentPatterns" alt="CRAN"></a></li>
-<li><a href="https://app.codecov.io/gh/darwin-eu/TreatmentPatterns?branch=master" class="external-link"><img src="https://codecov.io/gh/darwin-eu/TreatmentPatterns/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://app.codecov.io/gh/darwin-eu-dev/TreatmentPatterns?branch=master" class="external-link"><img src="https://codecov.io/gh/darwin-eu-dev/TreatmentPatterns/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
 </ul>
 </div>
 
