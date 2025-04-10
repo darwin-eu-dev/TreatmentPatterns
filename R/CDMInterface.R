@@ -217,8 +217,8 @@ CDMInterface <- R6::R6Class(
         tempEmulationSchema = private$.tempEmulationSchema,
         sql = "
         SELECT 
-          #tp_dbc_cohort_table.cohort_definition_id,
-          #tp_dbc_cohort_table.subject_id,
+          #tp_dbc_cohort_table.cohort_definition_id AS cohort_definition_id,
+          #tp_dbc_cohort_table.subject_id AS subject_id,
           #tp_dbc_cohort_table.cohort_start_date,
           #tp_dbc_cohort_table.cohort_end_date,
           #tp_dbc_cohort_table.age,
@@ -234,13 +234,19 @@ CDMInterface <- R6::R6Class(
         targetCohortId = targetCohortId
       )
 
-      andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
-        dplyr::mutate(
-          cohort_start_date = as.integer(.data$cohort_start_date),
-          cohort_end_date = as.integer(.data$cohort_end_date)
-        )
-
-      names(andromeda[[andromedaTableName]]) <- tolower(names(andromeda[[andromedaTableName]]))
+      if (utils::packageVersion("Andromeda") >= package_version("1.0.0")) {
+        andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+          dplyr::mutate(
+            cohort_start_date = dplyr::sql("datediff('day', DATE '1970-01-01', cohort_start_date)"),
+            cohort_end_date = dplyr::sql("datediff('day', DATE '1970-01-01', cohort_end_date)")
+          )
+      } else {
+        andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+          dplyr::mutate(
+            cohort_start_date = as.integer(.data$cohort_start_date),
+            cohort_end_date = as.integer(.data$cohort_end_date)
+          )
+      }
 
       n <- andromeda[[andromedaTableName]] %>%
         dplyr::group_by(.data$subject_id) %>% 
@@ -340,6 +346,13 @@ CDMInterface <- R6::R6Class(
             subject_id_origin = as.character(subject_id_origin)
           ) %>%
           dplyr::rename(sex = "concept_name") %>%
+          dplyr::mutate(
+            temp_date = as.Date("1970-01-01")
+          ) %>%
+          dplyr::mutate(
+            cohort_start_date = !!CDMConnector::datediff(start = "temp_date", end = "cohort_start_date", interval = "day"),
+            cohort_end_date = !!CDMConnector::datediff(start = "temp_date", end = "cohort_end_date", interval = "day")
+          ) %>%
           dplyr::select(
             "cohort_definition_id",
             "subject_id",
@@ -360,18 +373,17 @@ CDMInterface <- R6::R6Class(
           andromeda$tbl_temp <- NULL
         }
       }
+      
+      targetId <- as.numeric(targetCohortIds)
 
       andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+        dplyr::mutate(cohort_definition_id = as.numeric(.data$cohort_definition_id)) %>%
         dplyr::group_by(.data$subject_id) %>%
-        dplyr::filter(any(.data$cohort_definition_id %in% targetCohortIds, na.rm = TRUE)) %>%
-        dplyr::ungroup() %>%
-        dplyr::mutate(
-          cohort_start_date = as.integer(.data$cohort_start_date),
-          cohort_end_date = as.integer(.data$cohort_end_date)
-        )
+        dplyr::filter(any(.data$cohort_definition_id %in% targetId, na.rm = TRUE)) %>%
+        dplyr::ungroup()
 
       n <- andromeda[[andromedaTableName]] %>%
-        dplyr::group_by(.data$subject_id) %>% 
+        dplyr::group_by(.data$subject_id) %>%
         dplyr::summarise(n = dplyr::n()) %>%
         dplyr::pull()
 

@@ -752,8 +752,8 @@ test_that("A-A-C-A+B+C-C", {
 
 test_that("A-A+B+C-A+C-C", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -883,8 +883,8 @@ test_that("start event == start target", {
 
 test_that("end event == end target", {
   skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   skip_on_cran()
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -919,7 +919,7 @@ test_that("end event == end target", {
   result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
   
   expect_identical(result$treatment_pathways$pathway, "A")
-  
+
   DBI::dbDisconnect(con)
 })
 

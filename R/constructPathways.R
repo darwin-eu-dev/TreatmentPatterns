@@ -183,9 +183,11 @@ createTreatmentHistory <- function(
     includeTreatments) {
   andromeda$targetCohorts <- andromeda$cohortTable %>%
     dplyr::filter(.data$cohortId %in% targetCohortId) %>%
-    dplyr::mutate(type = "target") %>%
-    dplyr::mutate(indexYear = as.numeric(format(.data$startDate, "%Y"))) %>%
-    dplyr::mutate(indexDate = .data$startDate + indexDateOffset)
+    dplyr::mutate(
+      type = "target",
+      indexYear = floor(.data$startDate / 365.25 + 1970),
+      indexDate = .data$startDate + indexDateOffset
+    )
   
   # Select event cohorts for target cohort and merge with start/end date and
   # index year
@@ -253,8 +255,12 @@ createTreatmentHistory <- function(
       targetCohortId = "cohortIdTarget") %>%
     dplyr::mutate(
       durationEra = .data$eventEndDate - .data$eventStartDate,
-      eventCohortId = as.character(floor(.data$eventCohortId))) %>%
-    dplyr::filter(!is.na(.data$indexYear))
+      eventCohortId = as.character(as.integer(.data$eventCohortId))
+    ) %>%
+    dplyr::filter(
+      !is.na(.data$indexYear),
+      !is.na(.data$eventCohortId)
+    )
 
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
@@ -530,10 +536,10 @@ doCombinationWindow <- function(
     
     andromeda[[sprintf("addRowsFRFS_%s", iterations)]] <- andromeda[[sprintf("addRowsFRFS_%s", iterations)]] %>%
       dplyr::mutate(eventEndDate = .data$eventEndDatePrevious)
-    
+
     andromeda[[sprintf("addRowsFRFS_%s", iterations)]] <- andromeda[[sprintf("addRowsFRFS_%s", iterations)]] %>%
       dplyr::mutate(eventCohortId = paste0(.data$eventCohortId, "+", .data$eventCohortIdPrevious))
-    
+
     andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
       dplyr::mutate(
         eventEndDate = dplyr::case_when(
@@ -562,6 +568,7 @@ doCombinationWindow <- function(
       ))
     
     andromeda[[sprintf("addRowsLRFS_%s", iterations)]] <- andromeda$treatmentHistory %>%
+      dbplyr::window_order(.data$personId, .data$sortOrder) %>%
       dplyr::filter(dplyr::lead(.data$combinationLRFS) == 1)
     
     andromeda[[sprintf("addRowsLRFS_%s", iterations)]] <- andromeda[[sprintf("addRowsLRFS_%s", iterations)]] %>%
@@ -571,6 +578,8 @@ doCombinationWindow <- function(
       )
     
     andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+      dplyr::group_by(.data$personId) %>%
+      dbplyr::window_order(.data$sortOrder) %>%
       dplyr::mutate(
         eventEndDate = dplyr::case_when(
           dplyr::lead(.data$combinationLRFS) == 1 ~ .data$eventStartDateNext,
@@ -648,9 +657,11 @@ selectRowsCombinationWindow <- function(andromeda) {
   andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
     dplyr::mutate(sortOrder = as.numeric(.data$eventStartDate) + as.numeric(.data$eventEndDate) * row_number() / n() * 10^-6) %>%
     dplyr::group_by(.data$personId) %>%
+    dbplyr::window_order(.data$sortOrder) %>%
     dplyr::mutate(gapPrevious = .data$eventStartDate - dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(allRows = ifelse(.data$gapPrevious < 0, dplyr::row_number(), NA)) %>%
+    dbplyr::window_order(.data$sortOrder) %>%
     dplyr::mutate(gapPrevious = case_when(
       is.na(.data$gapPrevious) & eventEndDate == lead(eventEndDate) ~ lead(gapPrevious),
       .default = .data$gapPrevious
@@ -699,38 +710,47 @@ selectRowsCombinationWindow <- function(andromeda) {
 #' @return (`invisible(NULL)`)
 doFilterTreatments <- function(andromeda, filterTreatments) {
   andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-    dplyr::arrange(.data$personId, .data$eventStartDate, .data$eventEndDate)
-  
+    dbplyr::window_order(.data$personId, .data$eventStartDate, .data$eventEndDate)
+
   if (filterTreatments != "All") {
-    combi <- grep(
-      pattern = "+",
-      x = andromeda$treatmentHistory %>%
-        dplyr::select("eventCohortId") %>%
-        dplyr::pull(), fixed = TRUE
-    )
-    
-    if (length(combi) > 0) {
-      mem <- andromeda$treatmentHistory %>%
-        dplyr::collect()
-      
-      conceptIds <- strsplit(
-        x = mem$eventCohortId[combi],
-        split = "+",
-        fixed = TRUE
+    if (utils::packageVersion("Andromeda") >= package_version("1.0.0")) {
+      andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+        dplyr::mutate(
+          eventCohortId = dplyr::sql(
+            "list_aggr(list_sort(regexp_split_to_array(eventCohortId, '\\+')::int[]), 'string_agg', '+')"
+          )
+        )
+    } else {
+      combi <- grep(
+        pattern = "+",
+        x = andromeda$treatmentHistory %>%
+          dplyr::select("eventCohortId") %>%
+          dplyr::pull(), fixed = TRUE
       )
       
-      mem$eventCohortId[combi] <- sapply(
-        X = conceptIds,
-        FUN = function(x) {
-          paste(sort(x), collapse = "+")
-        }
-      )
-      
-      andromeda$treatmentHistory <- mem
-      rm("mem")
+      if (length(combi) > 0) {
+        mem <- andromeda$treatmentHistory %>%
+          dplyr::collect()
+        
+        conceptIds <- strsplit(
+          x = mem$eventCohortId[combi],
+          split = "+",
+          fixed = TRUE
+        )
+        
+        mem$eventCohortId[combi] <- sapply(
+          X = conceptIds,
+          FUN = function(x) {
+            paste(sort(x), collapse = "+")
+          }
+        )
+        
+        andromeda$treatmentHistory <- mem
+        rm("mem")
+      }
     }
   }
-  
+
   if (filterTreatments == "First") {
     andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
       dplyr::group_by(.data$personId, .data$eventCohortId) %>%
@@ -738,21 +758,34 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
       dplyr::ungroup()
   } else if (filterTreatments == "Changes") {
     # Group all rows per person for which previous treatment is same
-    andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-      dplyr::collect() %>%
-      dplyr::mutate(group = dplyr::consecutive_id(.data$personId, .data$eventCohortId))
-    
-    # Remove all rows with same sequential treatments
-    andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-      dplyr::group_by(.data$personId, .data$targetCohortId, .data$age, .data$sex, .data$indexYear, .data$eventCohortId, .data$group, .data$sortOrder) %>%
-      dplyr::summarise(
-        eventStartDate = min(.data$eventStartDate, na.rm = TRUE),
-        eventEndDate = max(.data$eventEndDate, na.rm = TRUE),
-        durationEra = sum(.data$durationEra, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      dplyr::arrange(.data$personId, .data$indexYear, .data$group) %>%
-      dplyr::select(-"group")
+    if (package_version("1.0.0") >= utils::packageVersion("Andromeda")) {
+      andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+        dplyr::group_by(.data$personId, .data$targetCohortId, .data$age, .data$sex, .data$indexYear, .data$eventCohortId, .data$sortOrder) %>%
+        dplyr::summarise(
+          eventStartDate = min(.data$eventStartDate, na.rm = TRUE),
+          eventEndDate = max(.data$eventEndDate, na.rm = TRUE),
+          durationEra = sum(.data$durationEra, na.rm = TRUE),
+          sortOrder = .data$sortOrder,
+          .groups = "drop"
+        )
+    } else {
+      # Group all rows per person for which previous treatment is same
+      andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+        dplyr::collect() %>%
+        dplyr::mutate(group = dplyr::consecutive_id(.data$personId, .data$eventCohortId))
+      
+      # Remove all rows with same sequential treatments
+      andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+        dplyr::group_by(.data$personId, .data$targetCohortId, .data$age, .data$sex, .data$indexYear, .data$eventCohortId, .data$group, .data$sortOrder) %>%
+        dplyr::summarise(
+          eventStartDate = min(.data$eventStartDate, na.rm = TRUE),
+          eventEndDate = max(.data$eventEndDate, na.rm = TRUE),
+          durationEra = sum(.data$durationEra, na.rm = TRUE),
+          .groups = "drop"
+        ) %>%
+        dplyr::arrange(.data$personId, .data$indexYear, .data$group) %>%
+        dplyr::select(-"group")
+    }
   }
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
