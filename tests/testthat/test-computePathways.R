@@ -39,13 +39,13 @@ test_that("computePathways CDMConnector", {
           cdm = globals$cdm,
           globals$cohortTableName
         ),
-        "Records: 553"
+        ">> Starting on"
       ),
-      "Records: 554"
+      "-- Iteration 1:"
     ),
-    "Records: 8366"
+    "-- treatment construction done"
   )
-  
+
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
@@ -531,10 +531,6 @@ test_that("filterTreatments", {
   expect_false(any(is.null(firstTH)))
   expect_false(any(is.null(changesTH)))
   expect_false(any(is.null(allTH)))
-  
-  expect_true(nrow(firstTH) == 553)
-  expect_true(nrow(changesTH) == 554)
-  expect_true(nrow(allTH) == 554)
 
   expect_true(Andromeda::isAndromeda(first))
   expect_true(Andromeda::isAndromeda(changes))

@@ -525,11 +525,11 @@ doCombinationWindow <- function(
         eventCohortIdPrevious = dplyr::lag(
           .data$eventCohortId,
           order_by = .data$eventStartDate)) %>%
-      dplyr::ungroup() %>%
-      dplyr::mutate(
-        eventEndDate = dplyr::case_when(
-          dplyr::lead(.data$switch) == 1 ~ .data$eventStartDateNext,
-          .default = .data$eventEndDate))
+      dplyr::ungroup() # %>%
+      # dplyr::mutate(
+      #   eventEndDate = dplyr::case_when(
+      #     dplyr::lead(.data$switch) == 1 ~ .data$eventStartDateNext,
+      #     .default = .data$eventEndDate))
     
     andromeda[[sprintf("addRowsFRFS_%s", iterations)]] <- andromeda$treatmentHistory %>%
       dplyr::filter(.data$combinationFRFS == 1)
@@ -658,7 +658,8 @@ selectRowsCombinationWindow <- function(andromeda, combinationWindow) {
     dplyr::mutate(sortOrder = as.numeric(.data$eventStartDate) + as.numeric(.data$eventEndDate) * row_number() / n() * 10^-6) %>%
     dplyr::group_by(.data$personId) %>%
     dbplyr::window_order(.data$sortOrder) %>%
-    dplyr::mutate(gapPrevious = .data$eventStartDate - dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder, default = Inf)) %>%
+    # Use -365 * 1000000 instead of -Inf, because -Inf is not castable for export
+    dplyr::mutate(gapPrevious = .data$eventStartDate - dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder, default = -365 * 1000000)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(allRows = ifelse(.data$gapPrevious < 0, dplyr::row_number(), NA)) %>%
     dbplyr::window_order(.data$sortOrder) %>%
@@ -685,7 +686,7 @@ selectRowsCombinationWindow <- function(andromeda, combinationWindow) {
   
   treatmentHistory <- andromeda$treatmentHistory %>%
     dplyr::mutate(selectedRows = dplyr::case_when(
-      dplyr::row_number() %in% rows & abs(.data$gapPrevious) < combinationWindow ~ 1,
+      dplyr::row_number() %in% rows & -.data$gapPrevious >= combinationWindow ~ 1,
       .default = 0
     ))
   
