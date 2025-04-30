@@ -28,6 +28,8 @@ constructPathways <- function(settings, andromeda) {
   andromeda$cohorts <- settings$cohorts %>%
     as.data.frame()
 
+  filterMinEraDuration(andromeda, settings$minEraDuration)
+
   targetCohortIds <- getCohortIds(cohorts = settings$cohorts, cohortType = "target")
   eventCohortIds <- getCohortIds(cohorts = settings$cohorts, cohortType = "event")
   exitCohortIds <- getCohortIds(cohorts = settings$cohorts, cohortType = "exit")
@@ -42,7 +44,7 @@ constructPathways <- function(settings, andromeda) {
     selectPeople <- andromeda$cohortTable %>%
       dplyr::filter(.data$cohortId == targetCohortId) %>%
       dplyr::distinct(.data$personId)
-  
+
     andromeda$currentCohorts <- andromeda$cohortTable %>%
       dplyr::inner_join(selectPeople, by = dplyr::join_by("personId"))
   
@@ -144,6 +146,11 @@ constructPathways <- function(settings, andromeda) {
     }
   }
   return(andromeda)
+}
+
+filterMinEraDuration <- function(andromeda, minEraDuration) {
+  andromeda$cohortTable <- andromeda$cohort_table_all %>%
+    dplyr::filter(.data$endDate - .data$startDate > minEraDuration)
 }
 
 getCohortIds <- function(cohorts, cohortType) {

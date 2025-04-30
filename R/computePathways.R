@@ -162,13 +162,12 @@ computePathways <- function(
     cohorts = cohorts,
     cohortTableName = cohortTableName,
     andromeda = andromeda,
-    andromedaTableName = "cohortTable",
-    minEraDuration = minEraDuration
+    andromedaTableName = "cohort_table_all"
   )
 
   checkCohortTable(andromeda)
 
-  andromeda$cohortTable <- andromeda$cohortTable %>%
+  andromeda$cohort_table_all <- andromeda$cohort_table_all %>%
     dplyr::rename(
       cohortId = "cohort_definition_id",
       personId = "subject_id",
@@ -401,7 +400,7 @@ validateComputePathways <- function() {
 }
 
 checkCohortTable = function(andromeda) {
-  cohortTableHead <- andromeda[["cohortTable"]] %>%
+  cohortTableHead <- andromeda$cohort_table_all %>%
     head() %>%
     dplyr::collect()
 

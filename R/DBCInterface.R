@@ -72,10 +72,9 @@ DBCInterface <- R6::R6Class(
     #' @template param_andromeda
     #' @param andromedaTableName (`character(1)`)\cr
     #' Name of the table in the Andromeda object where the data will be loaded.
-    #' @template param_minEraDuration
     #'
     #' @return (`andromeda`)
-    fetchCohortTable = function(cohorts, cohortTableName, andromeda, andromedaTableName, minEraDuration) {
+    fetchCohortTable = function(cohorts, cohortTableName, andromeda, andromedaTableName) {
       targetCohortId <- getCohortIds(cohorts, "target")
       
       n <- lapply(cohortTableName, function(cohortTable) {
@@ -107,8 +106,7 @@ DBCInterface <- R6::R6Class(
           resultSchema = private$.resultSchema,
           cdmSchema = private$.cdmSchema,
           cohortTable = tableName,
-          cohortIds = cohorts$cohortId,
-          minEraDuration = minEraDuration
+          cohortIds = cohorts$cohortId
         )
       })
       
@@ -180,7 +178,7 @@ DBCInterface <- R6::R6Class(
           number_records = sum(n),
           number_subjects = length(n),
           reason_id = 2,
-          reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
+          reason = "Selecting events that occuring during target.",
           time_stamp = as.numeric(Sys.time())
         ),
         andromeda = andromeda

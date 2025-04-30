@@ -54,10 +54,9 @@ CDMCInterface <- R6::R6Class(
     #' @template param_andromeda
     #' @param andromedaTableName (`character(1)`)\cr
     #' Name of the table in the Andromeda object where the data will be loaded.
-    #' @template param_minEraDuration
     #'
     #' @return (`andromeda`)
-    fetchCohortTable = function(cohorts, cohortTableName, andromeda, andromedaTableName, minEraDuration) {
+    fetchCohortTable = function(cohorts, cohortTableName, andromeda, andromedaTableName) {
       targetCohortIds <- cohorts %>%
         dplyr::filter(.data$type == "target") %>%
         dplyr::select("cohortId") %>%
@@ -93,9 +92,6 @@ CDMCInterface <- R6::R6Class(
           dplyr::select(-"r") %>%
           dplyr::ungroup() %>%
           dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
-          dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date", interval = "day") >= minEraDuration) %>%
-          dplyr::group_by(.data$subject_id) %>%
-          dplyr::ungroup() %>%
           dplyr::inner_join(
             private$.cdm$person,
             by = dplyr::join_by(subject_id_origin == person_id)
@@ -157,7 +153,7 @@ CDMCInterface <- R6::R6Class(
           number_records = sum(n),
           number_subjects = length(n),
           reason_id = 2,
-          reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
+          reason = "Selecting events that occuring during target.",
           time_stamp = as.numeric(Sys.time())
         ),
         andromeda = andromeda

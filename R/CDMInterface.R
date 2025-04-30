@@ -52,10 +52,9 @@ CDMInterface <- R6::R6Class(
     #' @template param_andromeda
     #' @param andromedaTableName (`character(1)`)\cr
     #' Name of the table in the Andromeda object where the data will be loaded.
-    #' @template param_minEraDuration
     #'
     #' @return (`andromeda`)
-    fetchCohortTable = function(cohorts, cohortTableName, andromeda, andromedaTableName, minEraDuration = NULL) {
+    fetchCohortTable = function(cohorts, cohortTableName, andromeda, andromedaTableName) {
       return(andromeda)
     },
 

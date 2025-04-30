@@ -25,4 +25,3 @@ SELECT
     ON person.gender_concept_id = concept.concept_id
   WHERE
     @cohortTable.cohort_definition_id IN (@cohortIds)
-    AND DATEDIFF(d, cohort_start_date, cohort_end_date) >= @minEraDuration
