@@ -130,7 +130,7 @@ computePathways <- function(
     envir = sys.frame(sys.nframe())
   )
 
-  cdmInterface <- CDMInterface$new(
+  cdmInterface <- makeCdmInterface(
     connectionDetails = connectionDetails,
     cdmSchema = cdmSchema,
     resultSchema = resultSchema,

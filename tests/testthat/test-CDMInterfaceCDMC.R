@@ -34,20 +34,20 @@ if (ableToRun()$CDMC) {
     cohortTables = "cohort_table"
   )
   
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(cdm = localCdm)
+  cdmInterface <- TreatmentPatterns:::makeCdmInterface(cdm = localCdm)
 }
 
 test_that("Method: new", {
   skip_if_not(ableToRun()$CDMC)
   expect_true(R6::is.R6(
-    TreatmentPatterns:::CDMInterface$new(cdm = localCdm)
+    TreatmentPatterns:::makeCdmInterface(cdm = localCdm)
   ))
 })
 
 test_that("Method: new - empty", {
   expect_error(
-    TreatmentPatterns:::CDMInterface$new(),
-    "Could not assert if CDMConnector or DatabaseConnector is being used.")
+    TreatmentPatterns:::makeCdmInterface(),
+    "Cannot assert to use `CDMConnector` or `DatabaseConnector`")
 })
 
 test_that("Method: fetchMetadata", {
@@ -70,7 +70,7 @@ test_that("Method: fetchMetadata", {
 test_that("Method: fetchCohortTable", {
   skip_if_not(ableToRun()$CDMC)
   # Update CDM with new dummy data
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(
+  cdmInterface <- TreatmentPatterns:::makeCdmInterface(
     cdm = localCdm
   )
   

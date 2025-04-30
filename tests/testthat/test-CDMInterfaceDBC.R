@@ -7,7 +7,7 @@ test_that("Method: new", {
   skip_if_not(ableToRun()$CG)
   connectionDetails <- Eunomia::getEunomiaConnectionDetails()
 
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(
+  cdmInterface <- TreatmentPatterns:::makeCdmInterface(
     connectionDetails = connectionDetails,
     cdmSchema = "main",
     resultSchema = "main"
@@ -25,7 +25,7 @@ test_that("Method: fetchMetadata", {
   skip_if_not(ableToRun()$CG)
   connectionDetails <- Eunomia::getEunomiaConnectionDetails()
   
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(
+  cdmInterface <- TreatmentPatterns:::makeCdmInterface(
     connectionDetails = connectionDetails,
     cdmSchema = "main",
     resultSchema = "main"
@@ -57,7 +57,7 @@ test_that("Method: fetchCohortTable", {
   andromeda <- Andromeda::andromeda()
   andromedaTableName <- "cohortTable"
   
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(
+  cdmInterface <- TreatmentPatterns:::makeCdmInterface(
     connectionDetails = globals$connectionDetails,
     cdmSchema = globals$cdmSchema,
     resultSchema = globals$resultSchema
@@ -84,7 +84,7 @@ test_that("fetchCohortTable: empty", {
   andromeda <- Andromeda::andromeda()
   andromedaTableName <- "cohortTable"
   
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(
+  cdmInterface <- TreatmentPatterns:::makeCdmInterface(
     connectionDetails = globals$connectionDetails,
     cdmSchema = globals$cdmSchema,
     resultSchema = globals$resultSchema
@@ -118,7 +118,7 @@ test_that("Method: disconnect", {
   skip_if_not(ableToRun()$CG)
   connectionDetails <- Eunomia::getEunomiaConnectionDetails()
   
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(
+  cdmInterface <- TreatmentPatterns:::makeCdmInterface(
     connectionDetails = connectionDetails,
     cdmSchema = "main",
     resultSchema = "main"

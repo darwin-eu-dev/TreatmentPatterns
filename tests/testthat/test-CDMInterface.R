@@ -1,3 +1,9 @@
+if (interactive()) {
+  source("./tests/testthat/helper-ableToRun.R")
+  source("./tests/testthat/helper-generateCohortTableCDMC.R")
+  source("./tests/testthat/helper-generateCohortTableCG.R")
+}
+
 library(testthat)
 library(TreatmentPatterns)
 library(dplyr)
@@ -11,13 +17,13 @@ test_that("fetchCohortTable", {
   aCG <- Andromeda::andromeda()
   aCDMC <- Andromeda::andromeda()
   
-  dbcInterface <- TreatmentPatterns:::CDMInterface$new(
+  dbcInterface <- TreatmentPatterns:::makeCdmInterface(
     connectionDetails = cg$connectionDetails,
     cdmSchema = "main",
     resultSchema = "main"
   )
   
-  cdmcInterface <- TreatmentPatterns:::CDMInterface$new(
+  cdmcInterface <- TreatmentPatterns:::makeCdmInterface(
     cdm = cdmc$cdm
   )
   

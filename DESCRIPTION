@@ -59,6 +59,8 @@ Config/testthat/parallel: true
 Roxygen: list(markdown = TRUE)
 Collate: 
     'CDMInterface.R'
+    'CDMCInterface.R'
+    'DBCInterface.R'
     'TreatmentPatterns-package.R'
     'TreatmentPatternsResults.R'
     'attrition.R'
