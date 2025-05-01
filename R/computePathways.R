@@ -130,6 +130,8 @@ computePathways <- function(
     envir = sys.frame(sys.nframe())
   )
 
+  settingSet <- buildSettings(args)
+
   cdmInterface <- makeCdmInterface(
     connectionDetails = connectionDetails,
     cdmSchema = cdmSchema,
@@ -175,10 +177,12 @@ computePathways <- function(
       endDate = "cohort_end_date"
     )
 
-  andromeda <- constructPathways(
-    settings = args,
-    andromeda = andromeda
-  )
+  for (settings in settingSet) {
+    andromeda <- constructPathways(
+      settings = args,
+      andromeda = andromeda
+    )
+  }
 
   andromeda$metadata <- andromeda$metadata %>%
     dplyr::collect() %>%
@@ -205,7 +209,9 @@ validateComputePathways <- function() {
     # Run expression in function that calls `validateComputePathways`
     envir = sys.frame(sys.nframe() - 1)
   )
-  
+
+  minLen <- length(args$analysisid)
+
   if (args$minEraDuration > args$minPostCombinationDuration) {
     warning("The `minPostCombinationDuration` is set lower than the `minEraDuration`, this might result in unexpected behavior")
   }
@@ -218,11 +224,11 @@ validateComputePathways <- function() {
   
   checkmate::assertCharacter(
     args$includeTreatments,
-    len = 1,
+    min.len = 1,
     add = assertCol,
     .var.name = "includeTreatments"
   )
-  
+
   checkmate::assertSubset(
     args$includeTreatments,
     choices = c("startDate", "endDate"),
@@ -232,7 +238,7 @@ validateComputePathways <- function() {
   
   checkmate::assertNumeric(
     args$indexDateOffset,
-    len = 1,
+    min.len = 1,
     finite = TRUE,
     null.ok = FALSE,
     add = assertCol,
@@ -243,7 +249,7 @@ validateComputePathways <- function() {
     x = args$minEraDuration,
     lower = 0,
     finite = TRUE,
-    len = 1,
+    min.len = 1,
     null.ok = FALSE,
     add = assertCol,
     .var.name = "minEraDuration"
@@ -252,6 +258,7 @@ validateComputePathways <- function() {
   checkmate::assertIntegerish(
     x = args$splitEventCohorts,
     null.ok = TRUE,
+    min.len = 1,
     add = assertCol,
     .var.name = "splitEventCohorts"
   )
@@ -259,6 +266,7 @@ validateComputePathways <- function() {
   checkmate::assertIntegerish(
     x = args$splitTime,
     lower = 0,
+    min.len = 1,
     null.ok = TRUE,
     add = assertCol,
     .var.name = "splitTime"
@@ -268,7 +276,7 @@ validateComputePathways <- function() {
     x = args$eraCollapseSize,
     lower = 0,
     finite = TRUE,
-    len = 1,
+    min.len = 1,
     null.ok = FALSE,
     add = assertCol,
     .var.name = "eraCollapseSize"
@@ -278,7 +286,7 @@ validateComputePathways <- function() {
     x = args$combinationWindow,
     lower = 0,
     finite = TRUE,
-    len = 1,
+    min.len = 1,
     null.ok = FALSE,
     add = assertCol,
     .var.name = "combinationWindow"
@@ -288,7 +296,7 @@ validateComputePathways <- function() {
     x = args$minPostCombinationDuration,
     lower = 0,
     finite = TRUE,
-    len = 1,
+    min.len = 1,
     null.ok = FALSE,
     add = assertCol,
     .var.name = "minPostCombinationDuration"
@@ -296,24 +304,25 @@ validateComputePathways <- function() {
   
   checkmate::assertCharacter(
     x = args$filterTreatments,
-    len = 1,
+    min.len = 1,
     add = assertCol,
     .var.name = "filterTreatments"
   )
-  
-  checkmate::assertSubset(
-    x = args$filterTreatments,
+
+  sapply(
+    args$filterTreatments,
+    checkmate::assertSubset,
     choices = c("First", "Changes", "All"),
     add = assertCol,
     .var.name = "filterTreatments"
   )
-  
+
   checkmate::assertNumeric(
     x = args$maxPathLength,
     lower = 0,
     upper = Inf,
     finite = TRUE,
-    len = 1,
+    min.len = 1,
     null.ok = FALSE,
     add = assertCol,
     .var.name = "maxPathLength"
@@ -355,7 +364,7 @@ validateComputePathways <- function() {
     null.ok = FALSE,
     .var.name = "cohortTableName"
   )
-  
+
   checkmate::assertClass(
     x = args$connectionDetails,
     classes = "ConnectionDetails",
@@ -363,7 +372,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "connectionDetails"
   )
-  
+
   checkmate::assertCharacter(
     x = args$connectionDetails$dbms,
     len = 1,
@@ -397,6 +406,78 @@ validateComputePathways <- function() {
   )
   
   checkmate::reportAssertions(collection = assertCol)
+}
+
+buildSettings <- function(args) {
+  minLen <- length(args$analysisId)
+  lapply(seq_len(minLen), function(i) {
+    setting <- args
+    setting$analysisId <- if (is.null(setting$analysisId[i])) {
+      setting$analysisId[1]
+    } else {
+      setting$analysisId[i]
+    }
+    setting$description <- if (is.null(setting$description[i])) {
+      setting$description[1]
+    } else {
+      setting$description[i]
+    }
+    setting$tempEmulationSchema <- if (is.null(setting$tempEmulationSchema[i])) {
+      setting$tempEmulationSchema[1]
+    } else {
+      setting$tempEmulationSchema[i]
+    }
+    setting$includeTreatments <- if (is.null(setting$includeTreatments[i])) {
+      setting$includeTreatments[1]
+    } else {
+      setting$includeTreatments[i]
+    }
+    setting$indexDateOffset <- if (is.null(setting$indexDateOffset[i])) {
+      setting$indexDateOffset[1]
+    } else {
+      setting$indexDateOffset[i]
+    }
+    setting$minEraDuration <- if (is.null(setting$minEraDuration[i])) {
+      setting$minEraDuration[1]
+    } else {
+      setting$minEraDuration[i]
+    }
+    setting$splitEventCohorts <- if (is.null(setting$splitEventCohorts[i])) {
+      setting$splitEventCohorts[1]
+    } else {
+      setting$splitEventCohorts[i]
+    }
+    setting$splitTime <- if (is.null(setting$splitTime[i])) {
+      setting$splitTime[1]
+    } else {
+      setting$splitTime[i]
+    }
+    setting$eraCollapseSize <- if (is.null(setting$eraCollapseSize[i])) {
+      setting$eraCollapseSize[1]
+    } else {
+      setting$eraCollapseSize[i]
+    }
+    setting$combinationWindow <- if (is.null(setting$combinationWindow[i])) {
+      setting$combinationWindow[1]
+    } else {
+      setting$combinationWindow[i]
+    }
+    setting$minPostCombinationDuration <- if (is.null(setting$minPostCombinationDuration[i])) {
+      setting$minPostCombinationDuration[1]
+    } else {
+      setting$minPostCombinationDuration[i]
+    }
+    setting$filterTreatments <- if (is.null(setting$filterTreatments[i])) {
+      setting$filterTreatments[1]
+    } else {
+      setting$filterTreatments[i]
+    }
+    setting$maxPathLength <- if (is.null(setting$maxPathLength[i])) {
+      setting$maxPathLength[1]
+    } else {
+      setting$maxPathLength[i]
+    }
+  })
 }
 
 checkCohortTable = function(andromeda) {

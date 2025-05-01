@@ -67,8 +67,7 @@ test_that("Method: fetchCohortTable", {
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     andromeda = andromeda,
-    andromedaTableName = andromedaTableName,
-    minEraDuration = 0
+    andromedaTableName = andromedaTableName
   )
 
   cdmInterface$disconnect()
@@ -101,8 +100,7 @@ test_that("fetchCohortTable: empty", {
     cohorts = cohorts,
     cohortTableName = globals$cohortTableName,
     andromeda = andromeda,
-    andromedaTableName = andromedaTableName,
-    minEraDuration = 5
+    andromedaTableName = andromedaTableName
   )
   
   res <- andromeda[[andromedaTableName]] %>% dplyr::collect()

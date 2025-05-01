@@ -1,6 +1,13 @@
+if (interactive()) {
+  source("./tests/testthat/helper-ableToRun.R")
+  source("./tests/testthat/helper-generateCohortTableCDMC.R")
+  source("./tests/testthat/helper-generateCohortTableCG.R")
+}
+
 library(testthat)
 library(TreatmentPatterns)
 library(dplyr)
+library(CDMConnector)
 
 test_that("A", {
   skip_if_not(ableToRun()$CDMC)

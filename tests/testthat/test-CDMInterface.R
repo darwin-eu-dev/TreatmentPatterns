@@ -27,22 +27,18 @@ test_that("fetchCohortTable", {
     cdm = cdmc$cdm
   )
   
-  minEraDuration <- 120
-  
   x <- dbcInterface$fetchCohortTable(
     cohorts = cg$cohorts,
     cohortTableName = cg$cohortTableName,
     andromeda = aCG,
-    andromedaTableName = cg$cohortTableName,
-    minEraDuration = minEraDuration
+    andromedaTableName = cg$cohortTableName
   )
   
   x <- cdmcInterface$fetchCohortTable(
     cohorts = cdmc$cohorts,
     cohortTableName = cdmc$cohortTableName,
     andromeda = aCDMC,
-    andromedaTableName = cdmc$cohortTableName,
-    minEraDuration = minEraDuration
+    andromedaTableName = cdmc$cohortTableName
   )
   
   # Check nRows

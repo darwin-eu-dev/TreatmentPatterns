@@ -79,8 +79,7 @@ test_that("Method: fetchCohortTable", {
     cohorts = cohorts,
     cohortTableName = "cohort_table",
     andromeda = andromeda,
-    andromedaTableName = "cohortTable",
-    minEraDuration = 5
+    andromedaTableName = "cohortTable"
   )
   
   res <- andromeda$cohortTable
@@ -97,8 +96,7 @@ test_that("Method: fetchCohortTable", {
     ),
     cohortTableName = "cohort_table",
     andromeda = andromeda,
-    andromedaTableName = "cohortTable",
-    minEraDuration = 5
+    andromedaTableName = "cohortTable"
   )
   
   res <- andromeda$cohortTable

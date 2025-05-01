@@ -28,7 +28,11 @@ constructPathways <- function(settings, andromeda) {
   andromeda$cohorts <- settings$cohorts %>%
     as.data.frame()
 
-  filterMinEraDuration(andromeda, settings$minEraDuration)
+  filterMinEraDuration(
+    andromeda = andromeda,
+    minEraDuration = settings$minEraDuration,
+    analysisCohortTable = sprintf("cohortTable_%s", settings$analysisId)
+  )
 
   targetCohortIds <- getCohortIds(cohorts = settings$cohorts, cohortType = "target")
   eventCohortIds <- getCohortIds(cohorts = settings$cohorts, cohortType = "event")
@@ -45,9 +49,9 @@ constructPathways <- function(settings, andromeda) {
       dplyr::filter(.data$cohortId == targetCohortId) %>%
       dplyr::distinct(.data$personId)
 
-    andromeda$currentCohorts <- andromeda$cohortTable %>%
+    andromeda[[sprintf("currentCohorts_%s", args$analysisId)]] <- andromeda$cohortTable %>%
       dplyr::inner_join(selectPeople, by = dplyr::join_by("personId"))
-  
+
     # Preprocess the target/event cohorts to create treatment history
     createTreatmentHistory(
       andromeda = andromeda,
@@ -55,7 +59,8 @@ constructPathways <- function(settings, andromeda) {
       eventCohortIds = eventCohortIds,
       exitCohortIds = exitCohortIds,
       indexDateOffset = settings$indexDateOffset,
-      includeTreatments = settings$includeTreatments
+      includeTreatments = settings$includeTreatments,
+      analysisId = settings$analysisId
     )
 
     n <- andromeda$attrition %>%
@@ -148,9 +153,9 @@ constructPathways <- function(settings, andromeda) {
   return(andromeda)
 }
 
-filterMinEraDuration <- function(andromeda, minEraDuration) {
-  andromeda$cohortTable <- andromeda$cohort_table_all %>%
-    dplyr::filter(.data$endDate - .data$startDate > minEraDuration)
+filterMinEraDuration <- function(andromeda, minEraDuration, analysisCohortTable) {
+  andromeda[[analysisCohortTable]] <- andromeda$cohort_table_all %>%
+    dplyr::filter(.data$endDate - .data$startDate >= minEraDuration)
 }
 
 getCohortIds <- function(cohorts, cohortType) {
@@ -187,8 +192,10 @@ createTreatmentHistory <- function(
     eventCohortIds,
     exitCohortIds,
     indexDateOffset,
-    includeTreatments) {
-  andromeda$targetCohorts <- andromeda$cohortTable %>%
+    includeTreatments,
+    analysisId
+  ) {
+  andromeda[["targetCohorts_%s", analysisId]] <- andromeda[["cohortTable_", analysisId]] %>%
     dplyr::filter(.data$cohortId %in% targetCohortId) %>%
     dplyr::mutate(
       type = "target",
@@ -198,11 +205,11 @@ createTreatmentHistory <- function(
   
   # Select event cohorts for target cohort and merge with start/end date and
   # index year
-  andromeda$eventCohorts <- andromeda$cohortTable %>%
+  andromeda[["eventCohorts_%s", analysisId]] <- andromeda[["cohortTable_", analysisId]] %>%
     dplyr::filter(.data$cohortId %in% eventCohortIds) %>%
     dplyr::mutate(type = "event")
-  
-  andromeda$exitCohorts <- andromeda$cohortTable %>%
+
+  andromeda$exitCohorts <- andromeda[["cohortTable_", analysisId]] %>%
     dplyr::filter(.data$cohortId %in% exitCohortIds) %>%
     dplyr::mutate(type = "exit")
 
