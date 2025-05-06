@@ -38,6 +38,10 @@
 #' @template param_maxPathLength
 #' @param analysisId (`character(1)`) Identifier for the TreatmentPatterns analysis.
 #' @param description (`character(1)`) Description of the analysis.
+#' @param overlapMethod (`character(1)`: `"truncate"`) Method to decide how to deal
+#' with overlap that is not significant enough for combination. `"keep"` will
+#' keep the dates as is. `"truncate"` truncates the first occurring event to
+#' the start date of the next event.
 #'
 #' @return (`Andromeda::andromeda()`)
 #' \link[Andromeda]{andromeda} object containing non-sharable patient level
@@ -122,7 +126,8 @@ computePathways <- function(
     combinationWindow = 30,
     minPostCombinationDuration = 30,
     filterTreatments = "First",
-    maxPathLength = 5) {
+    maxPathLength = 5,
+    overlapMethod = "truncate") {
   validateComputePathways()
 
   args <- eval(
@@ -388,7 +393,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "resultSchema"
   )
-  
+
   checkmate::assertClass(
     args$cdm,
     classes = "cdm_reference",
@@ -396,7 +401,13 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "cdm"
   )
-  
+
+  checkmate::assertChoice(
+    x = args$overlapMethod,
+    choices = c("truncate", "keep"),
+    null.ok = FALSE
+  )
+
   checkmate::reportAssertions(collection = assertCol)
 }
 

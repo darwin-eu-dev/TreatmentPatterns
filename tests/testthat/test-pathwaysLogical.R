@@ -1567,9 +1567,9 @@ test_that("A-A+B-B to A-B", {
   )
   
   copy_to(con, cohort_table, overwrite = TRUE)
-  
+
   cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
     cohortTableName = "cohort_table",
@@ -1577,11 +1577,12 @@ test_that("A-A+B-B to A-B", {
     includeTreatments = "startDate",
     minEraDuration = 30,
     combinationWindow = 30,
-    minPostCombinationDuration = 30
+    minPostCombinationDuration = 30,
+    overlapMethod = "keep"
   )
-  
+
   result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
-  
+
   expect_identical(result$treatment_pathways$pathway, "A-B")
 
   DBI::dbDisconnect(con)
