@@ -1,0 +1,29 @@
+---
+title: "Presentations"
+always_allow_html: yes
+output:
+  html_document:
+    df_print: paged
+  html_vignette:
+    toc: yes
+    toc_depth: 3
+    vignette: >
+      %\VignetteIndexEntry{Presentations}
+      %\VignetteEngine{knitr::rmarkdown}
+      %\VignetteEncoding{UTF-8}
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction to the HADES TreatmentPatterns Package
+[![](https://img.youtube.com/vi/VraAakLqR8M/0.jpg)](https://www.youtube.com/watch?v=VraAakLqR8M)
+
+### Tutorial: Conducting Off-The-Shelf Characterization Studies Using DARWIN EU (R) Tools and the OMOP CDM
+[![](https://img.youtube.com/vi/OXBAhoI0mco/0.jpg)](https://youtu.be/OXBAhoI0mco?t=10003)
+
+### 10-Minute Tutorials: Treatment Patterns
+[![](https://img.youtube.com/vi/dLssMjPcuss/0.jpg)](https://www.youtube.com/watch?v=dLssMjPcuss)

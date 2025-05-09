@@ -10,7 +10,7 @@ output:
     toc: yes
     toc_depth: 3
     vignette: >
-      %\VignetteIndexEntry{ComputingTreatmentPathways}
+      %\VignetteIndexEntry{StrategusExecution}
       %\VignetteEngine{knitr::rmarkdown}
       %\VignetteEncoding{UTF-8}
   pdf_document:
