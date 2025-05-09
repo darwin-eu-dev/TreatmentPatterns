@@ -53,7 +53,8 @@ constructPathways <- function(settings, andromeda) {
       eventCohortIds = eventCohortIds,
       exitCohortIds = exitCohortIds,
       indexDateOffset = settings$indexDateOffset,
-      includeTreatments = settings$includeTreatments
+      includeTreatments = settings$includeTreatments,
+      followUp = settings$followUp
     )
 
     n <- andromeda$attrition %>%
@@ -180,13 +181,18 @@ createTreatmentHistory <- function(
     eventCohortIds,
     exitCohortIds,
     indexDateOffset,
-    includeTreatments) {
+    includeTreatments,
+    followUp) {
   andromeda$targetCohorts <- andromeda$cohortTable %>%
     dplyr::filter(.data$cohortId %in% targetCohortId) %>%
     dplyr::mutate(
       type = "target",
       indexYear = floor(.data$startDate / 365.25 + 1970),
-      indexDate = .data$startDate + indexDateOffset
+      indexDate = .data$startDate + indexDateOffset,
+      endDate = dplyr::case_when(
+        !is.null(followUp) ~ .data$indexDate + followUp,
+        .default = endDate
+      )
     )
   
   # Select event cohorts for target cohort and merge with start/end date and
@@ -222,7 +228,6 @@ createTreatmentHistory <- function(
         subject_id_origin == subject_id_origin,
         y$indexDate <= x$startDate,
         x$startDate <= y$endDate,
-        x$endDate <= y$endDate,
       ), suffix = c("Event", "Target"))
   } else if (includeTreatments == "endDate") {
     andromeda[[sprintf("cohortTable_%s", targetCohortId)]] <- dplyr::full_join(

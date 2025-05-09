@@ -16,6 +16,7 @@ computePathways(
   tempEmulationSchema = NULL,
   includeTreatments = "startDate",
   indexDateOffset = 0,
+  followUp = NULL,
   minEraDuration = 0,
   splitEventCohorts = NULL,
   splitTime = NULL,
@@ -64,6 +65,8 @@ Optional; In congruence with \code{connectionDetails} and \code{cdmSchema}. Igno
 
 \item{indexDateOffset}{(\code{integer(1)}: \code{0})\cr
 Offset the index date of the \code{Target} cohort.}
+
+\item{followUp}{(\code{numeric(1)}: \code{NULL}) Days to follow up. Sets the cohort end date as: \code{cohort_end_date = index_date + offset + followUp}. When set to \code{NULL} the cohort end date is not altered.}
 
 \item{minEraDuration}{(\code{integer(1)}: \code{0})\cr
 Minimum time an event era should last to be included in analysis}

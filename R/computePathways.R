@@ -38,6 +38,7 @@
 #' @template param_maxPathLength
 #' @param analysisId (`character(1)`) Identifier for the TreatmentPatterns analysis.
 #' @param description (`character(1)`) Description of the analysis.
+#' @param followUp (`numeric(1)`: `NULL`) Days to follow up. Sets the cohort end date as: `cohort_end_date = index_date + offset + followUp`. When set to `NULL` the cohort end date is not altered.
 #'
 #' @return (`Andromeda::andromeda()`)
 #' \link[Andromeda]{andromeda} object containing non-sharable patient level
@@ -115,6 +116,7 @@ computePathways <- function(
     tempEmulationSchema = NULL,
     includeTreatments = "startDate",
     indexDateOffset = 0,
+    followUp = NULL,
     minEraDuration = 0,
     splitEventCohorts = NULL,
     splitTime = NULL,
@@ -396,7 +398,15 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "cdm"
   )
-  
+
+  checkmate::assertIntegerish(
+    x = args$followUp,
+    len = 1,
+    add = assertCol,
+    null.ok = TRUE,
+    .var.name = "followUp"
+  )
+
   checkmate::reportAssertions(collection = assertCol)
 }
 

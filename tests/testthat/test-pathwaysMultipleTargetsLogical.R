@@ -331,7 +331,7 @@ test_that("Events outside target", {
 
     # (Y) None [start event > end target]
     1,                     5,           as.Date("2014-10-10"), as.Date("2015-08-01"),
-    2,                     5,           as.Date("2015-08-01"), as.Date("2015-10-01")
+    2,                     5,           as.Date("2015-08-02"), as.Date("2015-10-01")
   )
 
   copy_to(con, cohort_table, overwrite = TRUE)
