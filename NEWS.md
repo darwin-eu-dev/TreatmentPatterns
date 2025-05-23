@@ -1,3 +1,7 @@
+# TreatmentPatterns 3.0.4
+---------
+* Added `exportPatientLevel()` function to export patient level data.
+
 # TreatmentPatterns 3.0.3
 ---------
 * Added compatibility with Andromeda 0.6.7 and 1.0.0
