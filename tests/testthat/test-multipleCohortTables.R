@@ -13,13 +13,13 @@ test_that("multiple cohort_tables", {
   )
 
   cohort_table_target <- dplyr::tribble(
-    ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    1L,                     5L,           as.Date("2014-01-01"), as.Date("2015-01-01")
+    ~cohort_definition_id, ~subject_id, ~cohort_start_date, ~cohort_end_date,
+    1L, 5L, as.Date("2014-01-01"), as.Date("2015-01-01")
   )
 
   cohort_table_event <- dplyr::tribble(
-    ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
-    2L,                     5L,           as.Date("2014-01-10"), as.Date("2014-03-10")
+    ~cohort_definition_id, ~subject_id, ~cohort_start_date, ~cohort_end_date,
+    2L, 5L, as.Date("2014-01-10"), as.Date("2014-03-10")
   )
 
   cdm <- cdmFromCon(
@@ -46,8 +46,6 @@ test_that("multiple cohort_tables", {
     cohorts = cohorts,
     cohortTableName = c("cohort_table_target", "cohort_table_event"),
     cdm = cdm,
-    includeTreatments = "startDate",
-    indexDateOffset = 0,
     minEraDuration = 0,
     eraCollapseSize = 5,
     combinationWindow = 30,
@@ -57,22 +55,22 @@ test_that("multiple cohort_tables", {
   )
 
   result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
-  
+
   expect_identical(result$treatment_pathways$pathway, "A")
-  
+
   DBI::dbDisconnect(con, shutdown = TRUE)
 })
 
 test_that("multiple cohort_tables", {
   skip_if_not(ableToRun()$CG)
   skip("Eunomia [2.0.0] bug")
-  
+
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
     cohortName = c("X", "A", "B"),
     type = c("target", "event", "event")
   )
-  
+
   cohort_table_target <- dplyr::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
     1,                     5,           as.Date("2014-01-01"), as.Date("2015-01-01")
@@ -85,7 +83,7 @@ test_that("multiple cohort_tables", {
 
   conDet <- Eunomia::getEunomiaConnectionDetails()
   con <- DatabaseConnector::connect(conDet)
-  
+
   DatabaseConnector::dbWriteTable(conn = con, name = "cohort_table_target", value = cohort_table_target)
   DatabaseConnector::dbWriteTable(conn = con, name = "cohort_table_event", value = cohort_table_event)
 
@@ -98,8 +96,6 @@ test_that("multiple cohort_tables", {
     cdmSchema = "main",
     resultSchema = "main",
     tempEmulationSchema = NULL,
-    includeTreatments = "startDate",
-    indexDateOffset = 0,
     minEraDuration = 0,
     eraCollapseSize = 5,
     combinationWindow = 30,
@@ -107,8 +103,8 @@ test_that("multiple cohort_tables", {
     filterTreatments = "All",
     maxPathLength = 5
   )
-  
+
   result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
-  
+
   expect_identical(result$treatment_pathways$pathway, "A")
 })

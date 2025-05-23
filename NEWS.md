@@ -1,3 +1,13 @@
+# TreatmentPatterns 3.1.0
+---------
+* Added `startAnchor` parameter to dictate the window of interest.
+* Added `windowStart` parameter to dictate the window of interest.
+* Added `endAnchor` parameter to dictate the window of interest.
+* Added `windowEnd` parameter to dictate the window of interest.
+* Added `concatTargets` parameter to specify if multiple target cohorts should be treated separately, or continuously.
+* Removed `indexOffset` parameter.
+* Removed `includeTreatments` parameter.
+
 # TreatmentPatterns 3.0.3
 ---------
 * Added compatibility with Andromeda 0.6.7 and 1.0.0

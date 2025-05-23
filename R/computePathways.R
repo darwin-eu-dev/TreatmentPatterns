@@ -26,8 +26,6 @@
 #' @template param_cdmSchema
 #' @template param_resultSchema
 #' @param tempEmulationSchema Schema used to emulate temp tables
-#' @template param_includeTreatments
-#' @template param_indexDateOffset
 #' @template param_minEraDuration
 #' @template param_splitEventCohorts
 #' @template param_splitTime
@@ -38,6 +36,11 @@
 #' @template param_maxPathLength
 #' @param analysisId (`character(1)`) Identifier for the TreatmentPatterns analysis.
 #' @param description (`character(1)`) Description of the analysis.
+#' @param concatTargets (`logical(1)`: `TRUE`) Should multiple target cohorts for the same person be concatenated or not?
+#' @param startAnchor (`character(1)`: `"startDate"`) Start date anchor. One of: `"startDate"`, `"endDate"`
+#' @param windowStart (`numeric(1)`: `0`) Offset for `startAnchor` in days.
+#' @param endAnchor (`character(1)`: `"endDate"`) End date anchor. One of: `"startDate"`, `"endDate"`
+#' @param windowEnd (`numeric(1)`: `0`) Offset for `endAnchor` in days.
 #'
 #' @return (`Andromeda::andromeda()`)
 #' \link[Andromeda]{andromeda} object containing non-sharable patient level
@@ -53,7 +56,7 @@
 #'   require("TreatmentPatterns", character.only = TRUE, quietly = TRUE),
 #'   require("dplyr", character.only = TRUE, quietly = TRUE)
 #' )
-#' 
+#'
 #' if (ableToRun) {
 #'   library(TreatmentPatterns)
 #'   library(CDMConnector)
@@ -64,11 +67,14 @@
 #'     EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
 #'   )
 #'
-#'   tryCatch({
-#'     if (Sys.getenv("skip_eunomia_download_test") != "TRUE") {
-#'       CDMConnector::downloadEunomiaData(overwrite = TRUE)
-#'     }
-#'   }, error = function(e) NA)
+#'   tryCatch(
+#'     {
+#'       if (Sys.getenv("skip_eunomia_download_test") != "TRUE") {
+#'         CDMConnector::downloadEunomiaData(overwrite = TRUE)
+#'       }
+#'     },
+#'     error = function(e) NA
+#'   )
 #'
 #'   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 #'   cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
@@ -113,8 +119,10 @@ computePathways <- function(
     analysisId = 1,
     description = "",
     tempEmulationSchema = NULL,
-    includeTreatments = "startDate",
-    indexDateOffset = 0,
+    startAnchor = "startDate",
+    windowStart = 0,
+    endAnchor = "endDate",
+    windowEnd = 0,
     minEraDuration = 0,
     splitEventCohorts = NULL,
     splitTime = NULL,
@@ -122,7 +130,8 @@ computePathways <- function(
     combinationWindow = 30,
     minPostCombinationDuration = 30,
     filterTreatments = "First",
-    maxPathLength = 5) {
+    maxPathLength = 5,
+    concatTargets = TRUE) {
   validateComputePathways()
 
   args <- eval(
@@ -206,40 +215,17 @@ validateComputePathways <- function() {
     # Run expression in function that calls `validateComputePathways`
     envir = sys.frame(sys.nframe() - 1)
   )
-  
+
   if (args$minEraDuration > args$minPostCombinationDuration) {
     warning("The `minPostCombinationDuration` is set lower than the `minEraDuration`, this might result in unexpected behavior")
   }
-  
+
   if (args$minEraDuration > args$combinationWindow) {
     warning("The `combinationWindow` is set lower than the `minEraDuration`, this might result in unexpected behavior")
   }
-  
+
   assertCol <- checkmate::makeAssertCollection()
-  
-  checkmate::assertCharacter(
-    args$includeTreatments,
-    len = 1,
-    add = assertCol,
-    .var.name = "includeTreatments"
-  )
-  
-  checkmate::assertSubset(
-    args$includeTreatments,
-    choices = c("startDate", "endDate"),
-    add = assertCol,
-    .var.name = "includeTreatments"
-  )
-  
-  checkmate::assertNumeric(
-    args$indexDateOffset,
-    len = 1,
-    finite = TRUE,
-    null.ok = FALSE,
-    add = assertCol,
-    .var.name = "indexDateOffset"
-  )
-  
+
   checkmate::assertNumeric(
     x = args$minEraDuration,
     lower = 0,
@@ -249,14 +235,14 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "minEraDuration"
   )
-  
+
   checkmate::assertIntegerish(
     x = args$splitEventCohorts,
     null.ok = TRUE,
     add = assertCol,
     .var.name = "splitEventCohorts"
   )
-  
+
   checkmate::assertIntegerish(
     x = args$splitTime,
     lower = 0,
@@ -264,7 +250,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "splitTime"
   )
-  
+
   checkmate::assertNumeric(
     x = args$eraCollapseSize,
     lower = 0,
@@ -274,7 +260,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "eraCollapseSize"
   )
-  
+
   checkmate::assertNumeric(
     x = args$combinationWindow,
     lower = 0,
@@ -284,7 +270,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "combinationWindow"
   )
-  
+
   checkmate::assertNumeric(
     x = args$minPostCombinationDuration,
     lower = 0,
@@ -294,21 +280,21 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "minPostCombinationDuration"
   )
-  
+
   checkmate::assertCharacter(
     x = args$filterTreatments,
     len = 1,
     add = assertCol,
     .var.name = "filterTreatments"
   )
-  
+
   checkmate::assertSubset(
     x = args$filterTreatments,
     choices = c("First", "Changes", "All"),
     add = assertCol,
     .var.name = "filterTreatments"
   )
-  
+
   checkmate::assertNumeric(
     x = args$maxPathLength,
     lower = 0,
@@ -319,7 +305,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "maxPathLength"
   )
-  
+
   checkmate::assertDataFrame(
     x = args$cohorts,
     types = c("integerish", "character", "character"),
@@ -350,13 +336,13 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "cohorts$type"
   )
-  
+
   checkmate::assertCharacter(
     x = args$cohortTableName,
     null.ok = FALSE,
     .var.name = "cohortTableName"
   )
-  
+
   checkmate::assertClass(
     x = args$connectionDetails,
     classes = "ConnectionDetails",
@@ -364,7 +350,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "connectionDetails"
   )
-  
+
   checkmate::assertCharacter(
     x = args$connectionDetails$dbms,
     len = 1,
@@ -372,7 +358,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "connectionDetails"
   )
-  
+
   checkmate::assertCharacter(
     args$cdmDatabaseSchema,
     null.ok = TRUE,
@@ -380,7 +366,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "cdmDatabaseSchema"
   )
-  
+
   checkmate::assertCharacter(
     args$resultSchema,
     null.ok = TRUE,
@@ -388,7 +374,7 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "resultSchema"
   )
-  
+
   checkmate::assertClass(
     args$cdm,
     classes = "cdm_reference",
@@ -396,11 +382,51 @@ validateComputePathways <- function() {
     add = assertCol,
     .var.name = "cdm"
   )
-  
+
+  checkmate::assertChoice(
+    args$startAnchor,
+    choices = c("startDate", "endDate"),
+    null.ok = FALSE,
+    add = assertCol,
+    .var.name = "startAnchor"
+  )
+
+  checkmate::assertChoice(
+    args$endAnchor,
+    choices = c("startDate", "endDate"),
+    null.ok = FALSE,
+    add = assertCol,
+    .var.name = "endAnchor"
+  )
+
+  checkmate::assertIntegerish(
+    args$windowStart,
+    null.ok = FALSE,
+    len = 1,
+    add = assertCol,
+    .var.name = "windowStart"
+  )
+
+  checkmate::assertIntegerish(
+    args$windowEnd,
+    null.ok = FALSE,
+    len = 1,
+    add = assertCol,
+    .var.name = "windowEnd"
+  )
+
+  checkmate::assertLogical(
+    x = args$concatTargets,
+    len = 1,
+    add = assertCol,
+    null.ok = FALSE,
+    .var.name = "concatTargets"
+  )
+
   checkmate::reportAssertions(collection = assertCol)
 }
 
-checkCohortTable = function(andromeda) {
+checkCohortTable <- function(andromeda) {
   cohortTableHead <- andromeda[["cohortTable"]] %>%
     head() %>%
     dplyr::collect()
