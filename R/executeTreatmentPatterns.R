@@ -55,12 +55,14 @@
 #'     EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
 #'   )
 #'
-#'   tryCatch({
-#'     if (Sys.getenv("skip_eunomia_download_test") != "TRUE") {
-#'       CDMConnector::downloadEunomiaData(overwrite = TRUE)
-#'     }
-#'   },
-#'   error = function(e) NA)
+#'   tryCatch(
+#'     {
+#'       if (Sys.getenv("skip_eunomia_download_test") != "TRUE") {
+#'         CDMConnector::downloadEunomiaData(overwrite = TRUE)
+#'       }
+#'     },
+#'     error = function(e) NA
+#'   )
 #'
 #'   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 #'   cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
@@ -90,7 +92,7 @@
 #'     cohortTableName = "cohort_table",
 #'     cdm = cdm
 #'   )
-#'     
+#'
 #'   DBI::dbDisconnect(con, shutdown = TRUE)
 #' }
 #' }
@@ -107,7 +109,7 @@ executeTreatmentPatterns <- function(
     combinationWindow = 30,
     minCellCount = 5) {
   checkmate::assert_integerish(minCellCount, len = 1, null.ok = FALSE, lower = 0)
-  
+
   # Compute pathways on patient level
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = cohorts,
@@ -117,8 +119,6 @@ executeTreatmentPatterns <- function(
     cdmSchema = cdmSchema,
     resultSchema = resultSchema,
     tempEmulationSchema = tempEmulationSchema,
-    includeTreatments = "startDate",
-    indexDateOffset = 0,
     minEraDuration = minEraDuration,
     splitEventCohorts = NULL,
     splitTime = NULL,
@@ -128,17 +128,21 @@ executeTreatmentPatterns <- function(
     filterTreatments = "First",
     maxPathLength = 5
   )
-  
+
   withr::defer({
-    tryCatch({
-      Andromeda::close(andromeda)
-    }, error = function(e) {
-      message("Andromeda object was close pre-maturely")
-    }, warning = function(w) {
-      message("Andromeda object was close pre-maturely")
-    })
+    tryCatch(
+      {
+        Andromeda::close(andromeda)
+      },
+      error = function(e) {
+        message("Andromeda object was close pre-maturely")
+      },
+      warning = function(w) {
+        message("Andromeda object was close pre-maturely")
+      }
+    )
   })
-  
+
   TreatmentPatterns::export(
     andromeda = andromeda,
     ageWindow = 5,

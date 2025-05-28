@@ -1,8 +1,21 @@
 ---
 title: "Best practices"
 author: "Maarten van Kessel"
-date: "`r Sys.Date()`"
-output: html_document
+always_allow_html: yes
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+  html_vignette:
+    toc: yes
+    toc_depth: 3
+    vignette: >
+      %\VignetteIndexEntry{Best practices}
+      %\VignetteEngine{knitr::rmarkdown}
+      %\VignetteEncoding{UTF-8}
+  pdf_document:
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -38,7 +51,7 @@ factorial(5)
 Combinations add additional pathway possibilities. Each event can be uniquely combined with each other event. Each combination can combine with another singular event or any other combination. However, each event in a combination must be unique. So: $AB = BA$. As an example it is irrelevant if a person receives penicillin and ibuprofen or ibuprofen and penicillin.
 
 We can draw out all possible combinations in a graph for events $A$ $B$ $C$.
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval=require("DiagrammeR", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
 library(DiagrammeR)
 
 grViz("digraph {

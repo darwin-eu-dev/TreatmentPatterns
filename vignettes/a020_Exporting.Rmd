@@ -1,0 +1,113 @@
+---
+title: "Exporing Results"
+always_allow_html: yes
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+  html_vignette:
+    toc: yes
+    toc_depth: 3
+    vignette: >
+      %\VignetteIndexEntry{Exporing Results}
+      %\VignetteEngine{knitr::rmarkdown}
+      %\VignetteEncoding{UTF-8}
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+withr::local_envvar(
+  R_USER_CACHE_DIR = tempfile(),
+  EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
+)
+```
+
+## Exporting result objects
+The `export` function allows us to export the generated result objects from `computePathways`. There are several arguments that we can change to alter the behavior, depending on what we are allowed to share.
+
+### minCellCount and censorType
+Let's say we are only able to share results of groups of subjects that have at least 5 subjects in them.
+```{r minCellCount, eval=FALSE}
+results <- export(
+  andromeda = defaultSettings,
+  minCellCount = 5
+)
+```
+
+We can also choose between different methods how to handle pathways that fall below are specified `minCellCount`. These types are **1**) `"cellCount"`, **2**) `"remove"`, and **3**) `"mean"`.
+
+We could say we want to censor all pathways that fall below the `minCellCount` to be censored _to_ the `minCellCount`.
+```{r censorType_cellCount, eval=FALSE}
+resultsA <- export(
+  andromeda = minEra60,
+  minCellCount = 5,
+  censorType = "minCellCount"
+)
+```
+
+Or we could completely remove them
+```{r censorType_remove, eval=FALSE}
+resultsB <- export(
+  andromeda = minEra60,
+  minCellCount = 5,
+  censorType = "remove"
+)
+```
+
+Or finally we can censor them as the mean of all the groups that fall below the `minCellCount`.
+```{r censorType_mean, eval=FALSE}
+resultsC <- export(
+  andromeda = minEra60,
+  minCellCount = 5,
+  censorType = "mean"
+)
+```
+
+### ageWindow
+We can also specify an age window.
+```{r ageWindow3, eval=FALSE}
+resultsD <- export(
+  andromeda = splitAcuteTherapy,
+  minCellCount = 5,
+  censorType = "mean",
+  ageWindow = 3
+)
+```
+
+Or a collection of ages.
+```{r ageWindowMultiple, eval=FALSE}
+resultsE <- export(
+  andromeda = splitAcuteTherapy,
+  minCellCount = 5,
+  censorType = "mean",
+  ageWindow = c(0, 18, 25, 30, 40, 50, 60, 150)
+)
+```
+
+### archiveName
+Finally we can also specify an `archiveName` which is the name of a zip-file to zip all our output csv-files to.
+```{r archiveName, eval=FALSE}
+resultsF <- export(
+  andromeda = includeEndDate,
+  minCellCount = 5,
+  censorType = "mean",
+  ageWindow = 3,
+  archiveName = "output.zip"
+)
+```
+
+## Patient-Level Export
+We can also export **patient-level** data to use for internal analyses. Obviously these results are not share-able. Currently the results are only exported as csv-files.
+
+```{r, eval=FALSE}
+exportPatientLevel(
+  andromeda = outputEnv,
+  outputPath = tempdir()
+)
+```
+
+We go into evaluating the output of the files in the **Evaluating Output** vignette.

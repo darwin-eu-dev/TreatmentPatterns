@@ -87,12 +87,14 @@ if (require("CirceR", character.only = TRUE, quietly = TRUE)) {
     EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
   )
 
-  tryCatch({
-    if (Sys.getenv("skip_eunomia_download_test") != "TRUE") {
-      CDMConnector::downloadEunomiaData(overwrite = TRUE)
-    }
-  },
-  error = function(e) NA)
+  tryCatch(
+    {
+      if (Sys.getenv("skip_eunomia_download_test") != "TRUE") {
+        CDMConnector::downloadEunomiaData(overwrite = TRUE)
+      }
+    },
+    error = function(e) NA
+  )
 
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
@@ -122,7 +124,7 @@ if (require("CirceR", character.only = TRUE, quietly = TRUE)) {
     cohortTableName = "cohort_table",
     cdm = cdm
   )
-    
+
   DBI::dbDisconnect(con, shutdown = TRUE)
 }
 }

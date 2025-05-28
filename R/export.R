@@ -130,7 +130,7 @@ export <- function(
     dplyr::select(
       "personId", "indexYear", "age", "sex", "eventCohortName", "eventCohortId",
       targetCohortName = "cohortName",
-      "targetCohortId", "eventSeq", "durationEra"
+      "targetCohortId", "eventSeq", "durationEra", "n_target"
     )
 
   targetsTH <- treatmentHistory %>%
@@ -607,20 +607,37 @@ computeTreatmentPathways <- function(treatmentHistory, ageWindow, minCellCount, 
     treatmentPathways
   } else {
     treatmentHistory %>%
-      collect() %>%
-      arrange(.data$personId, .data$eventSeq) %>%
-      group_by(personId) %>%
-      reframe(
-        across(
+      dplyr::collect() %>%
+      dplyr::mutate(n_target = dplyr::case_when(
+        is.na(.data$n_target) ~ 1,
+        .default = .data$n_target
+      )) %>%
+      dplyr::group_by(.data$n_target, .data$personId) %>%
+      dplyr::arrange(.data$eventSeq) %>%
+      dplyr::distinct(
+        .data$personId, .data$eventCohortName, .data$eventCohortId,
+        .data$targetCohortName, .data$targetCohortId, .data$eventSeq,
+        .data$durationEra, .data$n_target
+      ) %>%
+      dplyr::reframe(
+        dplyr::across(
           "eventCohortName", paste, collapse = "-"
         )
       ) %>%
-      rename(path = "eventCohortName") %>%
-      group_by(path) %>%
-      summarise(freq = n()) %>%
-      mutate(age = "all", sex = "all", indexYear = "all") %>%
-      arrange(desc(.data$freq), .data$path)
+      dplyr::rename(path = "eventCohortName") %>%
+      dplyr::group_by(path) %>%
+      dplyr::summarise(freq = n()) %>%
+      dplyr::mutate(age = "all", sex = "all", indexYear = "all") %>%
+      dplyr::arrange(desc(.data$freq), .data$path)
   }
+
+  treatmentHistory <- treatmentHistory %>%
+    dplyr::mutate(
+      n_target = dplyr::case_when(
+        is.na(.data$n_target) ~ 1,
+        .default= .data$n_target
+      )
+    )
   return(treatmentPathways)
 }
 

@@ -1,0 +1,174 @@
+---
+title: "Evaluating Output"
+always_allow_html: yes
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+  html_vignette:
+    toc: yes
+    toc_depth: 3
+    vignette: >
+      %\VignetteIndexEntry{Evaluating Output}
+      %\VignetteEngine{knitr::rmarkdown}
+      %\VignetteEncoding{UTF-8}
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+withr::local_envvar(
+  R_USER_CACHE_DIR = tempfile(),
+  EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
+)
+```
+
+For this example we take the case of *Viral Sinusitis* and several treatments as events. We set our `minEraDuration = 7`, `minCombinationDuration = 7` and `combinationWindow = 7`. We treat multiple events of *Viral Sinusitis* as separate cases by setting `concatTargets = FALSE`. When set to `TRUE` it would append multiple cases, which might be useful for time invariant target cohorts like chronic conditions.
+
+```{r setup_treatment_patterns, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE), warning=FALSE, error=FALSE}
+library(CDMConnector)
+library(dplyr)
+library(TreatmentPatterns)
+
+cohortSet <- readCohortSet(
+  path = system.file(package = "TreatmentPatterns", "exampleCohorts")
+)
+
+con <- DBI::dbConnect(
+  drv = duckdb::duckdb(),
+  dbdir = eunomiaDir()
+)
+
+cdm <- cdmFromCon(
+  con = con,
+  cdmSchema = "main",
+  writeSchema = "main"
+)
+
+cdm <- generateCohortSet(
+  cdm = cdm,
+  cohortSet = cohortSet,
+  name = "cohort_table",
+  overwrite = TRUE
+)
+
+cohorts <- cohortSet %>%
+  # Remove 'cohort' and 'json' columns
+  select(-"cohort", -"json", -"cohort_name_snakecase") %>%
+  mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target")) %>%
+  rename(
+    cohortId = "cohort_definition_id",
+    cohortName = "cohort_name",
+  )
+
+outputEnv <- computePathways(
+  cohorts = cohorts,
+  cohortTableName = "cohort_table",
+  cdm = cdm,
+  minEraDuration = 7,
+  combinationWindow = 7,
+  minPostCombinationDuration = 7,
+  concatTargets = FALSE
+)
+
+results <- export(
+  andromeda = outputEnv,
+  minCellCount = 1,
+  nonePaths = TRUE,
+  outputPath = tempdir()
+)
+```
+
+## Saving results
+Now that we ran our TreatmentPatterns analysis and have exported our results, we can evaluate the output. The `export()` function in TreatmentPatterns returns an R6 class of `TreatmentPatternsResults`. All results are query-able from this object. Additionally the files are written to the specified `outputPath`. If no `outputPath` is set, only the result object is returned, and no files are written.
+
+If you would like to save the results to csv-, or zip-file after the fact you can still do this. Or upload it to a database:
+```{r save, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+# Save to csv-, zip-file
+results$saveAsCsv(path = tempdir())
+results$saveAsZip(path = tempdir(), name = "tp-results.zip")
+
+# Upload to database
+connectionDetails <- DatabaseConnector::createConnectionDetails(
+  dbms = "sqlite",
+  server = file.path(tempdir(), "db.sqlite")
+)
+
+results$uploadResultsToDb(
+  connectionDetails = connectionDetails,
+  schema = "main",
+  prefix = "tp_",
+  overwrite = TRUE,
+  purgeSiteDataBeforeUploading = FALSE
+)
+```
+
+## Evaluating Results
+### treatmentPathways
+The treatmentPathways file contains all the pathways found, with a frequency, pairwise stratified by age group, sex and index year.
+```{r readTreatmentPathways, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+head(results$treatment_pathways)
+```
+We can see the pathways contain the treatment names we provided in our event cohorts. Besides that we also see the paths are annoted with a `+` or `-`. The `+` indicates two treatments are a combination therapy, i.e. `amoxicillin+clavulanate` is a combination of _amoxicillin_ and _clavulanate_. The `-` indicates a switch between treatments, i.e. `acetaminophen-penicillinv` is a switch from _acetaminophen_ to _penicillin v_. Note that these combinations and switches can occur in the same pathway, i.e. `acetaminophen-amoxicillin+clavulanate`. The first treatment is _acetaminophen_ that *switches* to a combination of _amoxicillin_ and _clavulanate_.
+
+### countsAge, countsSex, and countsYear
+The countsAge, countsSex, and countsYear contain counts per age, sex, and index year.
+```{r counts, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+head(results$counts_age)
+head(results$counts_sex)
+head(results$counts_year)
+```
+
+### summaryStatsTherapyDuration
+The summaryEventDuration contains summary statistics from different events, across all found "lines". A "line" is equal to the level in the Sunburst or Sankey diagrams. The summary statistics allow for plotting of boxplots with the `plotEventDuration()` function.
+```{r summaryStatsTherapyDuration, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+results$plotEventDuration()
+```
+
+Not that besides our events there are two extra rows: *mono-event*, and *combination-event*. These are both types of events on average.
+
+We see that most events last between 0 and 100 days. We can see that for *combination-events* and *amoxicillin+clavulanate* there is a tendency for events to last longer than that. *amoxicillin+clavulanate* most likely skews the duration in the *combination-events* group.
+
+We can alter the x-axis to get a clearer view of the durations of the events:
+```{r, warning=FALSE, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+results$plotEventDuration() +
+  ggplot2::xlim(0, 100)
+```
+Now we can more clearly investigate particular treatments. We can see that *penicilin v* tends to last quite short across all treatment lines, while *aspirin* and *acetaminophen* seem to skew to a longer duration.
+
+Additionally we can also set a `minCellCount` for the individual events. 
+```{r, warning=FALSE, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+results$plotEventDuration(minCellCount = 10) +
+  ggplot2::xlim(0, 100)
+```
+
+### metadata
+The metadata file is a file that contains information about the circumstances the analysis was performed in, and information about R, and the CDM.
+```{r metadata, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+results$metadata
+```
+
+### Sunburst Plot & Sankey Diagram
+From the filtered treatmentPathways file we are able to create a sunburst plot.
+
+The inner most layer is the first event that occurs, going outwards. This aligns with the event duration plot we looked at earlier.
+```{r sunburstPlot, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+results$plotSunburst()
+```
+
+We can also create a Sankey Diagram, which in theory displays the same data. Additionally you see the *Stopped* node in the Sankey diagram. This indicates the end of the pathway. It is mostly a practical addition so that single layer Sankey diagrams can still be plotted.
+```{r sankeyDiagram, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+results$plotSankey()
+```
+
+```{r cleanup, include=FALSE, eval=require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)}
+# Close Andromeda objects
+Andromeda::close(outputEnv)
+
+# Close connection to CDM Reference
+DBI::dbDisconnect(conn = con)
+rm(defaultSettings, minEra60, splitAcuteTherapy, includeEndDate, con, cdm)
+```

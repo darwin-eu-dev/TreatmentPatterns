@@ -14,8 +14,10 @@ computePathways(
   analysisId = 1,
   description = "",
   tempEmulationSchema = NULL,
-  includeTreatments = "startDate",
-  indexDateOffset = 0,
+  startAnchor = "startDate",
+  windowStart = 0,
+  endAnchor = "endDate",
+  windowEnd = 0,
   minEraDuration = 0,
   splitEventCohorts = NULL,
   splitTime = NULL,
@@ -23,7 +25,9 @@ computePathways(
   combinationWindow = 30,
   minPostCombinationDuration = 30,
   filterTreatments = "First",
-  maxPathLength = 5
+  maxPathLength = 5,
+  overlapMethod = "truncate",
+  concatTargets = TRUE
 )
 }
 \arguments{
@@ -56,14 +60,13 @@ Optional; In congruence with \code{connectionDetails} and \code{cdmSchema}. Igno
 
 \item{tempEmulationSchema}{Schema used to emulate temp tables}
 
-\item{includeTreatments}{(\code{character(1)}: \code{"startDate"})\cr
-\describe{
-\item{\code{"startDate"}}{Include treatments after the target cohort start date and onwards.}
-\item{\code{"endDate"}}{Include treatments before target cohort end date and before.}
-}}
+\item{startAnchor}{(\code{character(1)}: \code{"startDate"}) Start date anchor. One of: \code{"startDate"}, \code{"endDate"}}
 
-\item{indexDateOffset}{(\code{integer(1)}: \code{0})\cr
-Offset the index date of the \code{Target} cohort.}
+\item{windowStart}{(\code{numeric(1)}: \code{0}) Offset for \code{startAnchor} in days.}
+
+\item{endAnchor}{(\code{character(1)}: \code{"endDate"}) End date anchor. One of: \code{"startDate"}, \code{"endDate"}}
+
+\item{windowEnd}{(\code{numeric(1)}: \code{0}) Offset for \code{endAnchor} in days.}
 
 \item{minEraDuration}{(\code{integer(1)}: \code{0})\cr
 Minimum time an event era should last to be included in analysis}
@@ -93,6 +96,13 @@ event cohorts (‘All’).}
 
 \item{maxPathLength}{(\code{integer(1)}: \code{5})\cr
 Maximum number of steps included in treatment pathway}
+
+\item{overlapMethod}{(\code{character(1)}: \code{"truncate"}) Method to decide how to deal
+with overlap that is not significant enough for combination. \code{"keep"} will
+keep the dates as is. \code{"truncate"} truncates the first occurring event to
+the start date of the next event.}
+
+\item{concatTargets}{(\code{logical(1)}: \code{TRUE}) Should multiple target cohorts for the same person be concatenated or not?}
 }
 \value{
 (\code{Andromeda::andromeda()})
@@ -122,11 +132,14 @@ if (ableToRun) {
     EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
   )
 
-  tryCatch({
-    if (Sys.getenv("skip_eunomia_download_test") != "TRUE") {
-      CDMConnector::downloadEunomiaData(overwrite = TRUE)
-    }
-  }, error = function(e) NA)
+  tryCatch(
+    {
+      if (Sys.getenv("skip_eunomia_download_test") != "TRUE") {
+        CDMConnector::downloadEunomiaData(overwrite = TRUE)
+      }
+    },
+    error = function(e) NA
+  )
 
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
