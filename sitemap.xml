@@ -1,9 +1,12 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/404.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/LICENSE.html</loc></url>
-<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/ComputingTreatmentPathways.html</loc></url>
-<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/DefiningCohorts.html</loc></url>
-<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/bestPractices.html</loc></url>
+<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/a000_bestPractices.html</loc></url>
+<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/a001_DefiningCohorts.html</loc></url>
+<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/a010_Computing_Pathways.html</loc></url>
+<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/a020_Exporting.html</loc></url>
+<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/a030_Evaluating_Output.html</loc></url>
+<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/a999_Strategus.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/articles/index.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/authors.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/index.html</loc></url>
@@ -15,6 +18,7 @@
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/reference/createSunburstPlot.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/reference/executeTreatmentPatterns.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/reference/export.html</loc></url>
+<url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/reference/exportPatientLevel.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/reference/getResultsDataModelSpecifications.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/reference/ggSunburst.html</loc></url>
 <url><loc>https://darwin-eu-dev.github.io/TreatmentPatterns/reference/index.html</loc></url>

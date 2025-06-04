@@ -1,11 +1,14 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
-  articles/bestPractices: bestPractices.html
-  articles/ComputingTreatmentPathways: ComputingTreatmentPathways.html
-  DefiningCohorts: DefiningCohorts.html
-last_built: 2025-04-17T07:53Z
+  a000_bestPractices: a000_bestPractices.html
+  a001_DefiningCohorts: a001_DefiningCohorts.html
+  a010_Computing_Pathways: a010_Computing_Pathways.html
+  a020_Exporting: a020_Exporting.html
+  a030_Evaluating_Output: a030_Evaluating_Output.html
+  a999_Strategus: a999_Strategus.html
+last_built: 2025-06-04T07:44Z
 urls:
   reference: https://darwin-eu-dev.github.io/TreatmentPatterns/reference
   article: https://darwin-eu-dev.github.io/TreatmentPatterns/articles
