@@ -5,19 +5,21 @@ library(dplyr)
 
 # Tests ----
 test_that("void", {
+  skip_on_cran()
   expect_error(
     TreatmentPatterns::export()
   )
 })
 
 test_that("empty treatmentHistory table", {
+  skip_on_cran()
   tempDirLocal <- file.path(tempdir(), "output")
   localAndromeda <- Andromeda::andromeda()
-  
+
   localAndromeda$treatmentHistoryFinal <- data.frame(
     personId = numeric(0)
   )
-  
+
   expect_message(
     export(localAndromeda, outputPath = tempDirLocal),
     "Treatment History table is empty. Nothing to export."
@@ -26,19 +28,20 @@ test_that("empty treatmentHistory table", {
 
 # CohortGenerator ----
 test_that("outputPath", {
-  skip_if_not(ableToRun()$CG)
-  skip_on_os(os = "linux")
   skip_on_cran()
-  
+  skip_on_os(os = "linux")
+  skip_if_not(ableToRun()$CG)
+
   globals <- generateCohortTableCG()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     connectionDetails = globals$connectionDetails,
     cdmSchema = globals$cdmSchema,
-    resultSchema = globals$resultSchema)
-  
+    resultSchema = globals$resultSchema
+  )
+
   ## file.path(tempDirCG) ----
   tempDirLocal <- file.path(tempdir(), "output")
 
@@ -47,35 +50,35 @@ test_that("outputPath", {
   expect_true(
     file.exists(file.path(tempDirLocal, "treatment_pathways.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "summary_event_duration.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "counts_year.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "counts_age.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "counts_sex.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "attrition.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "cdm_source_info.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "analyses.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "metadata.csv"))
   )
@@ -90,17 +93,17 @@ test_that("outputPath", {
     ),
     "Variable 'outputPath':"
   )
-  
+
   Andromeda::close(andromeda)
 })
 
 test_that("ageWindow", {
-  skip_if_not(ableToRun()$CG)
-  skip_on_os(os = "linux")
   skip_on_cran()
-  
+  skip_on_os(os = "linux")
+  skip_if_not(ableToRun()$CG)
+
   globals <- generateCohortTableCG()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -122,7 +125,8 @@ test_that("ageWindow", {
   treatmentPathways <- result$treatment_pathways
 
   expect_true(
-    all(c("0-10", "10-20", "20-30", "30-40", "40-50", "all") %in% treatmentPathways$age))
+    all(c("0-10", "10-20", "20-30", "30-40", "40-50", "all") %in% treatmentPathways$age)
+  )
 
   ## c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150) ----
   expect_message(
@@ -137,20 +141,22 @@ test_that("ageWindow", {
   treatmentPathways <- result$treatment_pathways
 
   expect_true(all(
-    c("0-2", "2-4", "4-6", "6-8", "8-10", "10-12",
-      "12-14", "14-16", "16-18", "18-150", "all") %in% treatmentPathways$age
+    c(
+      "0-2", "2-4", "4-6", "6-8", "8-10", "10-12",
+      "12-14", "14-16", "16-18", "18-150", "all"
+    ) %in% treatmentPathways$age
   ))
 
   Andromeda::close(andromeda)
 })
 
 test_that("minCellCount", {
-  skip_if_not(ableToRun()$CG)
-  skip_on_os(os = "linux")
   skip_on_cran()
-  
+  skip_on_os(os = "linux")
+  skip_if_not(ableToRun()$CG)
+
   globals <- generateCohortTableCG()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -184,17 +190,17 @@ test_that("minCellCount", {
       stratify = TRUE
     )
   )
-  
+
   Andromeda::close(andromeda)
 })
 
 test_that("archiveName", {
-  skip_if_not(ableToRun()$CG)
-  skip_on_os(os = "linux")
   skip_on_cran()
-  
+  skip_on_os(os = "linux")
+  skip_if_not(ableToRun()$CG)
+
   globals <- generateCohortTableCG()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -202,9 +208,9 @@ test_that("archiveName", {
     cdmSchema = globals$cdmSchema,
     resultSchema = globals$resultSchema
   )
-  
+
   tempDirLocal <- file.path(tempdir(), "output")
-  
+
   ## "output.zip" ----
   expect_message(
     export(
@@ -228,17 +234,17 @@ test_that("archiveName", {
       stratify = TRUE
     )
   )
-  
+
   Andromeda::close(andromeda)
 })
 
 test_that("censorType", {
-  skip_if_not(ableToRun()$CG)
-  skip_on_os(os = "linux")
   skip_on_cran()
-  
+  skip_on_os(os = "linux")
+  skip_if_not(ableToRun()$CG)
+
   globals <- generateCohortTableCG()
-  
+
   andromeda <- computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -274,11 +280,11 @@ test_that("censorType", {
     ),
     "Censoring \\d+ pathways with a frequency <10 to 10."
   )
-  
+
   treatmentPathways <- result$treatment_pathways
-  
+
   expect_equal(min(treatmentPathways$freq), 10)
-  
+
   ## "mean" ----
   expect_message(
     result <- TreatmentPatterns::export(
@@ -290,11 +296,11 @@ test_that("censorType", {
     ),
     "Censoring \\d+ pathways with a frequency <10 to mean."
   )
-  
+
   treatmentPathways <- result$treatment_pathways
-  
+
   expect_equal(min(treatmentPathways$freq), 2)
-  
+
   ## "stuff" ----
   expect_error(
     export(
@@ -310,53 +316,53 @@ test_that("censorType", {
 
 # CDMConnector ----
 test_that("outputPath", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
-  
+  skip_if_not(ableToRun()$CDMC)
+
   globals <- generateCohortTableCDMC()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm
   )
-  
+
   tempDirLocal <- file.path(tempdir(), "output")
-  
+
   result <- export(andromeda, outputPath = tempDirLocal)
 
   expect_true(
     file.exists(file.path(tempDirLocal, "treatment_pathways.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "summary_event_duration.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "counts_year.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "counts_age.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "counts_sex.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "attrition.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "cdm_source_info.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "analyses.csv"))
   )
-  
+
   expect_true(
     file.exists(file.path(tempDirLocal, "metadata.csv"))
   )
@@ -371,17 +377,17 @@ test_that("outputPath", {
     ),
     "Variable 'outputPath':"
   )
-  
+
   Andromeda::close(andromeda)
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
 test_that("ageWindow", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
-  
+  skip_if_not(ableToRun()$CDMC)
+
   globals <- generateCohortTableCDMC()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -415,20 +421,22 @@ test_that("ageWindow", {
   treatmentPathways <- result$treatment_pathways
 
   expect_true(all(
-    c("0-2", "2-4", "4-6", "6-8", "8-10", "10-12",
-      "12-14", "14-16", "16-18", "18-150", "all") %in% treatmentPathways$age
+    c(
+      "0-2", "2-4", "4-6", "6-8", "8-10", "10-12",
+      "12-14", "14-16", "16-18", "18-150", "all"
+    ) %in% treatmentPathways$age
   ))
-  
+
   Andromeda::close(andromeda)
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
 test_that("minCellCount", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
-  
+  skip_if_not(ableToRun()$CDMC)
+
   globals <- generateCohortTableCDMC()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -460,23 +468,23 @@ test_that("minCellCount", {
       stratify = TRUE
     )
   )
-  
+
   Andromeda::close(andromeda)
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
 test_that("archiveName", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
-  
+  skip_if_not(ableToRun()$CDMC)
+
   globals <- generateCohortTableCDMC()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm
   )
-  
+
   tempDirLocal <- file.path(tempdir(), "output")
 
   ## "output.zip" ----
@@ -504,17 +512,17 @@ test_that("archiveName", {
       stratify = TRUE
     )
   )
-  
+
   Andromeda::close(andromeda)
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
 test_that("censorType", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
-  
+  skip_if_not(ableToRun()$CDMC)
+
   globals <- generateCohortTableCDMC()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
@@ -532,7 +540,7 @@ test_that("censorType", {
     ),
     "Removing \\d+ pathways with a frequency <10."
   )
-  
+
   treatmentPathways <- result$treatment_pathways
 
   expect_equal(min(treatmentPathways$freq), 10)
@@ -548,7 +556,7 @@ test_that("censorType", {
     ),
     "Censoring \\d+ pathways with a frequency <10 to 10."
   )
-  
+
   treatmentPathways <- result$treatment_pathways
 
   expect_equal(min(treatmentPathways$freq), 10)
@@ -564,11 +572,11 @@ test_that("censorType", {
     ),
     "Censoring \\d+ pathways with a frequency <10 to mean."
   )
-  
+
   treatmentPathways <- result$treatment_pathways
-  
+
   expect_equal(min(treatmentPathways$freq), 2)
-  
+
   ## "stuff" ----
   expect_error(
     export(
@@ -579,14 +587,14 @@ test_that("censorType", {
       stratify = TRUE
     )
   )
-  
+
   Andromeda::close(andromeda)
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
 test_that("counts", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
 
   globals <- generateCohortTableCDMC()
 
@@ -611,7 +619,7 @@ test_that("counts", {
     dplyr::filter(.data$age == "all", .data$sex == "all", index_year == "all") %>%
     summarize(sum(freq)) %>%
     pull()
-  
+
   # all == male + female
   sexes <- unique(treatmentPathways$sex)
   sexes <- sexes[sexes != "all"]
@@ -620,10 +628,12 @@ test_that("counts", {
       dplyr::filter(.data$age == "all", .data$sex == sexGroup, index_year == "all") %>%
       summarize(sum(freq)) %>%
       pull()
-  }) %>% unlist() %>% sum()
-  
+  }) %>%
+    unlist() %>%
+    sum()
+
   expect_identical(totalAll, totalSexes)
-  
+
   # Age group
   ages <- unique(treatmentPathways$age)
   ages <- ages[ages != "all"] %>% unlist()
@@ -632,10 +642,12 @@ test_that("counts", {
       dplyr::filter(.data$age == ageGroup, .data$sex == "all", index_year == "all") %>%
       summarize(sum(freq)) %>%
       pull()
-  }) %>% unlist() %>% sum()
-  
+  }) %>%
+    unlist() %>%
+    sum()
+
   expect_identical(totalAll, totalAges)
-  
+
   # Years
   years <- unique(treatmentPathways$index_year)
   years <- years[years != "all"]
@@ -644,26 +656,28 @@ test_that("counts", {
       dplyr::filter(.data$age == "all", .data$sex == "all", index_year == year) %>%
       summarize(sum(freq)) %>%
       pull()
-  }) %>% unlist() %>% sum()
-  
+  }) %>%
+    unlist() %>%
+    sum()
+
   expect_identical(totalAll, totalYears)
-  
+
   Andromeda::close(andromeda)
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
 test_that("attrition", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
 
   globals <- generateCohortTableCDMC()
-  
+
   andromeda <- TreatmentPatterns::computePathways(
     cohorts = globals$cohorts,
     cohortTableName = globals$cohortTableName,
     cdm = globals$cdm
   )
-  
+
   tempDirLocal <- file.path(tempdir(), "output")
   suppressWarnings(
     TreatmentPatterns::export(
@@ -673,16 +687,16 @@ test_that("attrition", {
       stratify = TRUE
     )
   )
-  
+
   expect_true(file.exists(file.path(tempDirLocal, "attrition.csv")))
-  
+
   Andromeda::close(andromeda)
   DBI::dbDisconnect(globals$con, shutdown = TRUE)
 })
 
 test_that("stratify, none paths", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
 
   globals <- suppressWarnings(generateCohortTableCDMC())
 

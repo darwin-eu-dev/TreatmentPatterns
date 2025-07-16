@@ -3,6 +3,7 @@ library(TreatmentPatterns)
 library(testthat)
 
 test_that("multiple cohort_tables", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
@@ -62,8 +63,9 @@ test_that("multiple cohort_tables", {
 })
 
 test_that("multiple cohort_tables", {
-  skip_if_not(ableToRun()$CG)
   skip("Eunomia [2.0.0] bug")
+  skip_on_cran()
+  skip_if_not(ableToRun()$CG)
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),

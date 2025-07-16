@@ -6,6 +6,7 @@ library(stringr)
 
 test_that("computePathways DatabaseConnector", {
   skip("Eunomia [2.0.0] bug")
+  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   globals <- generateCohortTableCG()
 
@@ -28,6 +29,7 @@ test_that("computePathways DatabaseConnector", {
 })
 
 test_that("computePathways CDMConnector", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -51,6 +53,7 @@ test_that("computePathways CDMConnector", {
 
 test_that("nrow exitCohorts > 0", {
   skip("Eunomia [2.0.0] bug")
+  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   globals <- generateCohortTableCG()
 
@@ -74,6 +77,7 @@ test_that("nrow exitCohorts > 0", {
 
 # Parameter sweep ----
 test_that("windowStart", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -129,6 +133,7 @@ test_that("windowStart", {
 })
 
 test_that("minEraDuration", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -144,6 +149,7 @@ test_that("minEraDuration", {
 })
 
 test_that("splitEventCohorts", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -182,6 +188,7 @@ test_that("splitEventCohorts", {
 })
 
 test_that("splitTime", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -197,6 +204,7 @@ test_that("splitTime", {
 })
 
 test_that("eraCollapseSize", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -229,6 +237,7 @@ test_that("eraCollapseSize", {
 })
 
 test_that("combinationWindow", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -246,6 +255,7 @@ test_that("combinationWindow", {
 })
 
 test_that("minPostCombinationDuration: 30", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
@@ -352,6 +362,7 @@ test_that("minPostCombinationDuration: 30", {
 })
 
 test_that("filterTreatments", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- generateCohortTableCDMC()
 
@@ -497,6 +508,7 @@ test_that("filterTreatments", {
 })
 
 test_that("FRFS combination", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
@@ -547,6 +559,7 @@ test_that("FRFS combination", {
 })
 
 test_that("LRFS combination", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
@@ -597,6 +610,7 @@ test_that("LRFS combination", {
 })
 
 test_that("No target records", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
   params <- suppressWarnings(generateCohortTableCDMC())
@@ -617,6 +631,7 @@ test_that("No target records", {
 })
 
 test_that("Empty cohort table", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
   params <- suppressWarnings(generateCohortTableCDMC())
@@ -639,6 +654,7 @@ test_that("Empty cohort table", {
 })
 
 test_that("No target defined", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
   params <- suppressWarnings(generateCohortTableCDMC())
@@ -657,6 +673,7 @@ test_that("No target defined", {
 })
 
 test_that("Attrition", {
+  skip_on_cran()
   skip_on_os(os = "linux")
   skip_if_not(ableToRun()$CDMC)
   skip_if_not(ableToRun()$CG)

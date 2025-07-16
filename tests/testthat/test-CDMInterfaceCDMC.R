@@ -38,6 +38,7 @@ if (ableToRun()$CDMC) {
 }
 
 test_that("Method: new", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   expect_true(R6::is.R6(
     TreatmentPatterns:::CDMInterface$new(cdm = localCdm)
@@ -45,6 +46,7 @@ test_that("Method: new", {
 })
 
 test_that("Method: new - empty", {
+  skip_on_cran()
   expect_error(
     TreatmentPatterns:::CDMInterface$new(),
     "Could not assert if CDMConnector or DatabaseConnector is being used."
@@ -52,6 +54,7 @@ test_that("Method: new - empty", {
 })
 
 test_that("Method: fetchMetadata", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   andromeda <- cdmInterface$fetchMetadata(andromeda)
 
@@ -69,6 +72,7 @@ test_that("Method: fetchMetadata", {
 })
 
 test_that("Method: fetchCohortTable", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   # Update CDM with new dummy data
   cdmInterface <- TreatmentPatterns:::CDMInterface$new(
