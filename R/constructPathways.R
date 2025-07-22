@@ -811,14 +811,14 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
     # Group all rows per person for which previous treatment is same
     if (package_version("1.0.0") >= utils::packageVersion("Andromeda")) {
       andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-        dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target, .data$age, .data$sex, .data$indexYear, .data$eventCohortId, .data$sortOrder) %>%
+        dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target, .data$age, .data$sex, .data$indexYear, .data$eventCohortId) %>%
         dplyr::summarise(
           eventStartDate = min(.data$eventStartDate, na.rm = TRUE),
           eventEndDate = max(.data$eventEndDate, na.rm = TRUE),
           durationEra = sum(.data$durationEra, na.rm = TRUE),
-          sortOrder = .data$sortOrder,
           .groups = "drop"
-        )
+        ) %>%
+        dplyr::mutate(sortOrder = as.numeric(.data$eventStartDate) + as.numeric(.data$eventEndDate) * row_number() / n() * 10^-6)
     } else {
       # Group all rows per person for which previous treatment is same
       andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
