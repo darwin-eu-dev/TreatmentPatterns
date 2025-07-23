@@ -812,7 +812,7 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
     if (package_version("1.0.0") >= utils::packageVersion("Andromeda")) {
       andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
         # dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target, .data$age, .data$sex, .data$indexYear, .data$eventCohortId) %>%
-        dbplyr::window_order(.data$eventStartDate) %>%
+        dbplyr::window_order(.data$personId, .data$eventStartDate) %>%
         dplyr::mutate(has_prev = dplyr::lag(.data$eventCohortId)) %>%
         dplyr::mutate(has_prev = dplyr::case_when(
           is.na(.data$has_prev) ~ "no prev",
