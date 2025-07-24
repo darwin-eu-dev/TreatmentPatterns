@@ -787,8 +787,11 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
           x = mem$eventCohortId[combi],
           split = "+",
           fixed = TRUE
-        ) |>
-          unique()
+        )
+        
+        conceptIds <- lapply(conceptIds, function(concept) {
+          unique(concept)
+        })
 
         mem$eventCohortId[combi] <- sapply(
           X = conceptIds,
@@ -813,7 +816,8 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
     if (package_version("1.0.0") >= utils::packageVersion("Andromeda")) {
       andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
         # dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target, .data$age, .data$sex, .data$indexYear, .data$eventCohortId) %>%
-        dbplyr::window_order(.data$personId, .data$eventStartDate) %>%
+        dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target) %>%
+        dbplyr::window_order(.data$eventStartDate) %>%
         dplyr::mutate(has_prev = dplyr::lag(.data$eventCohortId)) %>%
         dplyr::mutate(has_prev = dplyr::case_when(
           is.na(.data$has_prev) ~ "no prev",
