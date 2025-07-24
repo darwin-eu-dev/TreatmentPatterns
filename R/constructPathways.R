@@ -768,7 +768,7 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
       andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
         dplyr::mutate(
           eventCohortId = dplyr::sql(
-            "list_aggr(list_sort(regexp_split_to_array(eventCohortId, '\\+')::int[]), 'string_agg', '+')"
+            "list_aggr(list_sort(list_unique(regexp_split_to_array(eventCohortId, '\\+')::int[])), 'string_agg', '+')"
           )
         )
     } else {
@@ -787,7 +787,8 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
           x = mem$eventCohortId[combi],
           split = "+",
           fixed = TRUE
-        )
+        ) |>
+          unique()
 
         mem$eventCohortId[combi] <- sapply(
           X = conceptIds,
