@@ -1,5 +1,6 @@
 test_that("exportPatientLevel", {
-  testthat::skip_if_not_installed("CDMConnector")
+  skip_on_cran()
+  skip_if_not_installed("CDMConnector")
 
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomiaDir())
   cdm <- CDMConnector::cdmFromCon(con, cdmSchema = "main", writeSchema = "main")

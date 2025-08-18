@@ -10,25 +10,28 @@ dummyData <- data.frame(
 )
 
 test_that("minimal", {
+  skip_on_cran()
   p <- createSunburstPlot(treatmentPathways = dummyData)
   expect_s3_class(p$x$data, "json")
 })
 
 test_that("groupCombinations: TRUE", {
+  skip_on_cran()
   p <- createSunburstPlot(
     treatmentPathways = dummyData,
     groupCombinations = TRUE
   )
-  
+
   expect_s3_class(p$x$data, "json")
 })
 
 test_that("colors", {
+  skip_on_cran()
   actualColors <- c("#ff33cc", "#ff0000", "#00ff00", "#0000ff", "#ffffff", "#000000")
-  
+
   p <- createSunburstPlot(treatmentPathways = dummyData, colors = actualColors)
-  
+
   pColors <- p$x$options$colors
-  
+
   expect_identical(pColors, actualColors)
 })

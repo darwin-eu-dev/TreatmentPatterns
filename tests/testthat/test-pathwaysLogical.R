@@ -3,9 +3,9 @@ library(TreatmentPatterns)
 library(dplyr)
 
 test_that("A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -43,9 +43,9 @@ test_that("A", {
 })
 
 test_that("A-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -85,9 +85,9 @@ test_that("A-B", {
 
 
 test_that("A-B-C", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -127,9 +127,9 @@ test_that("A-B-C", {
 })
 
 test_that("A-B+C", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -169,9 +169,9 @@ test_that("A-B+C", {
 })
 
 test_that("A+B-C", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -211,8 +211,8 @@ test_that("A+B-C", {
 })
 
 test_that("A-A+B", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
@@ -253,9 +253,9 @@ test_that("A-A+B", {
 })
 
 test_that("A-B-A-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -296,9 +296,9 @@ test_that("A-B-A-B", {
 })
 
 test_that("A-B-A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -338,9 +338,9 @@ test_that("A-B-A", {
 })
 
 test_that("A-B-B, collapse to A-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -380,9 +380,9 @@ test_that("A-B-B, collapse to A-B", {
 })
 
 test_that("A-B-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -422,9 +422,9 @@ test_that("A-B-B", {
 })
 
 test_that("A+B-A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -464,9 +464,9 @@ test_that("A+B-A", {
 })
 
 test_that("A-A-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -506,9 +506,9 @@ test_that("A-A-B", {
 })
 
 test_that("A-A-B, collapse to A-B (Changes)", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -548,9 +548,9 @@ test_that("A-A-B, collapse to A-B (Changes)", {
 })
 
 test_that("A-A-B, collapse to A-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -590,9 +590,9 @@ test_that("A-A-B, collapse to A-B", {
 })
 
 test_that("A+B-A+B, collapse to A+B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -633,9 +633,9 @@ test_that("A+B-A+B, collapse to A+B", {
 })
 
 test_that("A+B-A+B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -676,9 +676,9 @@ test_that("A+B-A+B", {
 })
 
 test_that("A-A+B-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -717,9 +717,9 @@ test_that("A-A+B-B", {
 })
 
 test_that("A+C-A+B+C-A+C", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -759,8 +759,8 @@ test_that("A+C-A+B+C-A+C", {
 })
 
 test_that("A-A+B+C-A+C-C", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
@@ -801,9 +801,9 @@ test_that("A-A+B+C-A+C-C", {
 })
 
 test_that("A-A+C-C-B+C-C", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -844,9 +844,9 @@ test_that("A-A+C-C-B+C-C", {
 })
 
 test_that("start event == start target", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -884,8 +884,8 @@ test_that("start event == start target", {
 })
 
 test_that("end event == end target", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
@@ -924,9 +924,9 @@ test_that("end event == end target", {
 })
 
 test_that("start-end event == start-end target", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -964,9 +964,9 @@ test_that("start-end event == start-end target", {
 })
 
 test_that("start event < start target", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -1005,9 +1005,9 @@ test_that("start event < start target", {
 })
 
 test_that("start event < start target, periodPrior = -60", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -1047,9 +1047,9 @@ test_that("start event < start target, periodPrior = -60", {
 })
 
 test_that("start event > end target", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2),
@@ -1088,9 +1088,9 @@ test_that("start event > end target", {
 })
 
 test_that("collapse A-B-B-B to A-A+B-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1132,9 +1132,9 @@ test_that("collapse A-B-B-B to A-A+B-B", {
 })
 
 test_that("collapse A-B-B-B to A-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1174,9 +1174,9 @@ test_that("collapse A-B-B-B to A-B", {
 })
 
 test_that("collapse A-A-B-B to A-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1216,9 +1216,9 @@ test_that("collapse A-A-B-B to A-B", {
 })
 
 test_that("collapse A-A-B-B to A-B 2", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1258,9 +1258,9 @@ test_that("collapse A-A-B-B to A-B 2", {
 })
 
 test_that("collapse A-A-B-B to A+B 2", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1302,9 +1302,9 @@ test_that("collapse A-A-B-B to A+B 2", {
 })
 
 test_that("collapse: A-A-A-A-A-A-A-A to A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1347,9 +1347,9 @@ test_that("collapse: A-A-A-A-A-A-A-A to A", {
 })
 
 test_that("collapse: A-A-A-A-A-A-A-A to A-A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1392,9 +1392,9 @@ test_that("collapse: A-A-A-A-A-A-A-A to A-A", {
 })
 
 test_that("collapse: A-A-A-A-A-A-A-A to A-A-A-A-A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1437,8 +1437,8 @@ test_that("collapse: A-A-A-A-A-A-A-A to A-A-A-A-A", {
 })
 
 test_that("collapse: A-B-B-A-A-A-A-B to A-B-B-A-A", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
@@ -1482,9 +1482,9 @@ test_that("collapse: A-B-B-A-A-A-A-B to A-B-B-A-A", {
 })
 
 test_that("FollowUp: A-B-C to A-B-C", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -1525,9 +1525,9 @@ test_that("FollowUp: A-B-C to A-B-C", {
 })
 
 test_that("FollowUp: A-B-C to A-B-C", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -1571,9 +1571,9 @@ test_that("FollowUp: A-B-C to A-B-C", {
 })
 
 test_that("FollowUp: A-B-C to A-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -1617,9 +1617,9 @@ test_that("FollowUp: A-B-C to A-B", {
 })
 
 test_that("FollowUp: A-B-C to A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3, 4),
@@ -1663,9 +1663,9 @@ test_that("FollowUp: A-B-C to A", {
 })
 
 test_that("double Target to 2x A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1707,9 +1707,9 @@ test_that("double Target to 2x A", {
 })
 
 test_that("double Target to A-A", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1751,9 +1751,9 @@ test_that("double Target to A-A", {
 
 
 test_that("Double target to 2x A-A+B-B", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
-  skip_on_cran()
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -1798,8 +1798,8 @@ test_that("Double target to 2x A-A+B-B", {
 
 
 test_that("Double target 2x: A-B-B-A-A-A-A-B to A-B-B-A-A", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
@@ -1854,8 +1854,8 @@ test_that("Double target 2x: A-B-B-A-A-A-A-B to A-B-B-A-A", {
 })
 
 test_that("Double target 2x: A-B-B-A-A-A-A-B-A-B-B-A-A-A-A-B", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
@@ -1909,8 +1909,8 @@ test_that("Double target 2x: A-B-B-A-A-A-A-B-A-B-B-A-A-A-A-B", {
 })
 
 test_that("Double target to 2x A-A+B-B", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(

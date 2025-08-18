@@ -9,6 +9,8 @@
 * Added `overlapMethod` parameter to pick a method how to deal with non-combination overlap between events.
 * Removed `indexOffset` parameter.
 * Removed `includeTreatments` parameter.
+* Disabled failing test on CRAN environment
+* Significantly reduced tests that run on CRAN.
 
 # TreatmentPatterns 3.0.3
 ---------

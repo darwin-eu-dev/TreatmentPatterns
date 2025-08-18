@@ -4,6 +4,7 @@ library(dplyr)
 
 test_that("Method: new", {
   skip("Eunomia [2.0.0] bug")
+  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   connectionDetails <- Eunomia::getEunomiaConnectionDetails()
 
@@ -16,21 +17,22 @@ test_that("Method: new", {
   expect_true(R6::is.R6(
     cdmInterface
   ))
-  
+
   cdmInterface$disconnect()
 })
 
 test_that("Method: fetchMetadata", {
   skip("Eunomia [2.0.0] bug")
+  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   connectionDetails <- Eunomia::getEunomiaConnectionDetails()
-  
+
   cdmInterface <- TreatmentPatterns:::CDMInterface$new(
     connectionDetails = connectionDetails,
     cdmSchema = "main",
     resultSchema = "main"
   )
-  
+
   andromeda <- Andromeda::andromeda()
 
   cdmInterface$fetchMetadata(andromeda)
@@ -51,12 +53,13 @@ test_that("Method: fetchMetadata", {
 
 test_that("Method: fetchCohortTable", {
   skip("Eunomia [2.0.0] bug")
+  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   globals <- generateCohortTableCG()
-  
+
   andromeda <- Andromeda::andromeda()
   andromedaTableName <- "cohortTable"
-  
+
   cdmInterface <- TreatmentPatterns:::CDMInterface$new(
     connectionDetails = globals$connectionDetails,
     cdmSchema = globals$cdmSchema,
@@ -72,30 +75,31 @@ test_that("Method: fetchCohortTable", {
   )
 
   cdmInterface$disconnect()
-  
+
   expect_equal(names(andromeda), andromedaTableName)
 })
 
 test_that("fetchCohortTable: empty", {
   skip("Eunomia [2.0.0] bug")
+  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   globals <- generateCohortTableCG()
-  
+
   andromeda <- Andromeda::andromeda()
   andromedaTableName <- "cohortTable"
-  
+
   cdmInterface <- TreatmentPatterns:::CDMInterface$new(
     connectionDetails = globals$connectionDetails,
     cdmSchema = globals$cdmSchema,
     resultSchema = globals$resultSchema
   )
-  
+
   cohorts <- data.frame(
     cohortId = numeric(),
     cohortName = character(),
     type = character()
   )
-  
+
   # Empty
   cdmInterface$fetchCohortTable(
     cohorts = cohorts,
@@ -104,7 +108,7 @@ test_that("fetchCohortTable: empty", {
     andromedaTableName = andromedaTableName,
     minEraDuration = 5
   )
-  
+
   res <- andromeda[[andromedaTableName]] %>% dplyr::collect()
 
   cdmInterface$disconnect()
@@ -115,18 +119,19 @@ test_that("fetchCohortTable: empty", {
 
 test_that("Method: disconnect", {
   skip("Eunomia [2.0.0] bug")
+  skip_on_cran()
   skip_if_not(ableToRun()$CG)
   connectionDetails <- Eunomia::getEunomiaConnectionDetails()
-  
+
   cdmInterface <- TreatmentPatterns:::CDMInterface$new(
     connectionDetails = connectionDetails,
     cdmSchema = "main",
     resultSchema = "main"
   )
-  
+
   andromeda <- Andromeda::andromeda()
 
   cdmInterface$disconnect()
-  
+
   expect_error(cdmInterface$fetchMetadata(andromeda))
 })

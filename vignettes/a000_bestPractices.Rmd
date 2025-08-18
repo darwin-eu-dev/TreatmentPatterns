@@ -1,8 +1,21 @@
 ---
 title: "Best practices"
 author: "Maarten van Kessel"
-date: "`r Sys.Date()`"
-output: html_document
+always_allow_html: yes
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+  html_vignette:
+    toc: yes
+    toc_depth: 3
+    vignette: >
+      %\VignetteIndexEntry{Best practices}
+      %\VignetteEngine{knitr::rmarkdown}
+      %\VignetteEncoding{UTF-8}
+  pdf_document:
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -38,53 +51,61 @@ factorial(5)
 Combinations add additional pathway possibilities. Each event can be uniquely combined with each other event. Each combination can combine with another singular event or any other combination. However, each event in a combination must be unique. So: $AB = BA$. As an example it is irrelevant if a person receives penicillin and ibuprofen or ibuprofen and penicillin.
 
 We can draw out all possible combinations in a graph for events $A$ $B$ $C$.
-```{r, echo=FALSE}
-library(DiagrammeR)
-
-grViz("digraph {
-  graph [layout = dot, rankdir = TB, splines = line]
-  
-  A [label = 'A@_{1}']
-  B [label = 'B@_{1}']
-  C [label = 'C@_{1}']
-  D [label = 'D@_{1}']
-  
-  AB [label = 'AB@_{2}']
-  AC [label = 'AC@_{2}']
-  AD [label = 'AD@_{2}']
-  BC [label = 'BC@_{2}']
-  BD [label = 'BD@_{2}']
-  CD [label = 'CD@_{2}']
-  
-  ABC [label = 'ABC@_{3}']
-  ABD [label = 'ABD@_{3}']
-  ACD [label = 'ACD@_{3}']
-  BCD [label = 'BCD@_{3}']
-  
-  ABCD [label = 'ABCD@_{4}']
-  
-  subgraph cluster1 {
-    A -> AB -> ABC -> ABCD
-         AB -> ABD
-    A -> AC
-         AC -> ACD
-    A -> AD
-  }
-  
-  subgraph cluster2 {
-    B -> BC -> BCD
-    B -> BD
-  }
-  
-  subgraph cluster3 {
-    C -> CD
-  }
-  
-  subgraph cluster4 {
-    D
-  }
-}")
+```{r, echo=FALSE, eval=FALSE}
+# library(DiagrammeR)
+# 
+# g <- grViz("digraph {
+#   graph [layout = dot, rankdir = TB, splines = line]
+#   
+#   A [label = 'A@_{1}']
+#   B [label = 'B@_{1}']
+#   C [label = 'C@_{1}']
+#   D [label = 'D@_{1}']
+#   
+#   AB [label = 'AB@_{2}']
+#   AC [label = 'AC@_{2}']
+#   AD [label = 'AD@_{2}']
+#   BC [label = 'BC@_{2}']
+#   BD [label = 'BD@_{2}']
+#   CD [label = 'CD@_{2}']
+#   
+#   ABC [label = 'ABC@_{3}']
+#   ABD [label = 'ABD@_{3}']
+#   ACD [label = 'ACD@_{3}']
+#   BCD [label = 'BCD@_{3}']
+#   
+#   ABCD [label = 'ABCD@_{4}']
+#   
+#   subgraph cluster1 {
+#     A -> AB -> ABC -> ABCD
+#          AB -> ABD
+#     A -> AC
+#          AC -> ACD
+#     A -> AD
+#   }
+#   
+#   subgraph cluster2 {
+#     B -> BC -> BCD
+#     B -> BD
+#   }
+#   
+#   subgraph cluster3 {
+#     C -> CD
+#   }
+#   
+#   subgraph cluster4 {
+#     D
+#   }
+# }")
+# 
+# g |>
+#   DiagrammeRsvg::export_svg() |>
+#   charToRaw() |>
+#   rsvg::rsvg_png(file = "./figures/a000_graph.png")
 ```
+
+![](./figures/a000_graph.png)
+
 The subscript of the nodes are the layers where the combination exists in. I.e. combination $AB$ is in layer 2, and combinations $ABCD$ is in layer 4. The layer coincides with the number of events in the combination.
 
 We can count the number of nodes per layer, for each graph:

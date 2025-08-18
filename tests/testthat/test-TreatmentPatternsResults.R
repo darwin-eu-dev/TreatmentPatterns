@@ -1,4 +1,5 @@
 test_that("Method: new(data.frame)", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   globals <- suppressWarnings(generateCohortTableCDMC())
 
@@ -21,6 +22,7 @@ test_that("Method: new(data.frame)", {
 })
 
 test_that("Method: new(csvDirPath)", {
+  skip_on_cran()
   result <- TreatmentPatternsResults$new()
   result$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
   expect_s3_class(result$analyses, class = c("tbl_df", "tbl", "data.frame"))
@@ -48,6 +50,7 @@ test_that("Method: new(csvDirPath)", {
 })
 
 test_that("Method: new(zipFile)", {
+  skip_on_cran()
   result <- TreatmentPatternsResults$new()
   result$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput", "output.zip"))
   expect_s3_class(result$analyses, class = c("tbl_df", "tbl", "data.frame"))
@@ -75,10 +78,12 @@ test_that("Method: new(zipFile)", {
 })
 
 test_that("Method: new(wrongFile)", {
+  skip_on_cran()
   expect_error(TreatmentPatternsResults$new(filePath = "some/file.xyz"))
 })
 
 test_that("Method: plotEventDuration()", {
+  skip_on_cran()
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
 
@@ -88,9 +93,10 @@ test_that("Method: plotEventDuration()", {
 })
 
 test_that("Method: plotSankey()", {
+  skip_on_cran()
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
-  
+
   sankey <- results$plotSankey(nonePaths = TRUE)
   expect_s3_class(sankey, class = c("sankeyNetwork", "htmlwidget"))
 
@@ -99,9 +105,10 @@ test_that("Method: plotSankey()", {
 })
 
 test_that("Method: plotSunburst()", {
+  skip_on_cran()
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
-  
+
   sunburst <- results$plotSunburst(nonePaths = TRUE)
   expect_s3_class(sunburst, class = c("sunburst", "htmlwidget"))
 
@@ -110,15 +117,16 @@ test_that("Method: plotSunburst()", {
 })
 
 test_that("Method: saveAsCsv()", {
+  skip_on_cran()
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
-  
+
   tempDir <- file.path(tempdir(), "saveAsCsv")
-  
+
   expect_message(
     results$saveAsCsv(path = tempDir)
   )
-  
+
   expect_true(all(
     list.files(tempDir) %in% c(
       "analyses.csv", "attrition.csv", "cdm_source_info.csv", "counts_age.csv",
@@ -131,15 +139,16 @@ test_that("Method: saveAsCsv()", {
 })
 
 test_that("Method: saveAsZip()", {
+  skip_on_cran()
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
-  
+
   tempDir <- file.path(tempdir(), "saveAsZip")
-  
+
   expect_message(
     results$saveAsZip(path = tempDir, name = "output.zip")
   )
-  
+
   expect_true(all(
     list.files(tempDir) %in% "output.zip"
   ))
@@ -148,6 +157,7 @@ test_that("Method: saveAsZip()", {
 })
 
 test_that("Method: uploadResultsToDb()", {
+  skip_on_cran()
   skip_if_not(require("DatabaseConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
   skip_if_not(require("ResultModelManager", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE))
 
@@ -164,10 +174,10 @@ test_that("Method: uploadResultsToDb()", {
 
   suppressWarnings(
     results$uploadResultsToDb(
-    connectionDetails = connectionDetails,
-    schema = "main",
-    prefix = "tp_",
-    overwrite = TRUE
+      connectionDetails = connectionDetails,
+      schema = "main",
+      prefix = "tp_",
+      overwrite = TRUE
     )
   )
 

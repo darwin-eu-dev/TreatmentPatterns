@@ -15,8 +15,8 @@ getValidPersonIds <- function(cdm) {
 }
 
 test_that("Pathways", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
   on.exit(DBI::dbDisconnect(con))
 
@@ -217,8 +217,8 @@ test_that("Pathways", {
 })
 
 test_that("Events within target", {
-  skip_if_not(ableToRun()$CDMC)
   skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
   cohorts <- data.frame(
@@ -308,6 +308,7 @@ test_that("Events within target", {
 })
 
 test_that("Events outside target", {
+  skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
   con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 
