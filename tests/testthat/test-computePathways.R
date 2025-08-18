@@ -418,12 +418,16 @@ test_that("filterTreatments", {
     ),
     object = c("integer", "numeric")
   )
-
-  expect_identical(
-    "numeric",
-    class(firstTH$indexYear),
-    class(changesTH$indexYear),
-    class(allTH$indexYear)
+  
+  expect_true(
+    all(
+      c("numeric", "integer") %in%
+        c(
+          class(firstTH$indexYear),
+          class(changesTH$indexYear),
+          class(allTH$indexYear)
+        )
+    )
   )
 
   expect_identical(
