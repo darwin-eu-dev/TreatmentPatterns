@@ -828,8 +828,9 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
     } else {
       # Group all rows per person for which previous treatment is same
       andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-        dplyr::collect() %>%
-        dplyr::mutate(group = dplyr::consecutive_id(.data$personId, .data$eventCohortId))
+        # dplyr::collect() %>%
+        # dplyr::mutate(group = dplyr::consecutive_id(.data$personId, .data$eventCohortId))
+        dplyr::mutate(group = dplyr::sql("DENSE_RANK() OVER (ORDER BY personId, eventCohortId)"))
 
       # Remove all rows with same sequential treatments
       andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
