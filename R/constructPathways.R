@@ -811,18 +811,19 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
       dplyr::group_by(.data$personId, .data$eventCohortId, .data$n_target) %>%
       dplyr::filter(dplyr::row_number() == 1) %>%
       dplyr::ungroup()
-  } else if (filterTreatments == "Changes") {
-      andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-        dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target) %>%
-        dbplyr::window_order(.data$eventStartDate) %>%
-        dplyr::mutate(has_prev = dplyr::lag(.data$eventCohortId)) %>%
-        dplyr::mutate(has_prev = dplyr::case_when(
-          is.na(.data$has_prev) ~ "no prev",
-          .default = .data$has_prev
-        )) %>%
-        dplyr::filter(.data$has_prev != .data$eventCohortId) %>%
-        dplyr::select(-"has_prev")
-    }
+  } 
+
+  if (filterTreatments == "Changes") {
+    andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+      dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target) %>%
+      dbplyr::window_order(.data$eventStartDate) %>%
+      dplyr::mutate(has_prev = dplyr::lag(.data$eventCohortId)) %>%
+      dplyr::mutate(has_prev = dplyr::case_when(
+        is.na(.data$has_prev) ~ "no prev",
+        .default = .data$has_prev
+      )) %>%
+      dplyr::filter(.data$has_prev != .data$eventCohortId) %>%
+      dplyr::select(-"has_prev")
   }
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
