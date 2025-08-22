@@ -322,6 +322,7 @@ CDMInterface <- R6::R6Class(
             subject_id_origin = .data$subject_id
           ) %>%
           dplyr::ungroup() %>%
+          dbplyr::window_order(.data$subject_id, .data$cohort_start_date) |> 
           mutate(r = dplyr::row_number()) %>%
           dplyr::group_by(.data$subject_id_origin) %>%
           dplyr::mutate(
@@ -367,15 +368,14 @@ CDMInterface <- R6::R6Class(
 
         if (is.null(andromeda[[andromedaTableName]])) {
           dplyr::copy_to(dest = andromeda, df = tbl, name = andromedaTableName, overwrite = TRUE)
-          # andromeda[[andromedaTableName]] <- tbl
         } else {
-          andromeda$tbl_temp <- tbl
+          dplyr::copy_to(dest = andromeda, df = tbl, name = "tbl_temp", overwrite = TRUE)
           andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
             dplyr::union_all(andromeda$tbl_temp)
           andromeda$tbl_temp <- NULL
         }
       }
-      
+
       targetId <- as.numeric(targetCohortIds)
 
       andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%

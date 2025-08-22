@@ -1,3 +1,10 @@
+# TreatmentPatterns 3.1.1
+---------
+* Fixed issue when setting `filterTreatments = "Changes"` and made it ambiguous regardless of the Andromeda version.
+* Fixed issue where combination treatments were ordered differently when using Andromeda >= 1.0.0.
+* Fixed compatibility with Spark when using CDMConnector with ODBC.
+* Updated the way data is copied from the `cdm_reference` to `andromeda`.
+
 # TreatmentPatterns 3.1.0
 ---------
 * Added `exportPatientLevel()` function to export patient level data.

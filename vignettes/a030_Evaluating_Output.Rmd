@@ -33,22 +33,22 @@ library(CDMConnector)
 library(dplyr)
 library(TreatmentPatterns)
 
-cohortSet <- readCohortSet(
+cohortSet <- CDMConnector::readCohortSet(
   path = system.file(package = "TreatmentPatterns", "exampleCohorts")
 )
 
 con <- DBI::dbConnect(
   drv = duckdb::duckdb(),
-  dbdir = eunomiaDir()
+  dbdir = CDMConnector::eunomiaDir()
 )
 
-cdm <- cdmFromCon(
+cdm <- CDMConnector::cdmFromCon(
   con = con,
   cdmSchema = "main",
   writeSchema = "main"
 )
 
-cdm <- generateCohortSet(
+cdm <- CDMConnector::generateCohortSet(
   cdm = cdm,
   cohortSet = cohortSet,
   name = "cohort_table",
@@ -57,14 +57,19 @@ cdm <- generateCohortSet(
 
 cohorts <- cohortSet %>%
   # Remove 'cohort' and 'json' columns
-  select(-"cohort", -"json", -"cohort_name_snakecase") %>%
-  mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target")) %>%
-  rename(
+  dplyr::select(-"cohort", -"json", -"cohort_name_snakecase") %>%
+  dplyr::mutate(
+    type = c(
+      "event", "event", "event", "event",
+      "exit", "event", "event", "target"
+    )
+  ) %>%
+  dplyr::rename(
     cohortId = "cohort_definition_id",
     cohortName = "cohort_name",
   )
 
-outputEnv <- computePathways(
+outputEnv <- TreatmentPatterns::computePathways(
   cohorts = cohorts,
   cohortTableName = "cohort_table",
   cdm = cdm,
@@ -74,7 +79,7 @@ outputEnv <- computePathways(
   concatTargets = FALSE
 )
 
-results <- export(
+results <- TreatmentPatterns::export(
   andromeda = outputEnv,
   minCellCount = 1,
   nonePaths = TRUE,
