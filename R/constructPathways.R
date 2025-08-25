@@ -768,7 +768,7 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
       andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
         dplyr::mutate(
           eventCohortId = dplyr::sql(
-            "list_aggr(list_sort(regexp_split_to_array(eventCohortId, '\\+')::int[]), 'string_agg', '+')"
+            "list_aggr(list_sort(list_distinct(regexp_split_to_array(eventCohortId, '\\+')::int[])), 'string_agg', '+')"
           )
         )
     } else {
@@ -788,6 +788,10 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
           split = "+",
           fixed = TRUE
         )
+        
+        conceptIds <- lapply(conceptIds, function(concept) {
+          unique(concept)
+        })
 
         mem$eventCohortId[combi] <- sapply(
           X = conceptIds,
@@ -807,36 +811,19 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
       dplyr::group_by(.data$personId, .data$eventCohortId, .data$n_target) %>%
       dplyr::filter(dplyr::row_number() == 1) %>%
       dplyr::ungroup()
-  } else if (filterTreatments == "Changes") {
-    # Group all rows per person for which previous treatment is same
-    if (package_version("1.0.0") >= utils::packageVersion("Andromeda")) {
-      andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-        dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target, .data$age, .data$sex, .data$indexYear, .data$eventCohortId, .data$sortOrder) %>%
-        dplyr::summarise(
-          eventStartDate = min(.data$eventStartDate, na.rm = TRUE),
-          eventEndDate = max(.data$eventEndDate, na.rm = TRUE),
-          durationEra = sum(.data$durationEra, na.rm = TRUE),
-          sortOrder = .data$sortOrder,
-          .groups = "drop"
-        )
-    } else {
-      # Group all rows per person for which previous treatment is same
-      andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-        dplyr::collect() %>%
-        dplyr::mutate(group = dplyr::consecutive_id(.data$personId, .data$eventCohortId))
+  } 
 
-      # Remove all rows with same sequential treatments
-      andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
-        dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target, .data$age, .data$sex, .data$indexYear, .data$eventCohortId, .data$group, .data$sortOrder) %>%
-        dplyr::summarise(
-          eventStartDate = min(.data$eventStartDate, na.rm = TRUE),
-          eventEndDate = max(.data$eventEndDate, na.rm = TRUE),
-          durationEra = sum(.data$durationEra, na.rm = TRUE),
-          .groups = "drop"
-        ) %>%
-        dplyr::arrange(.data$personId, .data$indexYear, .data$group) %>%
-        dplyr::select(-"group")
-    }
+  if (filterTreatments == "Changes") {
+    andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+      dplyr::group_by(.data$personId, .data$targetCohortId, .data$n_target) %>%
+      dbplyr::window_order(.data$eventStartDate) %>%
+      dplyr::mutate(has_prev = dplyr::lag(.data$eventCohortId)) %>%
+      dplyr::mutate(has_prev = dplyr::case_when(
+        is.na(.data$has_prev) ~ "no prev",
+        .default = .data$has_prev
+      )) %>%
+      dplyr::filter(.data$has_prev != .data$eventCohortId) %>%
+      dplyr::select(-"has_prev")
   }
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(

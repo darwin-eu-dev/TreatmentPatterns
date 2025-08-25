@@ -4,8 +4,11 @@ library(testthat)
 
 test_that("multiple cohort_tables", {
   skip_on_cran()
-  skip_if_not(ableToRun()$CDMC)
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
+  skip_if_not_installed("DBI")
+  skip_if_not_installed("duckdb")
+  skip_if_not_installed("CDMConnector")
+  skip_if_not_installed("CirceR")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomiaDir())
 
   cohorts <- data.frame(
     cohortId = c(1, 2, 3),
@@ -23,7 +26,7 @@ test_that("multiple cohort_tables", {
     2L, 5L, as.Date("2014-01-10"), as.Date("2014-03-10")
   )
 
-  cdm <- cdmFromCon(
+  cdm <- CDMConnector::cdmFromCon(
     con = con,
     cdmSchema = "main",
     writeSchema = "main"
