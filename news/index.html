@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">TreatmentPatterns</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,9 +38,16 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/v3.1.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="3.1.1" id="id_-treatmentpatterns-311"># TreatmentPatterns 3.1.1<a class="anchor" aria-label="anchor" href="#id_-treatmentpatterns-311"></a></h2>
+<ul><li>Fixed issue when setting <code>filterTreatments = "Changes"</code> and made it ambiguous regardless of the Andromeda version.</li>
+<li>Fixed issue where combination treatments were ordered differently when using Andromeda &gt;= 1.0.0.</li>
+<li>Fixed compatibility with Spark when using CDMConnector with ODBC.</li>
+<li>Updated the way data is copied from the <code>cdm_reference</code> to <code>andromeda</code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="3.1.0" id="id_-treatmentpatterns-310"># TreatmentPatterns 3.1.0<a class="anchor" aria-label="anchor" href="#id_-treatmentpatterns-310"></a></h2><p class="text-muted">CRAN release: 2025-06-03</p>
 <ul><li>Added <code><a href="../reference/exportPatientLevel.html">exportPatientLevel()</a></code> function to export patient level data.</li>

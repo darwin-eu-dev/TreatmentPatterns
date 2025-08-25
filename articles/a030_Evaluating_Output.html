@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">TreatmentPatterns</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,7 +65,7 @@
       <h1>Evaluating Output</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/v3.1.0/vignettes/a030_Evaluating_Output.Rmd" class="external-link"><code>vignettes/a030_Evaluating_Output.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/main/vignettes/a030_Evaluating_Output.Rmd" class="external-link"><code>vignettes/a030_Evaluating_Output.Rmd</code></a></small>
       <div class="d-none name"><code>a030_Evaluating_Output.Rmd</code></div>
     </div>
 
@@ -93,26 +93,26 @@ target cohorts like chronic conditions.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/darwin-eu/TreatmentPatterns" class="external-link">TreatmentPatterns</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">cohortSet</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/readCohortSet.html" class="external-link">readCohortSet</a></span><span class="op">(</span></span>
+<span><span class="va">cohortSet</span> <span class="op">&lt;-</span> <span class="fu">CDMConnector</span><span class="fu">::</span><span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/readCohortSet.html" class="external-link">readCohortSet</a></span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"TreatmentPatterns"</span>, <span class="st">"exampleCohorts"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span></span>
 <span>  drv <span class="op">=</span> <span class="fu">duckdb</span><span class="fu">::</span><span class="fu"><a href="https://r.duckdb.org/reference/duckdb.html" class="external-link">duckdb</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  dbdir <span class="op">=</span> <span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/eunomiaDir.html" class="external-link">eunomiaDir</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  dbdir <span class="op">=</span> <span class="fu">CDMConnector</span><span class="fu">::</span><span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/eunomiaDir.html" class="external-link">eunomiaDir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Downloading GiBleed</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span>
 <span><span class="co">## Download completed!</span></span></code></pre>
-<pre><code><span><span class="co">## Creating CDM database /tmp/RtmpmDbJo8/file2d2279dcd112/GiBleed_5.3.zip</span></span></code></pre>
+<pre><code><span><span class="co">## Creating CDM database /tmp/RtmpG7TJcQ/file30755f2c3dab/GiBleed_5.3.zip</span></span></code></pre>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cdm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/cdmFromCon.html" class="external-link">cdmFromCon</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">cdm</span> <span class="op">&lt;-</span> <span class="fu">CDMConnector</span><span class="fu">::</span><span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/cdmFromCon.html" class="external-link">cdmFromCon</a></span><span class="op">(</span></span>
 <span>  con <span class="op">=</span> <span class="va">con</span>,</span>
 <span>  cdmSchema <span class="op">=</span> <span class="st">"main"</span>,</span>
 <span>  writeSchema <span class="op">=</span> <span class="st">"main"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">cdm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/generateCohortSet.html" class="external-link">generateCohortSet</a></span><span class="op">(</span></span>
+<span><span class="va">cdm</span> <span class="op">&lt;-</span> <span class="fu">CDMConnector</span><span class="fu">::</span><span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/generateCohortSet.html" class="external-link">generateCohortSet</a></span><span class="op">(</span></span>
 <span>  cdm <span class="op">=</span> <span class="va">cdm</span>,</span>
 <span>  cohortSet <span class="op">=</span> <span class="va">cohortSet</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"cohort_table"</span>,</span>
@@ -120,25 +120,25 @@ target cohorts like chronic conditions.</p>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating 8 cohorts</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (1/8) - acetaminophen</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (1/8) - acetaminophen <span style="color: #B2B2B2;">[307ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (1/8) - acetaminophen <span style="color: #B2B2B2;">[356ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (2/8) - amoxicillin</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (2/8) - amoxicillin <span style="color: #B2B2B2;">[198ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (2/8) - amoxicillin <span style="color: #B2B2B2;">[208ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (3/8) - aspirin</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (3/8) - aspirin <span style="color: #B2B2B2;">[171ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (3/8) - aspirin <span style="color: #B2B2B2;">[167ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (4/8) - clavulanate</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (4/8) - clavulanate <span style="color: #B2B2B2;">[181ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (4/8) - clavulanate <span style="color: #B2B2B2;">[158ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (5/8) - death</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (5/8) - death <span style="color: #B2B2B2;">[132ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (5/8) - death <span style="color: #B2B2B2;">[128ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (6/8) - doxylamine</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (6/8) - doxylamine <span style="color: #B2B2B2;">[150ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (6/8) - doxylamine <span style="color: #B2B2B2;">[148ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (7/8) - penicillinv</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (7/8) - penicillinv <span style="color: #B2B2B2;">[151ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (7/8) - penicillinv <span style="color: #B2B2B2;">[149ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (8/8) - viralsinusitis</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (8/8) - viralsinusitis <span style="color: #B2B2B2;">[228ms]</span></span></span></code></pre>
@@ -146,14 +146,19 @@ target cohorts like chronic conditions.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cohorts</span> <span class="op">&lt;-</span> <span class="va">cohortSet</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="co"># Remove 'cohort' and 'json' columns</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="st">"cohort"</span>, <span class="op">-</span><span class="st">"json"</span>, <span class="op">-</span><span class="st">"cohort_name_snakecase"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"event"</span>, <span class="st">"event"</span>, <span class="st">"event"</span>, <span class="st">"event"</span>, <span class="st">"exit"</span>, <span class="st">"event"</span>, <span class="st">"event"</span>, <span class="st">"target"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="st">"cohort"</span>, <span class="op">-</span><span class="st">"json"</span>, <span class="op">-</span><span class="st">"cohort_name_snakecase"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"event"</span>, <span class="st">"event"</span>, <span class="st">"event"</span>, <span class="st">"event"</span>,</span>
+<span>      <span class="st">"exit"</span>, <span class="st">"event"</span>, <span class="st">"event"</span>, <span class="st">"target"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span></span>
 <span>    cohortId <span class="op">=</span> <span class="st">"cohort_definition_id"</span>,</span>
 <span>    cohortName <span class="op">=</span> <span class="st">"cohort_name"</span>,</span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="va">outputEnv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computePathways.html">computePathways</a></span><span class="op">(</span></span>
+<span><span class="va">outputEnv</span> <span class="op">&lt;-</span> <span class="fu">TreatmentPatterns</span><span class="fu">::</span><span class="fu"><a href="../reference/computePathways.html">computePathways</a></span><span class="op">(</span></span>
 <span>  cohorts <span class="op">=</span> <span class="va">cohorts</span>,</span>
 <span>  cohortTableName <span class="op">=</span> <span class="st">"cohort_table"</span>,</span>
 <span>  cdm <span class="op">=</span> <span class="va">cdm</span>,</span>
@@ -200,13 +205,13 @@ target cohorts like chronic conditions.</p>
 <span><span class="co">##  Records: 6653</span></span>
 <span><span class="co">##  Subjects: 2142</span></span></code></pre>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">TreatmentPatterns</span><span class="fu">::</span><span class="fu"><a href="../reference/export.html">export</a></span><span class="op">(</span></span>
 <span>  andromeda <span class="op">=</span> <span class="va">outputEnv</span>,</span>
 <span>  minCellCount <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nonePaths <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  outputPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Wrote csv-files to: /tmp/RtmpmDbJo8</span></span></code></pre>
+<pre><code><span><span class="co">## Wrote csv-files to: /tmp/RtmpG7TJcQ</span></span></code></pre>
 <div class="section level2">
 <h2 id="saving-results">Saving results<a class="anchor" aria-label="anchor" href="#saving-results"></a>
 </h2>
@@ -222,10 +227,10 @@ fact you can still do this. Or upload it to a database:</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Save to csv-, zip-file</span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="fu">saveAsCsv</span><span class="op">(</span>path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Wrote csv-files to: /tmp/RtmpmDbJo8</span></span></code></pre>
+<pre><code><span><span class="co">## Wrote csv-files to: /tmp/RtmpG7TJcQ</span></span></code></pre>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="fu">saveAsZip</span><span class="op">(</span>path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"tp-results.zip"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Wrote zip-file to: /tmp/RtmpmDbJo8</span></span></code></pre>
+<pre><code><span><span class="co">## Wrote zip-file to: /tmp/RtmpG7TJcQ</span></span></code></pre>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Upload to database</span></span>
 <span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu">DatabaseConnector</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/DatabaseConnector/reference/createConnectionDetails.html" class="external-link">createConnectionDetails</a></span><span class="op">(</span></span>
@@ -249,39 +254,39 @@ fact you can still do this. Or upload it to a database:</p>
 <span><span class="co">## Uploading file: attrition.csv to table: attrition</span></span></code></pre>
 <pre><code><span><span class="co">## Warning: The following named parsers don't match the column names: time</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 12</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.0225 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.0218 secs</span></span>
 <span><span class="co">## Uploading file: counts_age.csv to table: counts_age</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 63</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.0341 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.0335 secs</span></span>
 <span><span class="co">## Uploading file: counts_sex.csv to table: counts_sex</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 2</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00856 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00864 secs</span></span>
 <span><span class="co">## Uploading file: counts_year.csv to table: counts_year</span></span></code></pre>
 <pre><code><span><span class="co">## Warning: The following named parsers don't match the column names: year</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 52</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00849 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00867 secs</span></span>
 <span><span class="co">## Uploading file: metadata.csv to table: metadata</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 1</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00877 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00881 secs</span></span>
 <span><span class="co">## Uploading file: summary_event_duration.csv to table: summary_event_duration</span></span></code></pre>
 <pre><code><span><span class="co">## Warning: The following named parsers don't match the column names: min, q1,</span></span>
 <span><span class="co">## median, q2, max, average, sd, count</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 88</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.0104 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.01 secs</span></span>
 <span><span class="co">## Uploading file: treatment_pathways.csv to table: treatment_pathways</span></span></code></pre>
 <pre><code><span><span class="co">## Warning: The following named parsers don't match the column names: path</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 372</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00957 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00952 secs</span></span>
 <span><span class="co">## Uploading file: cdm_source_info.csv to table: cdm_source_info</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 1</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00971 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00959 secs</span></span>
 <span><span class="co">## Uploading file: analyses.csv to table: analyses</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 1</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00775 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.008 secs</span></span>
 <span><span class="co">## Uploading file: arguments.csv to table: arguments</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 1</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00781 secs</span></span></code></pre>
-<pre><code><span><span class="co">## Uploading data took 5.94 secs</span></span></code></pre>
+<pre><code><span><span class="co">## Inserting data took 0.00792 secs</span></span></code></pre>
+<pre><code><span><span class="co">## Uploading data took 5.8 secs</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="evaluating-results">Evaluating Results<a class="anchor" aria-label="anchor" href="#evaluating-results"></a>
@@ -398,7 +403,7 @@ and the CDM.</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
 <span><span class="co">##   execution_start package_version r_version   platform execution_end analysis_id</span></span>
 <span><span class="co">##             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span>     <span style="text-decoration: underline;">1</span>749<span style="text-decoration: underline;">023</span>487. 3.1.0           R version … x86_64-…   <span style="text-decoration: underline;">1</span>749<span style="text-decoration: underline;">023</span>501.           1</span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span>     <span style="text-decoration: underline;">1</span>756<span style="text-decoration: underline;">114</span>788. 3.1.1           R version … x86_64-…   <span style="text-decoration: underline;">1</span>756<span style="text-decoration: underline;">114</span>803.           1</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="sunburst-plot-sankey-diagram">Sunburst Plot &amp; Sankey Diagram<a class="anchor" aria-label="anchor" href="#sunburst-plot-sankey-diagram"></a>
