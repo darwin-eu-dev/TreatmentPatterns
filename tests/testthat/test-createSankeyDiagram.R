@@ -16,6 +16,8 @@ test_that("void", {
 
 test_that("minimal", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   p <- createSankeyDiagram(treatmentPathways = dummyData)
 
   pLabels <- stringr::str_remove_all(string = p$x$nodes$name, pattern = "\\d\\.")
@@ -33,6 +35,8 @@ test_that("minimal", {
 
 test_that("groupCombinations: TRUE", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   p <- createSankeyDiagram(treatmentPathways = dummyData, groupCombinations = TRUE)
 
   pLabels <- stringr::str_remove_all(string = p$x$nodes$name, pattern = "\\d\\.")
@@ -78,6 +82,8 @@ test_that("groupCombinations: TRUE", {
 
 test_that("colors", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   actualColors <- c("#ff33cc", "#ff0000", "#00ff00", "#0000ff", "#ffffff", "#000000")
 
   p <- createSankeyDiagram(treatmentPathways = dummyData, colors = actualColors)
@@ -116,6 +122,8 @@ test_that("colors", {
 
 test_that("2 path levels", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   dummyData <- data.frame(
     pathway = c("A", "A-B+C", "A-D", "B+C", "D"),
     freq = c(206, 6, 14, 48, 221),
@@ -141,6 +149,8 @@ test_that("2 path levels", {
 
 test_that("1 path levels", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   treatmentPathways <- data.frame(
     pathway = c("a", "b", "c"),
     freq = c(55, 8, 11),

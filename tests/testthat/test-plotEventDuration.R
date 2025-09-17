@@ -1,5 +1,7 @@
 test_that("defaults", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summary_event_duration.csv"))
 
   gg <- plotEventDuration(eventDurations = data)
@@ -10,6 +12,8 @@ test_that("defaults", {
 
 test_that("minCellCount", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summary_event_duration.csv"))
 
   gg <- plotEventDuration(
@@ -35,6 +39,8 @@ test_that("minCellCount", {
 
 test_that("treatmentGroups", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summary_event_duration.csv"))
 
   gg <- plotEventDuration(
@@ -61,6 +67,8 @@ test_that("treatmentGroups", {
 
 test_that("treatment lines", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   data <- read.csv(system.file(package = "TreatmentPatterns", "DummyOutput", "summary_event_duration.csv"))
 
   gg <- plotEventDuration(

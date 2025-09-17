@@ -24,10 +24,6 @@ Imports:
     Andromeda,
     tidyr,
     R6,
-    sunburstR,
-    networkD3,
-    htmlwidgets,
-    ggplot2,
     dbplyr,
     jsonlite
 Suggests:
@@ -48,6 +44,11 @@ Suggests:
     DBI,
     withr,
     plotly,
+    sunburstR,
+    networkD3,
+    ggplot2,
+    htmlwidgets,
+    visOmopResults,
     PaRe
 License: Apache License (>= 2)
 Encoding: UTF-8
@@ -72,3 +73,4 @@ Collate:
     'getResultsDataModelSpecification.R'
     'ggSunburst.R'
     'plotEventDuration.R'
+    'utils.R'

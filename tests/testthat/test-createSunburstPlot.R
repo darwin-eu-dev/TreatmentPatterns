@@ -9,14 +9,24 @@ dummyData <- data.frame(
   index_year = c(rep("all", 5), rep("2020", 5))
 )
 
+test_that("void", {
+  expect_error(createSunburstPlot())
+})
+
 test_that("minimal", {
   skip_on_cran()
+  testthat::skip_if_not_installed("sunburstR")
+  testthat::skip_if_not_installed("htmlwidgets")
+
   p <- createSunburstPlot(treatmentPathways = dummyData)
   expect_s3_class(p$x$data, "json")
 })
 
 test_that("groupCombinations: TRUE", {
   skip_on_cran()
+  testthat::skip_if_not_installed("sunburstR")
+  testthat::skip_if_not_installed("htmlwidgets")
+
   p <- createSunburstPlot(
     treatmentPathways = dummyData,
     groupCombinations = TRUE
@@ -27,6 +37,9 @@ test_that("groupCombinations: TRUE", {
 
 test_that("colors", {
   skip_on_cran()
+  testthat::skip_if_not_installed("sunburstR")
+  testthat::skip_if_not_installed("htmlwidgets")
+
   actualColors <- c("#ff33cc", "#ff0000", "#00ff00", "#0000ff", "#ffffff", "#000000")
 
   p <- createSunburstPlot(treatmentPathways = dummyData, colors = actualColors)

@@ -107,7 +107,9 @@ plotEventDuration <- function(eventDurations, minCellCount = 0, treatmentGroups 
   checkmate::assertLogical(x = includeOverall, len = 1, null.ok = FALSE, add = assertCol)
   checkmate::reportAssertions(assertCol)
 
-  #browser()
+  checkInstall("ggplot2")
+  checkInstall("visOmopResults")
+
   eventDurations <- eventDurations %>%
     filter(
       .data$event_count >= minCellCount,
@@ -142,5 +144,6 @@ plotEventDuration <- function(eventDurations, minCellCount = 0, treatmentGroups 
     ggplot2::labs(
       title = "Duration of events per line",
       x = "time (days)"
-    )
+    ) +
+    visOmopResults::themeVisOmop()
 }

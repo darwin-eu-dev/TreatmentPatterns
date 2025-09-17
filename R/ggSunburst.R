@@ -13,6 +13,7 @@ computeXCoords <- function(table, size) {
 splitPaths <- function(table) {
   table %>%
     dplyr::mutate(path_id = row_number()) %>%
+    dplyr::mutate(path = .data$pathway) %>%
     tidyr::separate_longer_delim(cols = "pathway", delim = "-") %>%
     dplyr::group_by(.data$sex, .data$age, .data$index_year, .data$path_id) %>%
     dplyr::mutate(layer = row_number()) %>%
@@ -94,7 +95,7 @@ makeGgSunburst <- function(data) {
   
   gg +
     ggplot2::coord_polar() +
-    ggplot2::theme_bw() +
+    visOmopResults::themeVisOmop() +
     ggplot2::theme(
       axis.text.y = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank()
@@ -124,6 +125,9 @@ makeGgSunburst <- function(data) {
 #' 
 #' ggSunburst(treatmentPatwhays)
 ggSunburst <- function(treatmentPathways, groupCombinations = FALSE, unit = "percent") {
+  checkInstall("ggplot2")
+  checkInstall("visOmopResults")
+
   size <- if (unit == "percent") {
     100
   } else if (unit == "count") {

@@ -184,6 +184,8 @@ setColourScale <- function(linkedData, colors) {
 createSankeyDiagram <- function(treatmentPathways, groupCombinations = FALSE, colors = NULL, ...) {
   validateCreateSankeyDiagram()
 
+  checkInstall("networkD3")
+
   treatmentPathways <- doGroupCombinations(
     treatmentPathways = treatmentPathways,
     groupCombinations = groupCombinations
