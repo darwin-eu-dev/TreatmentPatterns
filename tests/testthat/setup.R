@@ -1,9 +1,9 @@
 if (Sys.getenv("EUNOMIA_DATA_FOLDER", "") == "") {
   Sys.setenv("EUNOMIA_DATA_FOLDER" = tempfile("eunomiaData"))
   dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
-  
+
   if (Sys.getenv("EUNOMIA_DATA_FOLDER") |> list.files() |> length() == 0) {
-    Eunomia::downloadEunomiaData("GiBleed")
+    CDMConnector::downloadEunomiaData()
   }
 
   withr::defer(
