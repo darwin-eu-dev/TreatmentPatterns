@@ -19,7 +19,7 @@
 
 ## usethis namespace: start
 #' @import checkmate
-#' @import stringr
+#' @import stringi
 #' @import utils
 #' @import dplyr
 #' @import Andromeda

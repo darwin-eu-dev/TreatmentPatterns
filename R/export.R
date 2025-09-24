@@ -576,7 +576,10 @@ groupByAgeWindow <- function(treatmentHistory, ageWindow) {
     dplyr::rowwise() %>%
     dplyr::mutate(
       ageBin = paste(
-        unlist(stringr::str_extract_all(as.character(cut(.data$age, makeAgeWindow(ageWindow))), "\\d+")),
+        unlist(stringi::stri_extract_all(
+          str = as.character(cut(.data$age, makeAgeWindow(ageWindow))),
+          regex = "\\d+"
+        )),
         collapse = "-"
       )
     )

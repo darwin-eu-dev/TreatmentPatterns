@@ -17,7 +17,7 @@
 splitPathItems <- function(treatmentPathways) {
   data <- treatmentPathways %>%
     rowwise() %>%
-    dplyr::mutate(pathway = stringr::str_split(.data$pathway, pattern = "-")) %>%
+    dplyr::mutate(pathway = stringi::stri_split(str = .data$pathway, regex = "-")) %>%
     dplyr::mutate(freq = as.integer(.data$freq))
   
   data <- data %>%
@@ -52,8 +52,8 @@ createLinks <- function(data) {
 doGroupCombinations <- function(treatmentPathways, groupCombinations) {
   if (groupCombinations) {
     treatmentPathways$pathway <- treatmentPathways$pathway %>%
-      stringr::str_replace_all(
-        pattern = "((\\w+)?\\+\\w+)+",
+      stringi::stri_replace_all(
+        regex = "((\\w+)?\\+\\w+)+",
         replacement = "Combination"
       )
   }
@@ -83,11 +83,11 @@ createLinkedData <- function(data) {
 
 nameToId <- function(item, names) {
   item <- item %>%
-    stringr::str_replace_all(pattern = "\\(", replacement = "\\\\(") %>%
-    stringr::str_replace_all(pattern = "\\)", replacement = "\\\\)") %>%
-    stringr::str_replace_all(pattern = "\\+", replacement = "\\\\+") %>%
-    stringr::str_replace_all(pattern = "\\&", replacement = "\\\\&") %>%
-    stringr::str_replace_all(pattern = "\\.", replacement = "\\\\.")
+    stringi::stri_replace_all(regex = "\\(", replacement = "\\\\(") %>%
+    stringi::stri_replace_all(regex = "\\)", replacement = "\\\\)") %>%
+    stringi::stri_replace_all(regex = "\\+", replacement = "\\\\+") %>%
+    stringi::stri_replace_all(regex = "\\&", replacement = "\\\\&") %>%
+    stringi::stri_replace_all(regex = "\\.", replacement = "\\\\.")
   return(grep(sprintf("^%s$",item), names) - 1)
 }
 
@@ -124,7 +124,8 @@ validateCreateSankeyDiagram <- function() {
 }
 
 setColourScale <- function(linkedData, colors) {
-  domain <- stringr::str_split_i(linkedData$nodes$names, "\\d\\.", i = 2)
+  domain <- stringi::stri_split(str = linkedData$nodes$names, regex = "\\d\\.") |>
+    sapply(function(x) x[[2]])
 
   labels <- if (!is.null(colors)) {
     labels <- if (is.list(colors)) {

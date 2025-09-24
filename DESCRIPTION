@@ -16,16 +16,16 @@ Language: en-US
 Depends:
     R (>= 4.2)
 Imports: 
-    checkmate,
-    dplyr,
-    stringr,
     utils,
     stats,
-    Andromeda,
-    tidyr,
     R6,
+    stringi,
+    jsonlite,
+    checkmate,
+    dplyr,
+    tidyr,
     dbplyr,
-    jsonlite
+    Andromeda
 Suggests:
     knitr,
     rmarkdown,

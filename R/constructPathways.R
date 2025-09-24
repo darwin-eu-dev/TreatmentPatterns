@@ -131,7 +131,7 @@ constructPathways <- function(settings, andromeda) {
         eventCohortNames <- andromeda$treatmentHistory %>%
           dplyr::select("eventCohortName") %>%
           dplyr::pull() %>%
-          stringr::str_split(pattern = "\\+") %>%
+          stringi::stri_split(regex = "\\+") %>%
           lapply(FUN = function(x) {
             paste(sort(x), collapse = "+")
           }) %>%
