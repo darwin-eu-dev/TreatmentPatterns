@@ -29,7 +29,8 @@ Imports:
     htmlwidgets,
     ggplot2,
     dbplyr,
-    jsonlite
+    jsonlite,
+    PatientProfiles
 Suggests:
     knitr,
     rmarkdown,

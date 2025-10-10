@@ -26,6 +26,7 @@
 #' @import R6
 #' @import sunburstR
 #' @import ggplot2
+#' @import PatientProfiles
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dbplyr window_order
 #' @importFrom networkD3 sankeyNetwork

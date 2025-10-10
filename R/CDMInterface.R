@@ -343,12 +343,14 @@ CDMInterface <- R6::R6Class(
             by = dplyr::join_by(gender_concept_id == concept_id)) %>%
           dplyr::mutate(
             date_of_birth = as.Date(paste0(as.character(year_of_birth), "-01-01"))) %>%
-          dplyr::mutate(
-            age = !!CDMConnector::datediff("date_of_birth", "cohort_start_date", interval = "year")) %>%
+          # dplyr::mutate(
+          #   age = !!CDMConnector::datediff("date_of_birth", "cohort_start_date", interval = "year")) %>%
+          PatientProfiles::addAge(ageName = "age") %>%
           dplyr::mutate(
             subject_id_origin = as.character(subject_id_origin)
           ) %>%
-          dplyr::rename(sex = "concept_name") %>%
+          PatientProfiles::addSex() %>%
+          # dplyr::rename(sex = "concept_name") %>%
           dplyr::mutate(
             temp_date = as.Date("1970-01-01")
           ) %>%
