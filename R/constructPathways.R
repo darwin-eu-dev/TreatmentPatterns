@@ -78,10 +78,15 @@ constructPathways <- function(settings, andromeda) {
         splitTime = settings$splitTime
       )
 
-      doEraCollapse(
+      doEraCollapseNew(
         andromeda = andromeda,
         eraCollapseSize = settings$eraCollapseSize
       )
+
+      # doEraCollapse(
+      #   andromeda = andromeda,
+      #   eraCollapseSize = settings$eraCollapseSize
+      # )
 
       doCombinationWindow(
         andromeda = andromeda,
@@ -363,6 +368,69 @@ doSplitEventCohorts <- function(
     ),
     andromeda = andromeda
   )
+  return(invisible(NULL))
+}
+
+
+#' doEraCollapseNew
+#'
+#' @param andromeda (`Andromeda::andromeda()`)
+#' @param eraCollapseSize (`integer(1)`)
+#'
+#' @returns
+doEraCollapseNew <- function(andromeda, eraCollapseSize) {
+  andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+    dplyr::group_by(.data$personId, .data$eventCohortId, .data$n_target) %>%
+    dbplyr::window_order(.data$eventStartDate, .data$eventEndDate) |>
+    dplyr::mutate(
+      diff = .data$eventStartDate - dplyr::lag(.data$eventEndDate),
+      flag = dplyr::case_when(
+        .data$diff <= eraCollapseSize ~ 1,
+        .default = 0
+      ),
+      flag = dplyr::case_when(
+        dplyr::lead(.data$flag) == 1
+        | .data$flag == 1
+        ~ 1,
+        .default = 0
+      ),
+      row = dplyr::case_when(
+        .data$flag == 1 & .data$diff <= eraCollapseSize ~ dplyr::row_number(),
+        .default = 0
+      ),
+      end_date = dplyr::case_when(
+        .data$row == max(.data$row, na.rm = TRUE) ~ .data$eventEndDate
+      )
+    ) |>
+    dplyr::mutate(
+      eventEndDate_old = .data$eventEndDate,
+      eventEndDate = dplyr::case_when(
+        .data$flag == 1 ~ max(.data$end_date, na.rm = TRUE),
+        .default = .data$eventEndDate_old
+      )
+    ) |>
+    dplyr::mutate(
+      keep = dplyr::case_when(
+        .data$flag == 1 & .data$row == min(.data$row, na.rm = TRUE) ~ TRUE,
+        .data$flag == 0 ~ TRUE,
+        .default = FALSE
+      )
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::filter(.data$keep) |>
+    dplyr::select(-"flag", -"eventEndDate_old", -"end_date", -"row")
+
+  attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
+  appendAttrition(
+    toAdd = data.frame(
+      number_records = attrCounts$nRecords,
+      number_subjects = attrCounts$nSubjects,
+      reason_id = 5,
+      reason = sprintf("Collapsing eras, eraCollapse (%s)", eraCollapseSize)
+    ),
+    andromeda = andromeda
+  )
+
   return(invisible(NULL))
 }
 
