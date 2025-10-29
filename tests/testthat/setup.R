@@ -6,6 +6,10 @@ if (Sys.getenv("EUNOMIA_DATA_FOLDER", "") == "") {
     CDMConnector::downloadEunomiaData(overwrite = TRUE)
   }
 
+  if (require("Eunomia", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
+    Eunomia::downloadEunomiaData(datasetName = "gibleed")
+  }
+
   withr::defer(
     {
       unlink(Sys.getenv("EUNOMIA_DATA_FOLDER"), recursive = TRUE, force = TRUE)
