@@ -84,6 +84,8 @@ test_that("Method: new(wrongFile)", {
 
 test_that("Method: plotEventDuration()", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
 
@@ -94,6 +96,8 @@ test_that("Method: plotEventDuration()", {
 
 test_that("Method: plotSankey()", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
 
@@ -106,6 +110,8 @@ test_that("Method: plotSankey()", {
 
 test_that("Method: plotSunburst()", {
   skip_on_cran()
+  skip_if_not_installed("sunburstR")
+
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
 
