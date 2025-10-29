@@ -2,7 +2,9 @@ if (Sys.getenv("EUNOMIA_DATA_FOLDER", "") == "") {
   Sys.setenv("EUNOMIA_DATA_FOLDER" = tempfile("eunomiaData"))
   dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
 
-  CDMConnector::downloadEunomiaData(overwrite = TRUE)
+  if (require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
+    CDMConnector::downloadEunomiaData(overwrite = TRUE)
+  }
 
   withr::defer(
     {
