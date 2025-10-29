@@ -377,7 +377,7 @@ doSplitEventCohorts <- function(
 #' @param andromeda (`Andromeda::andromeda()`)
 #' @param eraCollapseSize (`integer(1)`)
 #'
-#' @returns
+#' @returns `NULL`
 doEraCollapseNew <- function(andromeda, eraCollapseSize) {
   andromeda$treatmentHistory <- andromeda$treatmentHistory |>
     dplyr::group_by(.data$personId, .data$eventCohortId, .data$n_target) %>%

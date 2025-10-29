@@ -20,7 +20,7 @@ test_that("computePathways DatabaseConnector", {
           cdmSchema = "main",
           resultSchema = "main"
         ),
-        "After maxPathLength: 553"
+        "After maxPathLength: 554"
       ),
       "After combinationWindow: 554"
     ),
