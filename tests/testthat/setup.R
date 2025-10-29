@@ -1,3 +1,5 @@
+require("withr", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+
 if (Sys.getenv("EUNOMIA_DATA_FOLDER", "") == "") {
   Sys.setenv("EUNOMIA_DATA_FOLDER" = tempfile("eunomiaData"))
   dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
@@ -13,7 +15,6 @@ if (Sys.getenv("EUNOMIA_DATA_FOLDER", "") == "") {
   withr::defer(
     {
       unlink(Sys.getenv("EUNOMIA_DATA_FOLDER"), recursive = TRUE, force = TRUE)
-    },
-    testthat::teardown_env()
+    }
   )
 }
