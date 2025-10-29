@@ -1,6 +1,10 @@
 generateCohortTableCG <- function() {
   if (ableToRun()$CG) {
-    connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+    connectionDetails <- DatabaseConnector::createConnectionDetails(
+      dbms = "sqlite",
+      server = file.path(Sys.getenv("EUNOMIA_DATA_FOLDER_CG"), "eunomia.sqlite")
+    )
+
     cohortTableName <- "cohort_table"
     resultSchema <- "main"
     cdmSchema <- "main"
