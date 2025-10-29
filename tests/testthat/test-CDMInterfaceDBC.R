@@ -55,20 +55,19 @@ test_that("Method: fetchCohortTable", {
   skip("Eunomia [2.0.0] bug")
   skip_on_cran()
   skip_if_not(ableToRun()$CG)
-  globals <- generateCohortTableCG()
 
   andromeda <- Andromeda::andromeda()
   andromedaTableName <- "cohortTable"
 
   cdmInterface <- TreatmentPatterns:::CDMInterface$new(
-    connectionDetails = globals$connectionDetails,
-    cdmSchema = globals$cdmSchema,
-    resultSchema = globals$resultSchema
+    connectionDetails = .CG$connectionDetails,
+    cdmSchema = .CG$cdmSchema,
+    resultSchema = .CG$resultSchema
   )
 
   cdmInterface$fetchCohortTable(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
+    cohorts = .CG$cohorts,
+    cohortTableName = .CG$cohortTableName,
     andromeda = andromeda,
     andromedaTableName = andromedaTableName,
     minEraDuration = 0
@@ -83,15 +82,14 @@ test_that("fetchCohortTable: empty", {
   skip("Eunomia [2.0.0] bug")
   skip_on_cran()
   skip_if_not(ableToRun()$CG)
-  globals <- generateCohortTableCG()
 
   andromeda <- Andromeda::andromeda()
   andromedaTableName <- "cohortTable"
 
   cdmInterface <- TreatmentPatterns:::CDMInterface$new(
-    connectionDetails = globals$connectionDetails,
-    cdmSchema = globals$cdmSchema,
-    resultSchema = globals$resultSchema
+    connectionDetails = .CG$connectionDetails,
+    cdmSchema = .CG$cdmSchema,
+    resultSchema = .CG$resultSchema
   )
 
   cohorts <- data.frame(
@@ -103,7 +101,7 @@ test_that("fetchCohortTable: empty", {
   # Empty
   cdmInterface$fetchCohortTable(
     cohorts = cohorts,
-    cohortTableName = globals$cohortTableName,
+    cohortTableName = .CG$cohortTableName,
     andromeda = andromeda,
     andromedaTableName = andromedaTableName,
     minEraDuration = 5

@@ -1,12 +1,11 @@
 test_that("Method: new(data.frame)", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- suppressWarnings(generateCohortTableCDMC())
 
   result <- TreatmentPatterns::executeTreatmentPatterns(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   expect_s3_class(result$analyses, class = c("tbl_df", "tbl", "data.frame"))

@@ -32,14 +32,12 @@ test_that("outputPath", {
   skip_on_os(os = "linux")
   skip_if_not(ableToRun()$CG)
 
-  globals <- generateCohortTableCG()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    connectionDetails = globals$connectionDetails,
-    cdmSchema = globals$cdmSchema,
-    resultSchema = globals$resultSchema
+    cohorts = .CG$cohorts,
+    cohortTableName = .CG$cohortTableName,
+    connectionDetails = .CG$connectionDetails,
+    cdmSchema = .CG$cdmSchema,
+    resultSchema = .CG$resultSchema
   )
 
   ## file.path(tempDirCG) ----
@@ -102,14 +100,12 @@ test_that("ageWindow", {
   skip_on_os(os = "linux")
   skip_if_not(ableToRun()$CG)
 
-  globals <- generateCohortTableCG()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    connectionDetails = globals$connectionDetails,
-    cdmSchema = globals$cdmSchema,
-    resultSchema = globals$resultSchema
+    cohorts = .CG$cohorts,
+    cohortTableName = .CG$cohortTableName,
+    connectionDetails = .CG$connectionDetails,
+    cdmSchema = .CG$cdmSchema,
+    resultSchema = .CG$resultSchema
   )
 
   ## 10 ----
@@ -155,14 +151,12 @@ test_that("minCellCount", {
   skip_on_os(os = "linux")
   skip_if_not(ableToRun()$CG)
 
-  globals <- generateCohortTableCG()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    connectionDetails = globals$connectionDetails,
-    cdmSchema = globals$cdmSchema,
-    resultSchema = globals$resultSchema
+    cohorts = .CG$cohorts,
+    cohortTableName = .CG$cohortTableName,
+    connectionDetails = .CG$connectionDetails,
+    cdmSchema = .CG$cdmSchema,
+    resultSchema = .CG$resultSchema
   )
 
   ## 10 ----
@@ -199,14 +193,12 @@ test_that("archiveName", {
   skip_on_os(os = "linux")
   skip_if_not(ableToRun()$CG)
 
-  globals <- generateCohortTableCG()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    connectionDetails = globals$connectionDetails,
-    cdmSchema = globals$cdmSchema,
-    resultSchema = globals$resultSchema
+    cohorts = .CG$cohorts,
+    cohortTableName = .CG$cohortTableName,
+    connectionDetails = .CG$connectionDetails,
+    cdmSchema = .CG$cdmSchema,
+    resultSchema = .CG$resultSchema
   )
 
   tempDirLocal <- file.path(tempdir(), "output")
@@ -243,14 +235,12 @@ test_that("censorType", {
   skip_on_os(os = "linux")
   skip_if_not(ableToRun()$CG)
 
-  globals <- generateCohortTableCG()
-
   andromeda <- computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    connectionDetails = globals$connectionDetails,
-    cdmSchema = globals$cdmSchema,
-    resultSchema = globals$resultSchema
+    cohorts = .CG$cohorts,
+    cohortTableName = .CG$cohortTableName,
+    connectionDetails = .CG$connectionDetails,
+    cdmSchema = .CG$cdmSchema,
+    resultSchema = .CG$resultSchema
   )
 
   ## "remove" ----
@@ -319,12 +309,10 @@ test_that("outputPath", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  globals <- generateCohortTableCDMC()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   tempDirLocal <- file.path(tempdir(), "output")
@@ -379,19 +367,17 @@ test_that("outputPath", {
   )
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("ageWindow", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  globals <- generateCohortTableCDMC()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   ## 10 ----
@@ -428,19 +414,17 @@ test_that("ageWindow", {
   ))
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("minCellCount", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  globals <- generateCohortTableCDMC()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   ## 10 ----
@@ -470,19 +454,17 @@ test_that("minCellCount", {
   )
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("archiveName", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  globals <- generateCohortTableCDMC()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   tempDirLocal <- file.path(tempdir(), "output")
@@ -514,19 +496,17 @@ test_that("archiveName", {
   )
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("censorType", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  globals <- generateCohortTableCDMC()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   ## "remove" ----
@@ -589,19 +569,17 @@ test_that("censorType", {
   )
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("counts", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  globals <- generateCohortTableCDMC()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   ## "remove" ----
@@ -663,19 +641,17 @@ test_that("counts", {
   expect_identical(totalAll, totalYears)
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("attrition", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  globals <- generateCohortTableCDMC()
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   tempDirLocal <- file.path(tempdir(), "output")
@@ -691,19 +667,17 @@ test_that("attrition", {
   expect_true(file.exists(file.path(tempDirLocal, "attrition.csv")))
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("stratify, none paths", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  globals <- suppressWarnings(generateCohortTableCDMC())
-
   andromeda <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   result <- export(
@@ -781,5 +755,5 @@ test_that("stratify, none paths", {
   }
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })

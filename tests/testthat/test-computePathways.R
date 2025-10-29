@@ -8,15 +8,14 @@ test_that("computePathways DatabaseConnector", {
   skip("Eunomia [2.0.0] bug")
   skip_on_cran()
   skip_if_not(ableToRun()$CG)
-  globals <- generateCohortTableCG()
 
   expect_message(
     expect_message(
       expect_message(
         computePathways(
-          cohorts = globals$cohorts,
-          cohortTableName = globals$cohortTableName,
-          connectionDetails = globals$connectionDetails,
+          cohorts = .CG$cohorts,
+          cohortTableName = .CG$cohortTableName,
+          connectionDetails = .CG$connectionDetails,
           cdmSchema = "main",
           resultSchema = "main"
         ),
@@ -31,15 +30,14 @@ test_that("computePathways DatabaseConnector", {
 test_that("computePathways CDMConnector", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- generateCohortTableCDMC()
 
   expect_message(
     expect_message(
       expect_message(
         computePathways(
-          cohorts = globals$cohorts,
-          cdm = globals$cdm,
-          globals$cohortTableName
+          cohorts = .CM$cohorts,
+          cdm = .CM$cdm,
+          .CM$cohortTableName
         ),
         ">> Starting on"
       ),
@@ -48,16 +46,15 @@ test_that("computePathways CDMConnector", {
     "-- treatment construction done"
   )
 
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("nrow exitCohorts > 0", {
   skip("Eunomia [2.0.0] bug")
   skip_on_cran()
   skip_if_not(ableToRun()$CG)
-  globals <- generateCohortTableCG()
 
-  cohorts <- globals$cohorts %>%
+  cohorts <- .CG$cohorts %>%
     mutate(type = case_when(
       .data$cohortName == "Acetaminophen" ~ "exit",
       .default = .data$type
@@ -65,11 +62,11 @@ test_that("nrow exitCohorts > 0", {
 
   expect_message(
     computePathways(
-      connectionDetails = globals$connectionDetails,
-      cdmSchema = globals$cdmSchema,
-      resultSchema = globals$resultSchema,
+      connectionDetails = .CG$connectionDetails,
+      cdmSchema = .CG$cdmSchema,
+      resultSchema = .CG$resultSchema,
       cohorts = cohorts,
-      cohortTableName = globals$cohortTableName
+      cohortTableName = .CG$cohortTableName
     ),
     "Records: 2117"
   )
@@ -79,13 +76,12 @@ test_that("nrow exitCohorts > 0", {
 test_that("windowStart", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- generateCohortTableCDMC()
 
   expect_error(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       windowStart = "0"
     ),
     "Must be of type.+'integerish'"
@@ -93,9 +89,9 @@ test_that("windowStart", {
 
   expect_error(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       windowStart = Inf
     ),
     "Must be of type.+'integerish'"
@@ -103,9 +99,9 @@ test_that("windowStart", {
 
   expect_message(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       windowStart = 0
     ),
     "Records: 8366"
@@ -113,9 +109,9 @@ test_that("windowStart", {
 
   expect_message(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       windowStart = -30
     ),
     "Records: 8366"
@@ -123,9 +119,9 @@ test_that("windowStart", {
 
   expect_message(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       windowStart = 30
     ),
     "Records: 6267"
@@ -135,13 +131,12 @@ test_that("windowStart", {
 test_that("minEraDuration", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- generateCohortTableCDMC()
 
   expect_error(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       minEraDuration = "0"
     ),
     "Must be of type.+'numeric'"
@@ -151,19 +146,18 @@ test_that("minEraDuration", {
 test_that("splitEventCohorts", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- generateCohortTableCDMC()
 
   andromeda_empty <- computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm,
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm,
     splitEventCohorts = NULL
   )
 
   andromeda_Clavulanate <- computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm,
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm,
     splitEventCohorts = 4,
     splitTime = 30
   )
@@ -175,9 +169,9 @@ test_that("splitEventCohorts", {
 
   expect_error(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       splitEventCohorts = "1"
     ),
     "Must be of type.+'integerish'"
@@ -190,13 +184,12 @@ test_that("splitEventCohorts", {
 test_that("splitTime", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- generateCohortTableCDMC()
 
   expect_error(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       splitTime = "1"
     ),
     "Must be of type.+'integerish'"
@@ -206,27 +199,26 @@ test_that("splitTime", {
 test_that("eraCollapseSize", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- generateCohortTableCDMC()
 
   andromeda_0 <- computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm,
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm,
     eraCollapseSize = 0
   )
 
   andromeda_10000 <- computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm,
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm,
     eraCollapseSize = 10000
   )
 
   expect_error(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       eraCollapseSize = ""
     ),
     " Must be of type.+'numeric'"
@@ -239,14 +231,13 @@ test_that("eraCollapseSize", {
 test_that("combinationWindow", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- generateCohortTableCDMC()
 
   expect_error(
     suppressWarnings(
       computePathways(
-        cohorts = globals$cohorts,
-        cohortTableName = globals$cohortTableName,
-        cdm = globals$cdm,
+        cohorts = .CM$cohorts,
+        cohortTableName = .CM$cohortTableName,
+        cdm = .CM$cdm,
         combinationWindow = ""
       )
     ),
@@ -364,36 +355,35 @@ test_that("minPostCombinationDuration: 30", {
 test_that("filterTreatments", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- generateCohortTableCDMC()
 
   expect_error(
     computePathways(
-      cohorts = globals$cohorts,
-      cohortTableName = globals$cohortTableName,
-      cdm = globals$cdm,
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm,
       filterTreatments = ""
     ),
     "Must be a subset of"
   )
 
   first <- computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm,
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm,
     filterTreatments = "First"
   )
 
   changes <- computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm,
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm,
     filterTreatments = "Changes"
   )
 
   all <- computePathways(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm,
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm,
     filterTreatments = "All"
   )
 
@@ -615,63 +605,57 @@ test_that("No target records", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  params <- suppressWarnings(generateCohortTableCDMC())
-
-  params$cohorts$cohortId[8] <- 9
+  .CM$cohorts$cohortId[8] <- 9
 
   expect_warning({
     outputEnv <- computePathways(
-      cohorts = params$cohorts,
-      cohortTableName = params$cohortTableName,
-      cdm = params$cdm
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm
     )
   })
 
   expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
 
-  DBI::dbDisconnect(params$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("Empty cohort table", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  params <- suppressWarnings(generateCohortTableCDMC())
-
-  params$cdm$cohort_table <- params$cdm$cohort_table %>%
+  .CM$cdm$cohort_table <- .CM$cdm$cohort_table %>%
     filter(.data$cohort_definition_id <= 0) %>%
     compute()
 
   expect_warning({
     outputEnv <- computePathways(
-      cohorts = params$cohorts,
-      cohortTableName = params$cohortTableName,
-      cdm = params$cdm
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm
     )
   })
 
   expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
 
-  DBI::dbDisconnect(params$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("No target defined", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  params <- suppressWarnings(generateCohortTableCDMC())
-
-  params$cohorts$type <- rep("event", 8)
+  .CM$cohorts$type <- rep("event", 8)
 
   expect_error({
     outputEnv <- computePathways(
-      cohorts = params$cohorts,
-      cohortTableName = params$cohortTableName,
-      cdm = params$cdm
+      cohorts = .CM$cohorts,
+      cohortTableName = .CM$cohortTableName,
+      cdm = .CM$cdm
     )
   })
 
-  DBI::dbDisconnect(params$con, shutdown = TRUE)
+  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("Attrition", {
@@ -680,20 +664,18 @@ test_that("Attrition", {
   skip_if_not(ableToRun()$CDMC)
   skip_if_not(ableToRun()$CG)
 
-  params <- suppressWarnings(generateCohortTableCDMC())
   outputEnvCDMC <- computePathways(
-    cohorts = params$cohorts,
-    cohortTableName = params$cohortTableName,
-    cdm = params$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
-  params <- suppressWarnings(generateCohortTableCG())
   outputEnvCG <- computePathways(
-    cohorts = params$cohorts,
-    cohortTableName = params$cohortTableName,
-    connectionDetails = params$connectionDetails,
-    cdmSchema = params$cdmSchema,
-    resultSchema = params$resultSchema
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    connectionDetails = .CM$connectionDetails,
+    cdmSchema = .CM$cdmSchema,
+    resultSchema = .CM$resultSchema
   )
 
   expect_identical(
