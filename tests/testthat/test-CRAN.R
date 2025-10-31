@@ -41,8 +41,6 @@ test_that("CRAN Tests", {
   expect_true("treatmentHistory" %in% names(outputEnv))
   expect_true("treatmentHistoryFinal" %in% names(outputEnv))
 
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
-
   tpRes <- TreatmentPatterns::export(outputEnv)
 
   expect_true(R6::is.R6(tpRes))

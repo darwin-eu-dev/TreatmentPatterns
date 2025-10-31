@@ -11,6 +11,9 @@ doEraCollapseNew(andromeda, eraCollapseSize)
 
 \item{eraCollapseSize}{(\code{integer(1)})}
 }
+\value{
+\code{NULL}
+}
 \description{
 doEraCollapseNew
 }

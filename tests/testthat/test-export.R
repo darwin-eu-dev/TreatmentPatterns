@@ -367,7 +367,6 @@ test_that("outputPath", {
   )
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("ageWindow", {
@@ -414,7 +413,6 @@ test_that("ageWindow", {
   ))
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("minCellCount", {
@@ -454,7 +452,6 @@ test_that("minCellCount", {
   )
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("archiveName", {
@@ -496,7 +493,6 @@ test_that("archiveName", {
   )
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("censorType", {
@@ -569,7 +565,6 @@ test_that("censorType", {
   )
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("counts", {
@@ -641,7 +636,6 @@ test_that("counts", {
   expect_identical(totalAll, totalYears)
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("attrition", {
@@ -667,7 +661,6 @@ test_that("attrition", {
   expect_true(file.exists(file.path(tempDirLocal, "attrition.csv")))
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("stratify, none paths", {
@@ -755,5 +748,4 @@ test_that("stratify, none paths", {
   }
 
   Andromeda::close(andromeda)
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })

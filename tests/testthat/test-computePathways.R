@@ -45,8 +45,6 @@ test_that("computePathways CDMConnector", {
     ),
     "-- treatment construction done"
   )
-
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("nrow exitCohorts > 0", {
@@ -348,8 +346,6 @@ test_that("minPostCombinationDuration: 30", {
     dplyr::pull(.data$pathway)
 
   expect_identical(pathway, "A-A+B-B")
-
-  DBI::dbDisconnect(con)
 })
 
 test_that("filterTreatments", {
@@ -546,8 +542,6 @@ test_that("FRFS combination", {
 
   expect_equal(nFRFS, 1)
   expect_equal(nLRFS, 0)
-
-  DBI::dbDisconnect(con)
 })
 
 test_that("LRFS combination", {
@@ -597,8 +591,6 @@ test_that("LRFS combination", {
 
   expect_equal(nFRFS, 0)
   expect_equal(nLRFS, 1)
-
-  DBI::dbDisconnect(con)
 })
 
 test_that("No target records", {
@@ -616,8 +608,6 @@ test_that("No target records", {
   })
 
   expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
-
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("Empty cohort table", {
@@ -637,8 +627,6 @@ test_that("Empty cohort table", {
   })
 
   expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
-
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("No target defined", {
@@ -654,8 +642,6 @@ test_that("No target defined", {
       cdm = .CM$cdm
     )
   })
-
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
 
 test_that("Attrition", {

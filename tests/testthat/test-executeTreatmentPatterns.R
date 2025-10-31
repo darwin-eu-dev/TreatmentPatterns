@@ -33,6 +33,4 @@ test_that("CDMConnector", {
   )
 
   expect_true("TreatmentPatternsResults" %in% class(result))
-
-  DBI::dbDisconnect(.CM$con, shutdown = TRUE)
 })
