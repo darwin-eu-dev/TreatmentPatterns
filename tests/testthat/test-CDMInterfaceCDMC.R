@@ -9,7 +9,6 @@ if (ableToRun()$CDMC) {
 
   withr::defer({
     Andromeda::close(andromeda)
-    DBI::dbDisconnect(con, shutdown = TRUE)
   })
 
   cohorts <- data.frame(

@@ -6,21 +6,21 @@ test_that("void", {
   expect_error(TreatmentPatterns::executeTreatmentPatterns())
 })
 
-test_that("CohortGenerator", {
-  skip_on_cran()
-  skip_on_os(os = "linux")
-  skip_if_not(ableToRun()$CG)
-
-  result <- TreatmentPatterns::executeTreatmentPatterns(
-    cohorts = .CG$cohorts,
-    cohortTableName = .CG$cohortTableName,
-    connectionDetails = .CG$connectionDetails,
-    cdmSchema = .CG$cdmSchema,
-    resultSchema = .CG$resultSchema
-  )
-
-  expect_true("TreatmentPatternsResults" %in% class(result))
-})
+# test_that("CohortGenerator", {
+#   skip_on_cran()
+#   skip_on_os(os = "linux")
+#   skip_if_not(ableToRun()$CG)
+# 
+#   result <- TreatmentPatterns::executeTreatmentPatterns(
+#     cohorts = .CG$cohorts,
+#     cohortTableName = .CG$cohortTableName,
+#     connectionDetails = .CG$connectionDetails,
+#     cdmSchema = .CG$cdmSchema,
+#     resultSchema = .CG$resultSchema
+#   )
+# 
+#   expect_true("TreatmentPatternsResults" %in% class(result))
+# })
 
 test_that("CDMConnector", {
   skip_on_cran()

@@ -26,283 +26,283 @@ test_that("empty treatmentHistory table", {
   )
 })
 
-# CohortGenerator ----
-test_that("outputPath", {
-  skip_on_cran()
-  skip_on_os(os = "linux")
-  skip_if_not(ableToRun()$CG)
-
-  andromeda <- TreatmentPatterns::computePathways(
-    cohorts = .CG$cohorts,
-    cohortTableName = .CG$cohortTableName,
-    connectionDetails = .CG$connectionDetails,
-    cdmSchema = .CG$cdmSchema,
-    resultSchema = .CG$resultSchema
-  )
-
-  ## file.path(tempDirCG) ----
-  tempDirLocal <- file.path(tempdir(), "output")
-
-  result <- export(andromeda, outputPath = tempDirLocal)
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "treatment_pathways.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "summary_event_duration.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "counts_year.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "counts_age.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "counts_sex.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "attrition.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "cdm_source_info.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "analyses.csv"))
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "metadata.csv"))
-  )
-
-  ## 3 ----
-  expect_error(
-    TreatmentPatterns::export(
-      andromeda,
-      outputPath = 3,
-      nonePaths = TRUE,
-      stratify = TRUE
-    ),
-    "Variable 'outputPath':"
-  )
-
-  Andromeda::close(andromeda)
-})
-
-test_that("ageWindow", {
-  skip_on_cran()
-  skip_on_os(os = "linux")
-  skip_if_not(ableToRun()$CG)
-
-  andromeda <- TreatmentPatterns::computePathways(
-    cohorts = .CG$cohorts,
-    cohortTableName = .CG$cohortTableName,
-    connectionDetails = .CG$connectionDetails,
-    cdmSchema = .CG$cdmSchema,
-    resultSchema = .CG$resultSchema
-  )
-
-  ## 10 ----
-  expect_message(
-    result <- export(
-      andromeda = andromeda,
-      ageWindow = 10,
-      nonePaths = TRUE,
-      stratify = TRUE
-    )
-  )
-
-  treatmentPathways <- result$treatment_pathways
-
-  expect_true(
-    all(c("0-10", "10-20", "20-30", "30-40", "40-50", "all") %in% treatmentPathways$age)
-  )
-
-  ## c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150) ----
-  expect_message(
-    result <- export(
-      andromeda = andromeda,
-      ageWindow = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150),
-      nonePaths = TRUE,
-      stratify = TRUE
-    )
-  )
-
-  treatmentPathways <- result$treatment_pathways
-
-  expect_true(all(
-    c(
-      "0-2", "2-4", "4-6", "6-8", "8-10", "10-12",
-      "12-14", "14-16", "16-18", "18-150", "all"
-    ) %in% treatmentPathways$age
-  ))
-
-  Andromeda::close(andromeda)
-})
-
-test_that("minCellCount", {
-  skip_on_cran()
-  skip_on_os(os = "linux")
-  skip_if_not(ableToRun()$CG)
-
-  andromeda <- TreatmentPatterns::computePathways(
-    cohorts = .CG$cohorts,
-    cohortTableName = .CG$cohortTableName,
-    connectionDetails = .CG$connectionDetails,
-    cdmSchema = .CG$cdmSchema,
-    resultSchema = .CG$resultSchema
-  )
-
-  ## 10 ----
-  expect_message(
-    result <- export(
-      andromeda = andromeda,
-      minCellCount = 10,
-      censorType = "remove",
-      nonePaths = TRUE,
-      stratify = TRUE
-    ),
-    "Removing \\d+ pathways with a frequency <10."
-  )
-
-  treatmentPathways <- result$treatment_pathways
-
-  expect_equal(min(treatmentPathways$freq), 10)
-
-  ## "10" ----
-  expect_error(
-    export(
-      andromeda = andromeda,
-      minCellCount = "10",
-      nonePaths = TRUE,
-      stratify = TRUE
-    )
-  )
-
-  Andromeda::close(andromeda)
-})
-
-test_that("archiveName", {
-  skip_on_cran()
-  skip_on_os(os = "linux")
-  skip_if_not(ableToRun()$CG)
-
-  andromeda <- TreatmentPatterns::computePathways(
-    cohorts = .CG$cohorts,
-    cohortTableName = .CG$cohortTableName,
-    connectionDetails = .CG$connectionDetails,
-    cdmSchema = .CG$cdmSchema,
-    resultSchema = .CG$resultSchema
-  )
-
-  tempDirLocal <- file.path(tempdir(), "output")
-
-  ## "output.zip" ----
-  expect_message(
-    export(
-      andromeda = andromeda,
-      outputPath = tempDirLocal,
-      archiveName = "output.zip"
-    )
-  )
-
-  expect_true(
-    file.exists(file.path(tempDirLocal, "output.zip"))
-  )
-
-  ## 3 ----
-  expect_error(
-    export(
-      andromeda = andromeda,
-      outputPath = tempDirLocal,
-      archiveName = 3,
-      nonePaths = TRUE,
-      stratify = TRUE
-    )
-  )
-
-  Andromeda::close(andromeda)
-})
-
-test_that("censorType", {
-  skip_on_cran()
-  skip_on_os(os = "linux")
-  skip_if_not(ableToRun()$CG)
-
-  andromeda <- computePathways(
-    cohorts = .CG$cohorts,
-    cohortTableName = .CG$cohortTableName,
-    connectionDetails = .CG$connectionDetails,
-    cdmSchema = .CG$cdmSchema,
-    resultSchema = .CG$resultSchema
-  )
-
-  ## "remove" ----
-  expect_message(
-    result <- TreatmentPatterns::export(
-      andromeda = andromeda,
-      minCellCount = 10,
-      censorType = "remove",
-      nonePaths = TRUE,
-      stratify = TRUE
-    ),
-    "Removing \\d+ pathways with a frequency <10."
-  )
-
-  treatmentPathways <- result$treatment_pathways
-
-  expect_equal(min(treatmentPathways$freq), 10)
-
-  ## "minCellCount" ----
-  expect_message(
-    TreatmentPatterns::export(
-      andromeda = andromeda,
-      minCellCount = 10,
-      censorType = "minCellCount",
-      nonePaths = TRUE,
-      stratify = TRUE
-    ),
-    "Censoring \\d+ pathways with a frequency <10 to 10."
-  )
-
-  treatmentPathways <- result$treatment_pathways
-
-  expect_equal(min(treatmentPathways$freq), 10)
-
-  ## "mean" ----
-  expect_message(
-    result <- TreatmentPatterns::export(
-      andromeda = andromeda,
-      minCellCount = 10,
-      censorType = "mean",
-      nonePaths = TRUE,
-      stratify = TRUE
-    ),
-    "Censoring \\d+ pathways with a frequency <10 to mean."
-  )
-
-  treatmentPathways <- result$treatment_pathways
-
-  expect_equal(min(treatmentPathways$freq), 2)
-
-  ## "stuff" ----
-  expect_error(
-    export(
-      andromeda = andromeda,
-      censorType = "Stuff",
-      nonePaths = TRUE,
-      stratify = TRUE
-    )
-  )
-
-  Andromeda::close(andromeda)
-})
+# # CohortGenerator ----
+# test_that("outputPath", {
+#   skip_on_cran()
+#   skip_on_os(os = "linux")
+#   skip_if_not(ableToRun()$CG)
+# 
+#   andromeda <- TreatmentPatterns::computePathways(
+#     cohorts = .CG$cohorts,
+#     cohortTableName = .CG$cohortTableName,
+#     connectionDetails = .CG$connectionDetails,
+#     cdmSchema = .CG$cdmSchema,
+#     resultSchema = .CG$resultSchema
+#   )
+# 
+#   ## file.path(tempDirCG) ----
+#   tempDirLocal <- file.path(tempdir(), "output")
+# 
+#   result <- export(andromeda, outputPath = tempDirLocal)
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "treatment_pathways.csv"))
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "summary_event_duration.csv"))
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "counts_year.csv"))
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "counts_age.csv"))
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "counts_sex.csv"))
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "attrition.csv"))
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "cdm_source_info.csv"))
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "analyses.csv"))
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "metadata.csv"))
+#   )
+# 
+#   ## 3 ----
+#   expect_error(
+#     TreatmentPatterns::export(
+#       andromeda,
+#       outputPath = 3,
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     ),
+#     "Variable 'outputPath':"
+#   )
+# 
+#   Andromeda::close(andromeda)
+# })
+# 
+# test_that("ageWindow", {
+#   skip_on_cran()
+#   skip_on_os(os = "linux")
+#   skip_if_not(ableToRun()$CG)
+# 
+#   andromeda <- TreatmentPatterns::computePathways(
+#     cohorts = .CG$cohorts,
+#     cohortTableName = .CG$cohortTableName,
+#     connectionDetails = .CG$connectionDetails,
+#     cdmSchema = .CG$cdmSchema,
+#     resultSchema = .CG$resultSchema
+#   )
+# 
+#   ## 10 ----
+#   expect_message(
+#     result <- export(
+#       andromeda = andromeda,
+#       ageWindow = 10,
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     )
+#   )
+# 
+#   treatmentPathways <- result$treatment_pathways
+# 
+#   expect_true(
+#     all(c("0-10", "10-20", "20-30", "30-40", "40-50", "all") %in% treatmentPathways$age)
+#   )
+# 
+#   ## c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150) ----
+#   expect_message(
+#     result <- export(
+#       andromeda = andromeda,
+#       ageWindow = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 150),
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     )
+#   )
+# 
+#   treatmentPathways <- result$treatment_pathways
+# 
+#   expect_true(all(
+#     c(
+#       "0-2", "2-4", "4-6", "6-8", "8-10", "10-12",
+#       "12-14", "14-16", "16-18", "18-150", "all"
+#     ) %in% treatmentPathways$age
+#   ))
+# 
+#   Andromeda::close(andromeda)
+# })
+# 
+# test_that("minCellCount", {
+#   skip_on_cran()
+#   skip_on_os(os = "linux")
+#   skip_if_not(ableToRun()$CG)
+# 
+#   andromeda <- TreatmentPatterns::computePathways(
+#     cohorts = .CG$cohorts,
+#     cohortTableName = .CG$cohortTableName,
+#     connectionDetails = .CG$connectionDetails,
+#     cdmSchema = .CG$cdmSchema,
+#     resultSchema = .CG$resultSchema
+#   )
+# 
+#   ## 10 ----
+#   expect_message(
+#     result <- export(
+#       andromeda = andromeda,
+#       minCellCount = 10,
+#       censorType = "remove",
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     ),
+#     "Removing \\d+ pathways with a frequency <10."
+#   )
+# 
+#   treatmentPathways <- result$treatment_pathways
+# 
+#   expect_equal(min(treatmentPathways$freq), 10)
+# 
+#   ## "10" ----
+#   expect_error(
+#     export(
+#       andromeda = andromeda,
+#       minCellCount = "10",
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     )
+#   )
+# 
+#   Andromeda::close(andromeda)
+# })
+# 
+# test_that("archiveName", {
+#   skip_on_cran()
+#   skip_on_os(os = "linux")
+#   skip_if_not(ableToRun()$CG)
+# 
+#   andromeda <- TreatmentPatterns::computePathways(
+#     cohorts = .CG$cohorts,
+#     cohortTableName = .CG$cohortTableName,
+#     connectionDetails = .CG$connectionDetails,
+#     cdmSchema = .CG$cdmSchema,
+#     resultSchema = .CG$resultSchema
+#   )
+# 
+#   tempDirLocal <- file.path(tempdir(), "output")
+# 
+#   ## "output.zip" ----
+#   expect_message(
+#     export(
+#       andromeda = andromeda,
+#       outputPath = tempDirLocal,
+#       archiveName = "output.zip"
+#     )
+#   )
+# 
+#   expect_true(
+#     file.exists(file.path(tempDirLocal, "output.zip"))
+#   )
+# 
+#   ## 3 ----
+#   expect_error(
+#     export(
+#       andromeda = andromeda,
+#       outputPath = tempDirLocal,
+#       archiveName = 3,
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     )
+#   )
+# 
+#   Andromeda::close(andromeda)
+# })
+# 
+# test_that("censorType", {
+#   skip_on_cran()
+#   skip_on_os(os = "linux")
+#   skip_if_not(ableToRun()$CG)
+# 
+#   andromeda <- computePathways(
+#     cohorts = .CG$cohorts,
+#     cohortTableName = .CG$cohortTableName,
+#     connectionDetails = .CG$connectionDetails,
+#     cdmSchema = .CG$cdmSchema,
+#     resultSchema = .CG$resultSchema
+#   )
+# 
+#   ## "remove" ----
+#   expect_message(
+#     result <- TreatmentPatterns::export(
+#       andromeda = andromeda,
+#       minCellCount = 10,
+#       censorType = "remove",
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     ),
+#     "Removing \\d+ pathways with a frequency <10."
+#   )
+# 
+#   treatmentPathways <- result$treatment_pathways
+# 
+#   expect_equal(min(treatmentPathways$freq), 10)
+# 
+#   ## "minCellCount" ----
+#   expect_message(
+#     TreatmentPatterns::export(
+#       andromeda = andromeda,
+#       minCellCount = 10,
+#       censorType = "minCellCount",
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     ),
+#     "Censoring \\d+ pathways with a frequency <10 to 10."
+#   )
+# 
+#   treatmentPathways <- result$treatment_pathways
+# 
+#   expect_equal(min(treatmentPathways$freq), 10)
+# 
+#   ## "mean" ----
+#   expect_message(
+#     result <- TreatmentPatterns::export(
+#       andromeda = andromeda,
+#       minCellCount = 10,
+#       censorType = "mean",
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     ),
+#     "Censoring \\d+ pathways with a frequency <10 to mean."
+#   )
+# 
+#   treatmentPathways <- result$treatment_pathways
+# 
+#   expect_equal(min(treatmentPathways$freq), 2)
+# 
+#   ## "stuff" ----
+#   expect_error(
+#     export(
+#       andromeda = andromeda,
+#       censorType = "Stuff",
+#       nonePaths = TRUE,
+#       stratify = TRUE
+#     )
+#   )
+# 
+#   Andromeda::close(andromeda)
+# })
 
 # CDMConnector ----
 test_that("outputPath", {

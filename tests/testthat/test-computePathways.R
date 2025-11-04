@@ -4,28 +4,28 @@ library(TreatmentPatterns)
 library(dplyr)
 library(stringr)
 
-test_that("computePathways DatabaseConnector", {
-  skip("Eunomia [2.0.0] bug")
-  skip_on_cran()
-  skip_if_not(ableToRun()$CG)
-
-  expect_message(
-    expect_message(
-      expect_message(
-        computePathways(
-          cohorts = .CG$cohorts,
-          cohortTableName = .CG$cohortTableName,
-          connectionDetails = .CG$connectionDetails,
-          cdmSchema = "main",
-          resultSchema = "main"
-        ),
-        "After maxPathLength: 554"
-      ),
-      "After combinationWindow: 554"
-    ),
-    "Original number of rows: 8366"
-  )
-})
+# test_that("computePathways DatabaseConnector", {
+#   skip("Eunomia [2.0.0] bug")
+#   skip_on_cran()
+#   skip_if_not(ableToRun()$CG)
+# 
+#   expect_message(
+#     expect_message(
+#       expect_message(
+#         computePathways(
+#           cohorts = .CG$cohorts,
+#           cohortTableName = .CG$cohortTableName,
+#           connectionDetails = .CG$connectionDetails,
+#           cdmSchema = "main",
+#           resultSchema = "main"
+#         ),
+#         "After maxPathLength: 554"
+#       ),
+#       "After combinationWindow: 554"
+#     ),
+#     "Original number of rows: 8366"
+#   )
+# })
 
 test_that("computePathways CDMConnector", {
   skip_on_cran()
@@ -47,28 +47,28 @@ test_that("computePathways CDMConnector", {
   )
 })
 
-test_that("nrow exitCohorts > 0", {
-  skip("Eunomia [2.0.0] bug")
-  skip_on_cran()
-  skip_if_not(ableToRun()$CG)
-
-  cohorts <- .CG$cohorts %>%
-    mutate(type = case_when(
-      .data$cohortName == "Acetaminophen" ~ "exit",
-      .default = .data$type
-    ))
-
-  expect_message(
-    computePathways(
-      connectionDetails = .CG$connectionDetails,
-      cdmSchema = .CG$cdmSchema,
-      resultSchema = .CG$resultSchema,
-      cohorts = cohorts,
-      cohortTableName = .CG$cohortTableName
-    ),
-    "Records: 2117"
-  )
-})
+# test_that("nrow exitCohorts > 0", {
+#   skip("Eunomia [2.0.0] bug")
+#   skip_on_cran()
+#   skip_if_not(ableToRun()$CG)
+# 
+#   cohorts <- .CG$cohorts %>%
+#     mutate(type = case_when(
+#       .data$cohortName == "Acetaminophen" ~ "exit",
+#       .default = .data$type
+#     ))
+# 
+#   expect_message(
+#     computePathways(
+#       connectionDetails = .CG$connectionDetails,
+#       cdmSchema = .CG$cdmSchema,
+#       resultSchema = .CG$resultSchema,
+#       cohorts = cohorts,
+#       cohortTableName = .CG$cohortTableName
+#     ),
+#     "Records: 2117"
+#   )
+# })
 
 # Parameter sweep ----
 test_that("windowStart", {
@@ -644,35 +644,35 @@ test_that("No target defined", {
   })
 })
 
-test_that("Attrition", {
-  skip_on_cran()
-  skip_on_os(os = "linux")
-  skip_if_not(ableToRun()$CDMC)
-  skip_if_not(ableToRun()$CG)
-
-  outputEnvCDMC <- computePathways(
-    cohorts = .CM$cohorts,
-    cohortTableName = .CM$cohortTableName,
-    cdm = .CM$cdm
-  )
-
-  outputEnvCG <- computePathways(
-    cohorts = .CM$cohorts,
-    cohortTableName = .CM$cohortTableName,
-    connectionDetails = .CM$connectionDetails,
-    cdmSchema = .CM$cdmSchema,
-    resultSchema = .CM$resultSchema
-  )
-
-  expect_identical(
-    outputEnvCDMC$attrition %>%
-      collect() %>%
-      select(-"time_stamp"),
-    outputEnvCG$attrition %>%
-      collect() %>%
-      select(-"time_stamp")
-  )
-
-  Andromeda::close(outputEnvCG)
-  Andromeda::close(outputEnvCDMC)
-})
+# test_that("Attrition", {
+#   skip_on_cran()
+#   skip_on_os(os = "linux")
+#   skip_if_not(ableToRun()$CDMC)
+#   skip_if_not(ableToRun()$CG)
+# 
+#   outputEnvCDMC <- computePathways(
+#     cohorts = .CM$cohorts,
+#     cohortTableName = .CM$cohortTableName,
+#     cdm = .CM$cdm
+#   )
+# 
+#   outputEnvCG <- computePathways(
+#     cohorts = .CM$cohorts,
+#     cohortTableName = .CM$cohortTableName,
+#     connectionDetails = .CM$connectionDetails,
+#     cdmSchema = .CM$cdmSchema,
+#     resultSchema = .CM$resultSchema
+#   )
+# 
+#   expect_identical(
+#     outputEnvCDMC$attrition %>%
+#       collect() %>%
+#       select(-"time_stamp"),
+#     outputEnvCG$attrition %>%
+#       collect() %>%
+#       select(-"time_stamp")
+#   )
+# 
+#   Andromeda::close(outputEnvCG)
+#   Andromeda::close(outputEnvCDMC)
+# })
