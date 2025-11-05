@@ -28,7 +28,7 @@ require("withr", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
 # }
 
 if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") {
-  Sys.setenv("EUNOMIA_DATA_FOLDER" = tempfile("eunomiaData"))
+  Sys.setenv("EUNOMIA_DATA_FOLDER" = tempdir("eunomiaData"))
   dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
 
   if (require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
