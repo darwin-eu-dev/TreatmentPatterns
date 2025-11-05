@@ -36,11 +36,11 @@ if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") {
     .CM <- generateCohortTableCDMC()
   }
 
-  withr::defer(
-    {
-      unlink(Sys.getenv("EUNOMIA_DATA_FOLDER"), recursive = TRUE, force = TRUE)
-    }
-  )
+  # withr::defer(
+  #   {
+  #     unlink(Sys.getenv("EUNOMIA_DATA_FOLDER"), recursive = TRUE, force = TRUE)
+  #   }
+  # )
 } else {
   .CM <- generateCohortTableCDMC()
 }
