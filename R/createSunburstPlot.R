@@ -36,7 +36,9 @@
 #'   index_year = rep("all", 5)
 #' )
 #' 
-#' createSunburstPlot(treatmentPatwhays)
+#' if (interactive()) {
+#'   createSunburstPlot(treatmentPatwhays)
+#' }
 createSunburstPlot <- function(treatmentPathways, groupCombinations = FALSE, ...) {
   validateCreateSunburstPlot()
 
