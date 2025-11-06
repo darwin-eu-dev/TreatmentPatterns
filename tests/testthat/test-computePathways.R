@@ -2,7 +2,6 @@
 library(testthat)
 library(TreatmentPatterns)
 library(dplyr)
-library(stringr)
 
 # test_that("computePathways DatabaseConnector", {
 #   skip("Eunomia [2.0.0] bug")
