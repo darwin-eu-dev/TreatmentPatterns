@@ -425,25 +425,31 @@ test_that("filterTreatments", {
     object = c("numeric", "integer")
   )
 
-  expect_identical(
-    "numeric",
-    class(firstTH$eventStartDate),
-    class(changesTH$eventStartDate),
-    class(allTH$eventStartDate)
+  expect_contains(
+    expected = c(
+      class(firstTH$eventStartDate),
+      class(changesTH$eventStartDate),
+      class(allTH$eventStartDate)
+    ),
+    object = c("numeric", "integer")
   )
 
-  expect_identical(
-    "numeric",
-    class(firstTH$eventEndDate),
-    class(changesTH$eventStartDate),
-    class(allTH$eventEndDate)
+  expect_contains(
+    expected = c(
+      class(firstTH$eventEndDate),
+      class(changesTH$eventStartDate),
+      class(allTH$eventEndDate)
+    ),
+    object = c("numeric", "integer")
   )
 
-  expect_identical(
-    "numeric",
-    class(firstTH$age),
-    class(changesTH$age),
-    class(allTH$age)
+  expect_contains(
+    expected = c(
+      class(firstTH$age),
+      class(changesTH$age),
+      class(allTH$age)
+    ),
+    object = c("numeric", "integer")
   )
 
   expect_identical(
