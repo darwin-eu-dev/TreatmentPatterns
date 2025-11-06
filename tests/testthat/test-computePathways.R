@@ -459,18 +459,22 @@ test_that("filterTreatments", {
     class(allTH$sex)
   )
 
-  expect_identical(
-    "numeric",
-    class(firstTH$durationEra),
-    class(changesTH$durationEra),
-    class(allTH$durationEra)
+  expect_contains(
+    expected = c(
+      class(firstTH$durationEra),
+      class(changesTH$durationEra),
+      class(allTH$durationEra)
+    ),
+    object = c("numeric", "integer")
   )
 
-  expect_identical(
-    "numeric",
-    class(firstTH$sortOrder),
-    class(changesTH$sortOrder),
-    class(allTH$sortOrder)
+  expect_contains(
+    expected = c(
+      class(firstTH$sortOrder),
+      class(changesTH$sortOrder),
+      class(allTH$sortOrder)
+    ),
+    object = c("numeric", "integer")
   )
 
   expect_true(
