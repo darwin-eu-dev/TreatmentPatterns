@@ -1,12 +1,11 @@
 test_that("Method: new(data.frame)", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
-  globals <- suppressWarnings(generateCohortTableCDMC())
 
   result <- TreatmentPatterns::executeTreatmentPatterns(
-    cohorts = globals$cohorts,
-    cohortTableName = globals$cohortTableName,
-    cdm = globals$cdm
+    cohorts = .CM$cohorts,
+    cohortTableName = .CM$cohortTableName,
+    cdm = .CM$cdm
   )
 
   expect_s3_class(result$analyses, class = c("tbl_df", "tbl", "data.frame"))
@@ -84,6 +83,8 @@ test_that("Method: new(wrongFile)", {
 
 test_that("Method: plotEventDuration()", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
 
@@ -94,6 +95,8 @@ test_that("Method: plotEventDuration()", {
 
 test_that("Method: plotSankey()", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
 
@@ -106,6 +109,8 @@ test_that("Method: plotSankey()", {
 
 test_that("Method: plotSunburst()", {
   skip_on_cran()
+  skip_if_not_installed("sunburstR")
+
   results <- TreatmentPatternsResults$new()
   results$load(filePath = system.file(package = "TreatmentPatterns", "DummyOutput"))
 

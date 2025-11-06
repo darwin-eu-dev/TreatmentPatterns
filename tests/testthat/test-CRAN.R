@@ -18,12 +18,10 @@ if (interactive()) {
 test_that("CRAN Tests", {
   run_on_cran()
 
-  globals <- generateCohortTableCDMC()
-
   outputEnv <- TreatmentPatterns::computePathways(
-    cohorts = globals$cohorts,
-    cdm = globals$cdm,
-    globals$cohortTableName
+    cohorts = .CM$cohorts,
+    cdm = .CM$cdm,
+    .CM$cohortTableName
   )
 
   expect_s4_class(outputEnv, class = "Andromeda")
@@ -42,8 +40,6 @@ test_that("CRAN Tests", {
   expect_true("targetCohorts" %in% names(outputEnv))
   expect_true("treatmentHistory" %in% names(outputEnv))
   expect_true("treatmentHistoryFinal" %in% names(outputEnv))
-
-  DBI::dbDisconnect(globals$con, shutdown = TRUE)
 
   tpRes <- TreatmentPatterns::export(outputEnv)
 

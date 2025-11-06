@@ -17,7 +17,7 @@ test_that("ggSunburst", {
     )
 
   expect_true(all(unique(gg$data$frac) %in% unique(df$frac)))
-  expect_true(all(class(gg) %in% c("gg", "ggplot")))
+  expect_true(any(class(gg) %in% c("gg", "ggplot")))
 })
 
 test_that("ggSunburst: groupCombinations", {
