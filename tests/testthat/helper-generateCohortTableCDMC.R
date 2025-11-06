@@ -4,7 +4,7 @@ generateCohortTableCDMC <- function() {
     
     con <- DBI::dbConnect(
       duckdb::duckdb(),
-      dbdir = file.path(Sys.getenv("EUNOMIA_DATA_FOLDER"), "GiBleed_5.3.duckdb")
+      dbdir = CDMConnector::eunomiaDir()
     )
 
     cdm <- CDMConnector::cdmFromCon(
