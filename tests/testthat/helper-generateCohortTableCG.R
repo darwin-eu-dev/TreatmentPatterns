@@ -1,6 +1,9 @@
 generateCohortTableCG <- function() {
   if (ableToRun()$CG) {
-    connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+    connectionDetails <- Eunomia::getEunomiaConnectionDetails(
+      databaseFile = file.path(Sys.getenv("EUNOMIA_DATA_FOLDER_CG"), "GiBleed_5.3.sqlite")
+    )
+
     cohortTableName <- "cohort_table"
     resultSchema <- "main"
     cdmSchema <- "main"

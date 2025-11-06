@@ -1,29 +1,43 @@
-# if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") {
-#   Sys.setenv("EUNOMIA_DATA_FOLDER" = tempfile("eunomiaData"))
-#   dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
+require("withr", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+require("stats", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+
+# if (Sys.getenv("EUNOMIA_DATA_FOLDER_CG") == "") {
+#   Sys.setenv("EUNOMIA_DATA_FOLDER_CG" = tempfile("eunomiaData_CG"))
+#   dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER_CG"))
 # 
-#   if (require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
-#     CDMConnector::downloadEunomiaData()
+#   if (
+#     require("Eunomia", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+#     & require("DatabaseConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+#     & require("SqlRender", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+#     & require("CirceR", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+#   ) {
+#     Eunomia::getDatabaseFile(
+#       datasetName = "GiBleed",
+#       pathToData = Sys.getenv("EUNOMIA_DATA_FOLDER_CG"),
+#       databaseFile = file.path(Sys.getenv("EUNOMIA_DATA_FOLDER_CG"), "GiBleed_5.3.sqlite")
+#     )
+#     .CG <- generateCohortTableCG()
 #   }
 # 
-#   if (require("Eunomia", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
-#     Eunomia::downloadEunomiaData(datasetName = "GiBleed")
-#   }
-# 
-#   if (require("withr", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
-#     withr::defer(
+#   withr::defer(
 #     {
-#       unlink(Sys.getenv("EUNOMIA_DATA_FOLDER"), recursive = TRUE, force = TRUE)
-#     },
-#     if (require("testthat", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
-#       testthat::teardown_env()
+#       unlink(Sys.getenv("EUNOMIA_DATA_FOLDER_CG"), recursive = TRUE, force = TRUE)
 #     }
 #   )
-#   }
+# } else {
+#   .CG <- generateCohortTableCG()
 # }
 
-withr::local_envvar(
-  R_USER_CACHE_DIR = tempfile(),
-  .local_envir = teardown_env(),
-  EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
-)
+Sys.setenv("EUNOMIA_DATA_FOLDER" = file.path(tempdir(), "eunomiaData"))
+dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
+
+if (require("CDMConnector", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
+  CDMConnector::downloadEunomiaData(overwrite = TRUE)
+  .CM <- generateCohortTableCDMC()
+}
+
+# withr::defer(
+#   {
+#     unlink(Sys.getenv("EUNOMIA_DATA_FOLDER"), recursive = TRUE, force = TRUE)
+#   }
+# )

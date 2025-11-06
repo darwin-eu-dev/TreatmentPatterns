@@ -61,8 +61,6 @@ test_that("multiple cohort_tables", {
   result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
 
   expect_identical(result$treatment_pathways$pathway, "A")
-
-  DBI::dbDisconnect(con, shutdown = TRUE)
 })
 
 test_that("multiple cohort_tables", {
