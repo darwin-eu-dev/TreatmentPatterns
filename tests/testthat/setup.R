@@ -1,4 +1,5 @@
 require("withr", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+require("stats", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
 
 # if (Sys.getenv("EUNOMIA_DATA_FOLDER_CG") == "") {
 #   Sys.setenv("EUNOMIA_DATA_FOLDER_CG" = tempfile("eunomiaData_CG"))
