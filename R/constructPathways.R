@@ -587,12 +587,28 @@ doCombinationWindow <- function(
       dplyr::summarise(dplyr::n()) %>%
       pull()
 
+    switchedPersons <- andromeda$treatmentHistory %>%
+      dplyr::filter(
+        .data$switch == 1 |
+          .data$combinationFRFS == 1 |
+          .data$combinationLRFS == 1
+      ) %>%
+      dplyr::pull(.data$personId)
+
+    totalPersons <- andromeda$treatmentHistory %>%
+      dplyr::pull(.data$personId)
+
+    missingIds <- totalPersons[!totalPersons %in% switchedPersons]
+
     sumSelectedRows <- andromeda$treatmentHistory %>%
       dplyr::summarise(sum = sum(.data$selectedRows, na.rm = TRUE)) %>%
       dplyr::pull()
 
     if (sumSwitchComb != sumSelectedRows) {
-      stop(sprintf("Expected switches before combination (%s) to be equal to switches after combination (%s)", sumSelectedRows, sumSwitchComb))
+      stop(sprintf(
+        "Expected switches before combination (%s) to be equal to switches after combination (%s)\nMissing person IDs: %s",
+        sumSelectedRows, sumSwitchComb, missingIds
+      ))
     }
 
     # Do transformations for each of the three newly added columns
