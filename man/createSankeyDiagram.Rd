@@ -42,5 +42,7 @@ treatmentPathways <- data.frame(
   index_year = rep("all", 5)
 )
 
-createSankeyDiagram(treatmentPathways)
+if (interactive()) {
+  createSankeyDiagram(treatmentPathways)
+}
 }

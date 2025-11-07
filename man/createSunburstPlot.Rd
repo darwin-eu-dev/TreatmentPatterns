@@ -35,5 +35,7 @@ treatmentPatwhays <- data.frame(
   index_year = rep("all", 5)
 )
 
-createSunburstPlot(treatmentPatwhays)
+if (interactive()) {
+  createSunburstPlot(treatmentPatwhays)
+}
 }
