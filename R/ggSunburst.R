@@ -123,7 +123,9 @@ makeGgSunburst <- function(data) {
 #'   index_year = rep("all", 5)
 #' )
 #' 
-#' ggSunburst(treatmentPatwhays)
+#' if (interactive()) {
+#'   ggSunburst(treatmentPatwhays)
+#' }
 ggSunburst <- function(treatmentPathways, groupCombinations = FALSE, unit = "percent") {
   checkInstall("ggplot2")
   checkInstall("visOmopResults")
