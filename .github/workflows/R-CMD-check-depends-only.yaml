@@ -48,8 +48,8 @@ jobs:
           dependencies: '"all"'
           extra-packages: any::rcmdcheck
           needs: check
-          args: 'c("--no-manual", "--no-build-vignettes", "--ignore-vignettes")'
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
+          args: 'c("--no-manual", "--no-build-vignettes", "--ignore-vignettes")'
