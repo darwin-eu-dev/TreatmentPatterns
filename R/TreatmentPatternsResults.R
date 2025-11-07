@@ -292,6 +292,54 @@ TreatmentPatternsResults <- R6::R6Class(
     plotEventDuration = function(...) {
       private$.summaryEventDuration |>
         TreatmentPatterns::plotEventDuration(...)
+    },
+
+    #' transformToSummarisedResult
+    #'
+    #' Transforms to a `SummarisedResult` object from `omopgenerics`
+    #'
+    #' @returns `SummarisedResult`
+    transformToSummarisedResult = function() {
+      private$.treatmentPathways |>
+        dplyr::inner_join(private$.analyses, by = "analysis_id") |>
+        dplyr::inner_join(private$.cdmSourceInfo, by = "analysis_id") |>
+        dplyr::mutate(
+          freq = as.character(.data$freq)
+        ) |>
+        dplyr::rename(
+          result_id = "analysis_id",
+          additional_level = "target_cohort_id",
+          cdm_name = "cdm_source_name",
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("age", "sex", "index_year"),
+          names_to = "strata_name",
+          values_to = "strata_level"
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("pathway", "freq"),
+          names_to = "estimate_name",
+          values_to = "estimate_value"
+        ) |>
+        dplyr::mutate(
+          estimate_type = dplyr::case_when(
+            .data$estimate_name == "pathway" ~ "character",
+            .data$estimate_name == "freq" ~ "numeric"
+          ),
+          additional_name = "target_cohort_id",
+          variable_name = "Treatment Pathway",
+          variable_level = dplyr::row_number()
+        ) |>
+        tidyr::pivot_longer(
+          cols = "target_cohort_name",
+          names_to = "group_name",
+          values_to = "group_level"
+        ) |>
+        dplyr::select(
+          "result_id", "cdm_name", "group_name", "group_level", "strata_name",
+          "strata_level", "variable_name", "variable_level", "estimate_name",
+          "estimate_type", "estimate_value", "additional_name", "additional_level"
+        )
     }
   ),
   
