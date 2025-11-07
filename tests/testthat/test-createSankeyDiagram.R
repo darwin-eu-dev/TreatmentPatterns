@@ -16,14 +16,16 @@ test_that("void", {
 
 test_that("minimal", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   p <- createSankeyDiagram(treatmentPathways = dummyData)
 
-  pLabels <- stringr::str_remove_all(string = p$x$nodes$name, pattern = "\\d\\.")
+  pLabels <- stringi::stri_replace_all(str = p$x$nodes$name, regex = "\\d\\.", replacement = "")
   pLabels <- pLabels["Stopped" != pLabels] |>
     unique() |>
     sort()
 
-  actualLabels <- stringr::str_split(string = dummyData$path, pattern = "-") |>
+  actualLabels <- stringi::stri_split(str = dummyData$path, regex = "-") |>
     unlist() |>
     unique() |>
     sort()
@@ -33,16 +35,18 @@ test_that("minimal", {
 
 test_that("groupCombinations: TRUE", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   p <- createSankeyDiagram(treatmentPathways = dummyData, groupCombinations = TRUE)
 
-  pLabels <- stringr::str_remove_all(string = p$x$nodes$name, pattern = "\\d\\.")
+  pLabels <- stringi::stri_replace_all(str = p$x$nodes$name, regex = "\\d\\.", replacement = "")
   pLabels <- pLabels["Stopped" != pLabels] |>
     unique() |>
     sort()
 
-  actualLabels <- stringr::str_split(string = dummyData$path, pattern = "-") |>
+  actualLabels <- stringi::stri_split(str = dummyData$path, regex = "-") |>
     unlist() |>
-    stringr::str_replace_all(pattern = ".+\\+.+", replacement = "Combination") |>
+    stringi::stri_replace_all(regex = ".+\\+.+", replacement = "Combination") |>
     unlist() |>
     unique() |>
     sort()
@@ -66,7 +70,7 @@ test_that("groupCombinations: TRUE", {
   )
 
   p <- createSankeyDiagram(treatmentPathways = df, groupCombinations = TRUE)
-  labels <- stringr::str_remove_all(string = p$x$nodes$name, pattern = "\\d\\.")
+  labels <- stringi::stri_replace_all(str = p$x$nodes$name, regex = "\\d\\.", replacement = "")
 
   expect_true(all(labels %in% c("A", "B", "C", "D", "Z_Y", "1_2", "Combination", "Stopped")))
 
@@ -78,11 +82,13 @@ test_that("groupCombinations: TRUE", {
 
 test_that("colors", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   actualColors <- c("#ff33cc", "#ff0000", "#00ff00", "#0000ff", "#ffffff", "#000000")
 
   p <- createSankeyDiagram(treatmentPathways = dummyData, colors = actualColors)
 
-  pColors <- unlist(stringr::str_extract_all(string = p$x$options$colourScale, "\\#\\w{6}"))
+  pColors <- unlist(stringi::stri_extract_all(str = p$x$options$colourScale, regex = "\\#\\w{6}"))
 
   expect_true(all(pColors %in% actualColors))
 
@@ -99,9 +105,9 @@ test_that("colors", {
 
   p <- createSankeyDiagram(treatmentPathways = dummyData, colors = actualColors)
 
-  pColors <- unlist(stringr::str_extract_all(string = p$x$options$colourScale, "\\#\\w{6}"))
-  labels <- unlist(stringr::str_extract_all(string = p$x$options$colourScale, "\\'\\d\\.[\\w\\+\\-]+\\'"))
-  labels <- stringr::str_remove_all(string = labels, pattern = "[\\'|\\d{1}\\.]")
+  pColors <- unlist(stringi::stri_extract_all(str = p$x$options$colourScale, regex = "\\#\\w{6}"))
+  labels <- unlist(stringi::stri_extract_all(str = p$x$options$colourScale, regex = "\\'\\d\\.[\\w\\+\\-]+\\'"))
+  labels <- stringi::stri_replace_all(str = labels, regex = "[\\'|\\d{1}\\.]", replacement = "")
   labels <- unique(labels)
 
   l <- as.list(unique(pColors))
@@ -116,6 +122,8 @@ test_that("colors", {
 
 test_that("2 path levels", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   dummyData <- data.frame(
     pathway = c("A", "A-B+C", "A-D", "B+C", "D"),
     freq = c(206, 6, 14, 48, 221),
@@ -126,12 +134,12 @@ test_that("2 path levels", {
 
   p <- createSankeyDiagram(treatmentPathways = dummyData)
 
-  pLabels <- stringr::str_remove_all(string = p$x$nodes$name, pattern = "\\d\\.")
+  pLabels <- stringi::stri_replace_all(str = p$x$nodes$name, regex = "\\d\\.", replacement = "")
   pLabels <- pLabels["Stopped" != pLabels] |>
     unique() |>
     sort()
 
-  actualLabels <- stringr::str_split(string = dummyData$path, pattern = "-") |>
+  actualLabels <- stringi::stri_split(str = dummyData$path, regex = "-") |>
     unlist() |>
     unique() |>
     sort()
@@ -141,6 +149,8 @@ test_that("2 path levels", {
 
 test_that("1 path levels", {
   skip_on_cran()
+  skip_if_not_installed("networkD3")
+
   treatmentPathways <- data.frame(
     pathway = c("a", "b", "c"),
     freq = c(55, 8, 11),

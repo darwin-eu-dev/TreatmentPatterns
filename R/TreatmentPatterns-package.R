@@ -19,18 +19,14 @@
 
 ## usethis namespace: start
 #' @import checkmate
-#' @import stringr
+#' @import stringi
 #' @import utils
 #' @import dplyr
 #' @import Andromeda
 #' @import R6
-#' @import sunburstR
-#' @import ggplot2
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dbplyr window_order
-#' @importFrom networkD3 sankeyNetwork
 #' @importFrom stats sd median quantile
-#' @importFrom htmlwidgets JS
 #' @importFrom tidyr pivot_wider
 ## usethis namespace: end
 NULL
