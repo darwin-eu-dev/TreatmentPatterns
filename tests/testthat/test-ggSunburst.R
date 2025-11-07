@@ -1,5 +1,7 @@
 test_that("ggSunburst", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   treatmentPathways <- data.frame(
     pathway = c("A", "C-B", "A-B-C", "B", "B+A", "B-A-C"),
     freq = c(100, 75, 25, 500, 350, 20),
@@ -22,6 +24,8 @@ test_that("ggSunburst", {
 
 test_that("ggSunburst: groupCombinations", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   treatmentPathways <- data.frame(
     pathway = c("A", "C-B", "A-B-C", "B", "B+A", "B-A-C"),
     freq = c(100, 75, 25, 500, 350, 20),
@@ -38,6 +42,8 @@ test_that("ggSunburst: groupCombinations", {
 
 test_that("ggSunburst: unit", {
   skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
   treatmentPathways <- data.frame(
     pathway = c("A", "C-B", "A-B-C", "B", "B+A", "B-A-C"),
     freq = c(100, 75, 25, 500, 350, 20),
