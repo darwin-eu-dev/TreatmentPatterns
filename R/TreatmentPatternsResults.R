@@ -294,52 +294,62 @@ TreatmentPatternsResults <- R6::R6Class(
         TreatmentPatterns::plotEventDuration(...)
     },
 
-    #' transformToSummarisedResult
-    #'
-    #' Transforms to a `SummarisedResult` object from `omopgenerics`
+    #' @description
+    #' Transforms the results to a `SummarisedResult` object.
     #'
     #' @returns `SummarisedResult`
     transformToSummarisedResult = function() {
-      private$.treatmentPathways |>
-        dplyr::inner_join(private$.analyses, by = "analysis_id") |>
-        dplyr::inner_join(private$.cdmSourceInfo, by = "analysis_id") |>
-        dplyr::mutate(
-          freq = as.character(.data$freq)
-        ) |>
-        dplyr::rename(
-          result_id = "analysis_id",
-          additional_level = "target_cohort_id",
-          cdm_name = "cdm_source_name",
-        ) |>
-        tidyr::pivot_longer(
-          cols = c("age", "sex", "index_year"),
-          names_to = "strata_name",
-          values_to = "strata_level"
-        ) |>
-        tidyr::pivot_longer(
-          cols = c("pathway", "freq"),
-          names_to = "estimate_name",
-          values_to = "estimate_value"
-        ) |>
-        dplyr::mutate(
-          estimate_type = dplyr::case_when(
-            .data$estimate_name == "pathway" ~ "character",
-            .data$estimate_name == "freq" ~ "numeric"
-          ),
-          additional_name = "target_cohort_id",
-          variable_name = "Treatment Pathway",
-          variable_level = dplyr::row_number()
-        ) |>
-        tidyr::pivot_longer(
-          cols = "target_cohort_name",
-          names_to = "group_name",
-          values_to = "group_level"
-        ) |>
-        dplyr::select(
-          "result_id", "cdm_name", "group_name", "group_level", "strata_name",
-          "strata_level", "variable_name", "variable_level", "estimate_name",
-          "estimate_type", "estimate_value", "additional_name", "additional_level"
+      if (require("omopgenerics", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
+        omopgenerics::bind(
+          private$summariseTreatmentPathways(),
+          private$summariseSummaryEventDuration(),
+          private$summariseCounts(),
+          private$summariseAttrition(),
+          private$summariseArguments(),
+          private$summariseAnalyses(),
+          private$summariseMetadata()
         )
+      } else {
+        stop("`omopgenerics` is not installed. You can install with with: install.packages('omopgenerics')")
+      }
+    },
+
+    importSummarisedResult = function(summarisedResult) {
+      if (require("omopgenerics", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)) {
+        # summarisedResult |>
+        #   tidyr::pivot_wider(
+        #     names_from = "strata_name",
+        #     values_from = "strata_level"
+        #   ) |>
+        #   tidyr::pivot_wider(
+        #     names_from = "group_name",
+        #     values_from = "group_level"
+        #   ) |>
+        #   tidyr::pivot_wider(
+        #     names_from = "estimate_name",
+        #     values_from = "estimate_value"
+        #   ) |>
+        #   tidyr::pivot_wider(
+        #     names_from = "additional_name",
+        #     values_from = "additional_level"
+        #   ) |>
+        #   dplyr::select(
+        #     pathway = "variable_level",
+        #     "freq",
+        #     "age",
+        #     "sex",
+        #     "index_year",
+        #     analysis_id = "result_id",
+        #     "target_cohort_id",
+        #     "target_cohort_name"
+        #   ) |>
+        #   dplyr::mutate(
+        #     freq = as.integer(.data$freq),
+        #     target_cohort_id = as.integer(.data$target_cohort_id)
+        #   )
+      } else {
+        stop("`omopgenerics` is not installed. You can install with with: install.packages('omopgenerics')")
+      }
     }
   ),
   
@@ -410,6 +420,268 @@ TreatmentPatternsResults <- R6::R6Class(
           .data$index_year == indexYear,
           .data$pathway != none
         )
+    },
+
+    summariseTreatmentPathways = function() {
+      summarisedTreatmentPathways <- private$.treatmentPathways |>
+        dplyr::inner_join(private$.analyses, by = "analysis_id") |>
+        dplyr::inner_join(private$.cdmSourceInfo, by = "analysis_id") |>
+        dplyr::mutate(
+          freq = as.character(.data$freq),
+          result_id = .data$analysis_id
+        ) |>
+        dplyr::rename(
+          additional_level = "target_cohort_id",
+          cdm_name = "cdm_source_name",
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("age", "sex", "index_year"),
+          names_to = "strata_name",
+          values_to = "strata_level"
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("freq"),
+          names_to = "estimate_name",
+          values_to = "estimate_value"
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("pathway"),
+          names_to = "variable_name",
+          values_to = "variable_level"
+        ) |>
+        dplyr::mutate(
+          estimate_type = dplyr::case_when(
+            .data$estimate_name == "pathway" ~ "character",
+            .data$estimate_name == "freq" ~ "numeric"
+          ),
+          additional_name = "target_cohort_id"
+        ) |>
+        tidyr::pivot_longer(
+          cols = "analysis_id",
+          names_to = "group_name",
+          values_to = "group_level"
+        ) |>
+        dplyr::select(
+          "result_id", "cdm_name", "group_name", "group_level", "strata_name",
+          "strata_level", "variable_name", "variable_level", "estimate_name",
+          "estimate_type", "estimate_value", "additional_name", "additional_level"
+        ) |>
+        omopgenerics::newSummarisedResult()
+
+      attr(summarisedTreatmentPathways, "settings") <- omopgenerics::settings(summarisedTreatmentPathways) |>
+        dplyr::mutate(
+          result_type = "treatment_pathways",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      return(summarisedTreatmentPathways)
+    },
+
+    summariseSummaryEventDuration = function() {
+      summarisedSummaryEventDuration <- private$.summaryEventDuration |>
+        dplyr::inner_join(private$.analyses, by = "analysis_id") |>
+        dplyr::inner_join(private$.cdmSourceInfo, by = "analysis_id") |>
+        dplyr::mutate(
+          result_id = .data$analysis_id
+        ) |>
+        dplyr::rename(
+          additional_level = "target_cohort_id",
+          cdm_name = "cdm_source_name",
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("line"),
+          names_to = "strata_name",
+          values_to = "strata_level"
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("duration_min", "duration_q1", "duration_median", "duration_q2", "duration_max", "duration_average", "duration_sd", "event_count"),
+          names_to = "estimate_name",
+          values_to = "estimate_value"
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("event_name"),
+          names_to = "variable_name",
+          values_to = "variable_level"
+        ) |>
+        dplyr::mutate(
+          estimate_type = "numeric",
+          additional_name = "target_cohort_id"
+        ) |>
+        tidyr::pivot_longer(
+          cols = "analysis_id",
+          names_to = "group_name",
+          values_to = "group_level"
+        ) |>
+        dplyr::select(
+          "result_id", "cdm_name", "group_name", "group_level", "strata_name",
+          "strata_level", "variable_name", "variable_level", "estimate_name",
+          "estimate_type", "estimate_value", "additional_name", "additional_level"
+        ) |>
+        omopgenerics::newSummarisedResult()
+
+      attr(summarisedSummaryEventDuration, "settings") <- omopgenerics::settings(summarisedSummaryEventDuration) |>
+        dplyr::mutate(
+          result_type = "summary_event_duration",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      return(summarisedSummaryEventDuration)
+    },
+
+    summariseCounts = function() {
+      sumAge <- omopgenerics::transformToSummarisedResult(
+        x = private$.countsAge,
+        group = "analysis_id",
+        strata = "age",
+        additional = "target_cohort_id",
+        estimates = "n"
+      )
+
+      attr(sumAge, "settings") <- omopgenerics::settings(sumAge) |>
+        dplyr::mutate(
+          result_type = "counts_age",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      sumSex <- omopgenerics::transformToSummarisedResult(
+        x = private$.countsSex,
+        group = "analysis_id",
+        strata = "sex",
+        additional = "target_cohort_id",
+        estimates = "n"
+      )
+
+      attr(sumSex, "settings") <- omopgenerics::settings(sumSex) |>
+        dplyr::mutate(
+          result_type = "counts_sex",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      sumYear <- omopgenerics::transformToSummarisedResult(
+        x = private$.countsYear,
+        group = "analysis_id",
+        strata = "index_year",
+        additional = "target_cohort_id",
+        estimates = "n"
+      )
+
+      attr(sumYear, "settings") <- omopgenerics::settings(sumYear) |>
+        dplyr::mutate(
+          result_type = "counts_year",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      return(omopgenerics::bind(sumAge, sumSex, sumYear))
+    },
+
+    summariseAttrition = function() {
+      summarisedAttrition <- private$.attrition |>
+        dplyr::inner_join(private$.analyses, by = "analysis_id") |>
+        dplyr::inner_join(private$.cdmSourceInfo, by = "analysis_id") |>
+        dplyr::mutate(
+          result_id = .data$analysis_id
+        ) |>
+        dplyr::rename(
+          additional_level = "target_cohort_id",
+          cdm_name = "cdm_source_name",
+        ) |>
+        tidyr::pivot_longer(
+          cols = "analysis_id",
+          names_to = "group_name",
+          values_to = "group_level"
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("number_records", "number_subjects", "time_stamp"),
+          names_to = "estimate_name",
+          values_to = "estimate_value"
+        ) |>
+        tidyr::pivot_longer(
+          cols = c("reason"),
+          names_to = "strata_name",
+          values_to = "strata_level"
+        ) |>
+        dplyr::mutate(
+          variable_name = "attrition",
+          variable_level = NA,
+          additional_name = "attrition",
+          additional_value = NA,
+          estimate_type = dplyr::case_when(
+            .data$estimate_name == "number_records" ~ "integer",
+            .data$estimate_name == "number_subjects" ~ "integer",
+            .data$estimate_name == "time_stamp" ~ "numeric"
+          )
+        ) |>
+        dplyr::select(
+          "result_id", "cdm_name", "group_name", "group_level", "strata_name",
+          "strata_level", "variable_name", "variable_level", "estimate_name",
+          "estimate_type", "estimate_value", "additional_name", "additional_level"
+        ) |>
+        omopgenerics::newSummarisedResult()
+
+      attr(summarisedAttrition, "settings") <- omopgenerics::settings(summarisedAttrition) |>
+        dplyr::mutate(
+          result_type = "attrition",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      return(summarisedAttrition)
+    },
+
+    summariseArguments = function() {
+      summarisedArguments <- omopgenerics::transformToSummarisedResult(
+        x = private$.arguments,
+        group = "analysis_id",
+        estimates = "arguments"
+      )
+
+      attr(summarisedArguments, "settings") <- omopgenerics::settings(summarisedArguments) |>
+        dplyr::mutate(
+          result_type = "arguments",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      return(summarisedArguments)
+    },
+
+    summariseAnalyses = function() {
+      summarisedAnalyses <- omopgenerics::transformToSummarisedResult(
+        x = private$.analyses,
+        group = "analysis_id",
+        estimates = "description"
+      )
+
+      attr(summarisedAnalyses, "settings") <- omopgenerics::settings(summarisedAnalyses) |>
+        dplyr::mutate(
+          result_type = "analyses",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      return(summarisedAnalyses)
+    },
+
+    summariseMetadata = function() {
+      summarisedMetadata <- omopgenerics::transformToSummarisedResult(
+        x = private$.metadata,
+        group = "analysis_id",
+        estimates = c("execution_start", "execution_end", "package_version", "r_version", "platform")
+      )
+
+      attr(x = summarisedMetadata, "settings") <- omopgenerics::settings(summarisedMetadata) |>
+        dplyr::mutate(
+          result_type = "analyses",
+          package_name = "TreatmentPatterns",
+          package_version = private$.metadata$package_version
+        )
+
+      return(summarisedMetadata)
     }
   )
 )
