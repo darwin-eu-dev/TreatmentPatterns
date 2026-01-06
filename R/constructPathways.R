@@ -412,6 +412,8 @@ doEraCollapseNew <- function(andromeda, eraCollapseSize) {
 
     if (any(flags)) {
       andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+        dplyr::group_by(.data$personId, .data$eventCohortId, .data$n_target) |>
+        dbplyr::window_order(.data$eventStartDate, .data$eventEndDate) |>
         dplyr::mutate(
           eventEndDate_old = .data$eventEndDate,
           eventEndDate = dplyr::case_when(
@@ -428,7 +430,7 @@ doEraCollapseNew <- function(andromeda, eraCollapseSize) {
         ) |>
         dplyr::ungroup() |>
         dplyr::filter(.data$keep) |>
-        dplyr::select(-"flag", -"eventEndDate_old", -"end_date", -"row")
+        dplyr::select(-"diff", -"flag", -"row", -"end_date", -"eventEndDate_old", -"keep")
 
       counter <- counter + 1
 
@@ -443,6 +445,9 @@ doEraCollapseNew <- function(andromeda, eraCollapseSize) {
         andromeda = andromeda
       )
     } else {
+      andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+        dplyr::select(-"diff", -"flag", -"row", -"end_date")
+
       start <- FALSE
     }
   }
