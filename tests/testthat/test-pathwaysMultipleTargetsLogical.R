@@ -162,6 +162,10 @@ test_that("Pathways", {
 
   result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
 
+  expect_no_error({
+    result <- TreatmentPatterns::export(andromeda, minCellCount = 1)
+  })
+
   subjectIds <- cohort_table %>%
     pull(.data$subject_id) %>%
     unique()
