@@ -759,7 +759,7 @@ getFilteredSubjects <- function(andromeda) {
   
   out <- andromeda$currentCohorts %>%
     dplyr::anti_join(andromeda$treatmentHistory, join_by(personId == personId)) %>%
-    dplyr::filter(.data$cohortId == targetCohortId) %>%
+    dplyr::filter(.data$cohortId %in% targetCohortId) %>%
     dplyr::mutate(
       indexYear = floor(.data$startDate / 365.25) + 1970,
       eventCohortName = "None",
