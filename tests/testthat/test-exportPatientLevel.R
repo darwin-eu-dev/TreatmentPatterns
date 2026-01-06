@@ -47,6 +47,6 @@ test_that("exportPatientLevel", {
   expect_equal(ncol(attrition), 5)
   expect_equal(nrow(attrition), 11)
 
-  expect_equal(ncol(cdm_source_info), 10)
+  expect_equal(ncol(cdm_source_info), 11)
   expect_equal(nrow(cdm_source_info), 1)
 })
