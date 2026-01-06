@@ -371,7 +371,6 @@ doSplitEventCohorts <- function(
   return(invisible(NULL))
 }
 
-
 #' doEraCollapseNew
 #'
 #' @param andromeda (`Andromeda::andromeda()`)
@@ -379,57 +378,74 @@ doSplitEventCohorts <- function(
 #'
 #' @returns `NULL`
 doEraCollapseNew <- function(andromeda, eraCollapseSize) {
-  andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-    dplyr::group_by(.data$personId, .data$eventCohortId, .data$n_target) %>%
-    dbplyr::window_order(.data$eventStartDate, .data$eventEndDate) |>
-    dplyr::mutate(
-      diff = .data$eventStartDate - dplyr::lag(.data$eventEndDate),
-      flag = dplyr::case_when(
-        .data$diff <= eraCollapseSize ~ 1,
-        .default = 0
-      ),
-      flag = dplyr::case_when(
-        dplyr::lead(.data$flag) == 1
-        | .data$flag == 1
-        ~ 1,
-        .default = 0
-      ),
-      row = dplyr::case_when(
-        .data$flag == 1 & .data$diff <= eraCollapseSize ~ dplyr::row_number(),
-        .default = 0
-      ),
-      end_date = dplyr::case_when(
-        .data$row == max(.data$row, na.rm = TRUE) ~ .data$eventEndDate
-      )
-    ) |>
-    dplyr::mutate(
-      eventEndDate_old = .data$eventEndDate,
-      eventEndDate = dplyr::case_when(
-        .data$flag == 1 ~ max(.data$end_date, na.rm = TRUE),
-        .default = .data$eventEndDate_old
-      )
-    ) |>
-    dplyr::mutate(
-      keep = dplyr::case_when(
-        .data$flag == 1 & .data$row == min(.data$row, na.rm = TRUE) ~ TRUE,
-        .data$flag == 0 ~ TRUE,
-        .default = FALSE
-      )
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::filter(.data$keep) |>
-    dplyr::select(-"flag", -"eventEndDate_old", -"end_date", -"row")
+  start <- TRUE
+  counter <- 0
 
-  attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
-  appendAttrition(
-    toAdd = data.frame(
-      number_records = attrCounts$nRecords,
-      number_subjects = attrCounts$nSubjects,
-      reason_id = 5,
-      reason = sprintf("Collapsing eras, eraCollapse (%s)", eraCollapseSize)
-    ),
-    andromeda = andromeda
-  )
+  while (start) {
+    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+      dplyr::group_by(.data$personId, .data$eventCohortId, .data$n_target) |>
+      dbplyr::window_order(.data$eventStartDate, .data$eventEndDate) |>
+      dplyr::mutate(
+        diff = .data$eventStartDate - dplyr::lag(.data$eventEndDate),
+        flag = dplyr::case_when(
+          .data$diff <= eraCollapseSize ~ 1,
+          .default = 0
+        ),
+        flag = dplyr::case_when(
+          dplyr::lead(.data$flag) == 1
+          | .data$flag == 1
+          ~ 1,
+          .default = 0
+        ),
+        row = dplyr::case_when(
+          .data$flag == 1 & .data$diff <= eraCollapseSize ~ dplyr::row_number(),
+          .default = 0
+        ),
+        end_date = dplyr::case_when(
+          .data$row == max(.data$row, na.rm = TRUE) ~ .data$eventEndDate
+        )
+      )
+    
+    flags <- andromeda$treatmentHistory |>
+      dplyr::pull(.data$flag) |>
+      as.logical()
+
+    if (any(flags)) {
+      andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+        dplyr::mutate(
+          eventEndDate_old = .data$eventEndDate,
+          eventEndDate = dplyr::case_when(
+            .data$flag == 1 ~ max(.data$end_date, na.rm = TRUE),
+            .default = .data$eventEndDate_old
+          )
+        ) |>
+        dplyr::mutate(
+          keep = dplyr::case_when(
+            .data$flag == 1 & .data$row == min(.data$row, na.rm = TRUE) ~ TRUE,
+            .data$flag == 0 ~ TRUE,
+            .default = FALSE
+          )
+        ) |>
+        dplyr::ungroup() |>
+        dplyr::filter(.data$keep) |>
+        dplyr::select(-"flag", -"eventEndDate_old", -"end_date", -"row")
+
+      counter <- counter + 1
+
+      attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
+      appendAttrition(
+        toAdd = data.frame(
+          number_records = attrCounts$nRecords,
+          number_subjects = attrCounts$nSubjects,
+          reason_id = 5,
+          reason = sprintf("Iteration %s: Collapsing eras, eraCollapse (%s)", counter, eraCollapseSize)
+        ),
+        andromeda = andromeda
+      )
+    } else {
+      start <- FALSE
+    }
+  }
 
   return(invisible(NULL))
 }
