@@ -137,24 +137,26 @@ computePathways <- function(
     maxPathLength = 5,
     overlapMethod = "truncate",
     concatTargets = TRUE) {
+
+  if (!is.null(connectionDetails)) {
+    con <- DatabaseConnector::connect(connectionDetails)
+    cdm <- CDMConnector::cdmFromCon(
+      con = con,
+      cdmSchema = cdmSchema,
+      writeSchema = resultSchema,
+      cohortTables = cohortTableName
+    )
+    withr::defer({
+      DatabaseConnector::disconnect(con)
+    })
+  }
+
   validateComputePathways()
 
   args <- eval(
     expr = expression(mget(names(formals()))),
     envir = sys.frame(sys.nframe())
   )
-
-  cdmInterface <- CDMInterface$new(
-    connectionDetails = connectionDetails,
-    cdmSchema = cdmSchema,
-    resultSchema = resultSchema,
-    tempEmulationSchema = tempEmulationSchema,
-    cdm = cdm
-  )
-
-  withr::defer({
-    cdmInterface$disconnect()
-  })
 
   andromeda <- Andromeda::andromeda()
 
@@ -170,9 +172,10 @@ computePathways <- function(
     description = description
   )
 
-  andromeda <- cdmInterface$fetchMetadata(andromeda)
-  andromeda <- cdmInterface$fetchCdmSource(andromeda)
-  andromeda <- cdmInterface$fetchCohortTable(
+  andromeda <- fetchMetadata(andromeda)
+  andromeda <- fetchCdmSource(cdm, andromeda)
+  andromeda <- fetchCohortTable(
+    cdm = cdm,
     cohorts = cohorts,
     cohortTableName = cohortTableName,
     andromeda = andromeda,
