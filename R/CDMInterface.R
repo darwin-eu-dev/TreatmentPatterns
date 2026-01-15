@@ -69,7 +69,7 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
       dplyr::mutate(r = dplyr::row_number()) %>%
       dplyr::group_by(.data$subject_id_origin) %>%
       dplyr::mutate(
-        subject_id = min(.data$r, na.rm = TRUE)
+        subject_id = as.integer(min(.data$r, na.rm = TRUE))
       ) %>%
       dplyr::select(-"r") %>%
       dplyr::ungroup() %>%
