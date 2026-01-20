@@ -640,25 +640,25 @@ doCombinationWindow <- function(
       dplyr::mutate(
         eventStartDateNext = dplyr::lead(
           .data$eventStartDate,
-          order_by = .data$eventStartDate
+          order_by = .data$sortOrder
         )
       ) %>%
       dplyr::mutate(
         eventEndDatePrevious = dplyr::lag(
           .data$eventEndDate,
-          order_by = .data$eventStartDate
+          order_by = .data$sortOrder
         )
       ) %>%
       dplyr::mutate(
         eventEndDateNext = dplyr::lead(
           .data$eventEndDate,
-          order_by = .data$eventStartDate
+          order_by = .data$sortOrder
         )
       ) %>%
       dplyr::mutate(
         eventCohortIdPrevious = dplyr::lag(
           .data$eventCohortId,
-          order_by = .data$eventStartDate
+          order_by = .data$sortOrder
         )
       ) %>%
       dplyr::ungroup()
@@ -798,6 +798,7 @@ selectRowsCombinationWindow <- function(andromeda, combinationWindow, overlapMet
   #   arrange(.data$personId, .data$eventStartDate, .data$eventEndDate)
 
   andromeda$treatmentHistory <- andromeda$treatmentHistory %>%
+    dbplyr::window_order(.data$eventStartDate, .data$eventEndDate, .data$eventCohortId) %>%
     dplyr::mutate(sortOrder = as.numeric(.data$eventStartDate) + as.numeric(.data$eventEndDate) * row_number() / n() * 10^-6) %>%
     dplyr::group_by(.data$personId, .data$n_target) %>%
     dbplyr::window_order(.data$sortOrder) %>%
