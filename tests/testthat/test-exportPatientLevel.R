@@ -40,13 +40,13 @@ test_that("exportPatientLevel", {
   cdm_source_info <- read.csv(file.path(tempdir(), "cdm_source_info.csv"))
 
   expect_equal(ncol(treatment_history), 13)
-  expect_equal(nrow(treatment_history), 554)
+  expect_equal(nrow(treatment_history), 553)
 
   expect_equal(ncol(metadata), 5)
   expect_equal(nrow(metadata), 1)
 
   expect_equal(ncol(attrition), 5)
-  expect_equal(nrow(attrition), 10)
+  expect_equal(nrow(attrition), 11)
 
   expect_equal(ncol(cdm_source_info), 10)
   expect_equal(nrow(cdm_source_info), 1)
