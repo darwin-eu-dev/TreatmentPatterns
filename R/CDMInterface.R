@@ -27,8 +27,8 @@ fetchMetadata <- function(andromeda) {
 dbAppendAttrition <- function(n, andromeda, cohortIds) {
   appendAttrition(
     toAdd = data.frame(
-      number_records = sum(n),
-      number_subjects = length(n),
+      number_records = as.integer(sum(n)),
+      number_subjects = as.integer(length(n)),
       reason_id = 1,
       reason = sprintf("Qualifying records for cohort definitions: %s", paste(cohortIds, collapse = ", ")),
       time_stamp = as.numeric(Sys.time())
@@ -42,11 +42,11 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
     dplyr::filter(.data$type == "target") %>%
     dplyr::select("cohortId") %>%
     dplyr::pull()
-  
-  n <- sapply(cohortTableName, function(tableName) {
+
+  n <- lapply(cohortTableName, function(tableName) {
     cdm[[tableName]] %>%
       dplyr::group_by(.data$subject_id) %>% 
-      dplyr::summarise(n = dplyr::n()) %>%
+      dplyr::summarise(n = as.integer(dplyr::n())) %>%
       dplyr::pull()
   }) |> unlist()
   
@@ -59,7 +59,7 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
   cohortIds <- cohorts$cohortId
   
   for (tableName in cohortTableName) {
-    tbl <- cdm[[tableName]] %>%
+    cdm$tbl <- cdm[[tableName]] %>%
       dplyr::group_by(.data$subject_id) %>%
       dplyr::mutate(
         subject_id_origin = .data$subject_id
@@ -107,12 +107,13 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
         "cohort_end_date",
         "age",
         "sex"
-      )
-    
+      ) %>%
+      dplyr::compute()
+
     if (is.null(andromeda[[andromedaTableName]])) {
-      dplyr::copy_to(dest = andromeda, df = tbl, name = andromedaTableName, overwrite = TRUE)
+      dplyr::copy_to(dest = andromeda, df = cdm$tbl, name = andromedaTableName, overwrite = TRUE)
     } else {
-      dplyr::copy_to(dest = andromeda, df = tbl, name = "tbl_temp", overwrite = TRUE)
+      dplyr::copy_to(dest = andromeda, df = cdm$tbl, name = "tbl_temp", overwrite = TRUE)
       andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
         dplyr::union_all(andromeda$tbl_temp)
       andromeda$tbl_temp <- NULL
