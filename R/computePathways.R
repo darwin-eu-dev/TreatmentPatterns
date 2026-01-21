@@ -144,8 +144,10 @@ computePathways <- function(
       con = con,
       cdmSchema = cdmSchema,
       writeSchema = resultSchema,
-      cohortTables = cohortTableName
     )
+
+    cdm[[cohortTableName]] <- dplyr::tbl(src = con, cohortTableName)
+
     withr::defer({
       DatabaseConnector::disconnect(con)
     })
