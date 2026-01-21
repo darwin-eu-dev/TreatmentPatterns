@@ -496,8 +496,6 @@ doEraCollapse <- function(andromeda, eraCollapseSize) {
     dplyr::filter(.data$gap <= eraCollapseSize) %>%
     dplyr::pull(.data$row)
 
-  browser()
-
   for (row in rows) {
     record <- andromeda$treatmentHistory %>%
       dplyr::group_by(.data$eventCohortId, .data$personId, .data$n_target) %>%
