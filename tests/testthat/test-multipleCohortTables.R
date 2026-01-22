@@ -111,3 +111,71 @@ test_that("multiple cohort_tables", {
 
   expect_identical(result$treatment_pathways$pathway, "A")
 })
+
+test_that("multiple cohort_tables andt Targets", {
+  skip_on_cran()
+  skip_if_not_installed("CDMConnector")
+  skip_if_not_installed("DatabaseConnector")
+  skip_if_not_installed("CirceR")
+  skip_if_not_installed("duckdb")
+  
+  server <- CDMConnector::eunomiaDir()
+  connectionDetails <- DatabaseConnector::createConnectionDetails(
+    dbms = "duckdb",
+    server = server
+  )
+  con <- DatabaseConnector::connect(connectionDetails)
+  cdm <- CDMConnector::cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
+  
+  cohortSet <- CDMConnector::readCohortSet(
+    path = system.file(package = "TreatmentPatterns", "exampleCohorts")
+  )
+  
+  cdm <- CDMConnector::generateCohortSet(
+    cdm = cdm,
+    cohortSet = cohortSet,
+    name = "cohort_table"
+  )
+  
+  cdm$target_cohort_table <- cdm$cohort_table %>%
+    dplyr::filter(.data$cohort_definition_id == 8) %>%
+    dplyr::mutate(cohort_definition_id = .data$cohort_definition_id + 1) %>%
+    dplyr::compute(name = "target_cohort_table", temporary = FALSE, overwrite = TRUE)
+  
+  cdm$target_cohort_table <- cdm$target_cohort_table %>%
+    dplyr::union_all(
+      cdm$target_cohort_table %>%
+        dplyr::mutate(cohort_definition_id = 9)
+    ) %>%
+    dplyr::compute(name = "target_cohort_table", temporary = FALSE, overwrite = TRUE)
+  
+  cohorts <- cohortSet %>%
+    # Remove 'cohort' and 'json' columns
+    select(-"cohort", -"json") %>%
+    mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target")) %>%
+    rename(
+      cohortId = "cohort_definition_id",
+      cohortName = "cohort_name",
+    ) %>%
+    select("cohortId", "cohortName", "type") %>%
+    dplyr::add_row(
+      data.frame(
+        cohortId = 9,
+        cohortName = "viralsinusitis_2",
+        type = "target"
+      )
+    )
+  
+  outputEnv <- TreatmentPatterns::computePathways(
+    cohorts = cohorts,
+    cohortTableName = c("cohort_table", "target_cohort_table"),
+    cdm = cdm
+  )
+  
+  outCounts <- outputEnv$treatmentHistoryFinal %>%
+    dplyr::group_by(.data$targetCohortId) %>%
+    dplyr::summarise(n = dplyr::n()) %>%
+    dplyr::pull(.data$n)
+  
+  expect_identical(outCounts[1], outCounts[2])
+})
