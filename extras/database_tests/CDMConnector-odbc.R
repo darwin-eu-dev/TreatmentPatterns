@@ -30,7 +30,7 @@ test_that("Test Database", {
       cdm$person, dplyr::join_by(person_id == person_id)
     ) %>%
     dplyr::select(
-      cohort_definition_id,
+      "cohort_definition_id",
       subject_id = "person_id",
       cohort_start_date = "observation_period_start_date",
       cohort_end_date = "observation_period_start_date"
