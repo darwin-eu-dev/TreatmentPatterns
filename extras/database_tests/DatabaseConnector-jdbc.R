@@ -72,7 +72,7 @@ test_that("Test Database", {
     con = connection,
     cdmSchema = Sys.getenv("CDM_SCHEMA"),
     writeSchema = Sys.getenv("RESULT_SCHEMA"),
-    cdmVersion = "5.4"
+    cdmVersion = "5.3"
   )
 
   ## Prepare ----
