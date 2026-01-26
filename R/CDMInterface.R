@@ -59,7 +59,7 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
   cohortIds <- cohorts$cohortId
   
   for (tableName in cohortTableName) {
-    cdm$tbl <- cdm[[tableName]] %>%
+    cdm$tp_temp_tbl <- cdm[[tableName]] %>%
       dplyr::group_by(.data$subject_id) %>%
       dplyr::mutate(
         subject_id_origin = .data$subject_id
@@ -99,17 +99,19 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
         "age",
         "sex"
       ) %>%
-      dplyr::compute()
+      dplyr::compute(name = "tp_temp_tbl", overwrite = TRUE, temporary = FALSE)
 
     if (is.null(andromeda[[andromedaTableName]])) {
-      dplyr::copy_to(dest = andromeda, df = cdm$tbl, name = andromedaTableName, overwrite = TRUE)
+      dplyr::copy_to(dest = andromeda, df = cdm$tp_temp_tbl, name = andromedaTableName, overwrite = TRUE)
     } else {
-      dplyr::copy_to(dest = andromeda, df = cdm$tbl, name = "tbl_temp", overwrite = TRUE)
+      dplyr::copy_to(dest = andromeda, df = cdm$tp_temp_tbl, name = "tbl_temp", overwrite = TRUE)
       andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
         dplyr::union_all(andromeda$tbl_temp)
       andromeda$tbl_temp <- NULL
     }
   }
+
+  cdm <- CDMConnector::dropSourceTable(cdm = cdm, name = "tp_temp_tbl")
 
   andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
     dplyr::mutate(r = dplyr::row_number()) %>%
