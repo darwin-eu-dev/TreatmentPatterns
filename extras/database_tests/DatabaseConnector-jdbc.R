@@ -65,70 +65,43 @@ test_that("Test Database", {
     pathToDriver = jdbcDriverFolder
   )
 
+  connection <- DatabaseConnector::connect(CONNECTION_DETAILS)
+
+  # Make CDM Reference with JDBC ----
+  cdm <- CDMConnector::cdmFromCon(
+    con = connection,
+    cdmSchema = Sys.getenv("CDM_SCHEMA"),
+    writeSchema = Sys.getenv("RESULT_SCHEMA")
+  )
+
   ## Prepare ----
   cohortTableName <- "temp_tp_cohort_table_2"
-
-  connection <- DatabaseConnector::connect(CONNECTION_DETAILS)
-  DatabaseConnector::renderTranslateExecuteSql(
-    connection = connection,
-    sql = "
-    DROP TABLE IF EXISTS @resultSchema.@cohortTableName;
-
-    SELECT *
-    INTO @resultSchema.@cohortTableName
-    FROM (
-      SELECT TOP 10
-        1 AS cohort_definition_id,
-        person.person_id AS subject_id,
-        observation_period.observation_period_start_date AS cohort_start_date,
-        observation_period.observation_period_start_date AS cohort_end_date
-      FROM @cdmSchema.observation_period
-      INNER JOIN @cdmSchema.person
-        ON observation_period.person_id = person.person_id
-    ) a;",
-    cdmSchema = CDM_SCHEMA,
-    resultSchema = RESULT_SCHEMA,
-    cohortTableName = cohortTableName
-  )
-
-  DatabaseConnector::disconnect(connection)
-
+  
+  cdm[[cohortTableName]] <- cdm$observation_period %>%
+    dplyr::mutate(
+      cohort_definition_id = 1,
+    ) %>%
+    dplyr::inner_join(
+      cdm$person, dplyr::join_by(person_id == person_id)
+    ) %>%
+    dplyr::select(
+      cohort_definition_id,
+      subject_id = "person_id",
+      cohort_start_date = "observation_period_start_date",
+      cohort_end_date = "observation_period_start_date"
+    ) %>%
+    head(10) %>%
+    dplyr::compute(name = cohortTableName)
+  
   withr::defer({
-    connection <- DatabaseConnector::connect(CONNECTION_DETAILS)
-    DatabaseConnector::renderTranslateExecuteSql(
-      connection = connection,
-      sql = "
-      DROP TABLE IF EXISTS @resultSchema.@cohortTableName;
-      ",
-      resultSchema = RESULT_SCHEMA,
-      cohortTableName = cohortTableName
-    )
-    DatabaseConnector::disconnect(connection)
+    CDMConnector::dropSourceTable(cdm, cohortTableName)
   })
-
-  ## new() ----
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(
-    connectionDetails = CONNECTION_DETAILS,
-    cdmSchema = CDM_SCHEMA,
-    resultSchema = RESULT_SCHEMA,
-    tempEmulationSchema = RESULT_SCHEMA
-  )
-
-  ## disconnect() ----
-  # When defered
-  withr::defer({
-    cdmInterface$disconnect()
-  })
-
-  expect_true(R6::is.R6(
-    cdmInterface
-  ))
 
   ## fetchMetadata() ----
   andromeda <- Andromeda::andromeda()
 
-  andromeda <- cdmInterface$fetchMetadata(andromeda)
-  
+  andromeda <- TreatmentPatterns:::fetchMetadata(andromeda = andromeda)
+
   metadata <- andromeda$metadata %>%
     collect()
 
@@ -143,7 +116,7 @@ test_that("Test Database", {
   expect_identical(ncol(metadata), 4L)
 
   ## fetchCdmSource()
-  andromeda <- cdmInterface$fetchCdmSource(andromeda)
+  andromeda <- TreatmentPatterns:::fetchCdmSource(cdm = cdm, andromeda = andromeda)
   # Close when defered
   withr::defer({
     Andromeda::close(andromeda)
@@ -161,7 +134,8 @@ test_that("Test Database", {
     type = "target"
   )
 
-  andromeda <- cdmInterface$fetchCohortTable(
+  andromeda <- TreatmentPatterns:::fetchCohortTable(
+    cdm = cdm,
     cohorts = cohorts,
     cohortTableName = cohortTableName,
     andromeda = andromeda,
