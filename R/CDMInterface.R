@@ -27,8 +27,8 @@ fetchMetadata <- function(andromeda) {
 dbAppendAttrition <- function(n, andromeda, cohortIds) {
   appendAttrition(
     toAdd = data.frame(
-      number_records = sum(n),
-      number_subjects = length(n),
+      number_records = as.integer(sum(n)),
+      number_subjects = as.integer(length(n)),
       reason_id = 1,
       reason = sprintf("Qualifying records for cohort definitions: %s", paste(cohortIds, collapse = ", ")),
       time_stamp = as.numeric(Sys.time())
@@ -42,11 +42,11 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
     dplyr::filter(.data$type == "target") %>%
     dplyr::select("cohortId") %>%
     dplyr::pull()
-  
-  n <- sapply(cohortTableName, function(tableName) {
+
+  n <- lapply(cohortTableName, function(tableName) {
     cdm[[tableName]] %>%
       dplyr::group_by(.data$subject_id) %>% 
-      dplyr::summarise(n = dplyr::n()) %>%
+      dplyr::summarise(n = as.integer(dplyr::n())) %>%
       dplyr::pull()
   }) |> unlist()
   
@@ -59,20 +59,11 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
   cohortIds <- cohorts$cohortId
   
   for (tableName in cohortTableName) {
-    tbl <- cdm[[tableName]] %>%
+    cdm$tbl <- cdm[[tableName]] %>%
       dplyr::group_by(.data$subject_id) %>%
       dplyr::mutate(
-        subject_id_origin = .data$subject_id
+        subject_id_origin = as.character(.data$subject_id)
       ) %>%
-      dplyr::ungroup() %>%
-      dbplyr::window_order(.data$subject_id, .data$cohort_start_date) |> 
-      dplyr::mutate(r = dplyr::row_number()) %>%
-      dplyr::group_by(.data$subject_id_origin) %>%
-      dplyr::mutate(
-        subject_id = min(.data$r, na.rm = TRUE)
-      ) %>%
-      dplyr::select(-"r") %>%
-      dplyr::ungroup() %>%
       dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
       dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date", interval = "day") >= minEraDuration) %>%
       dplyr::group_by(.data$subject_id) %>%
@@ -89,15 +80,15 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
       dplyr::mutate(
         age = !!CDMConnector::datediff("date_of_birth", "cohort_start_date", interval = "year")) %>%
       dplyr::mutate(
-        subject_id_origin = as.character(subject_id_origin)
+        subject_id_origin = as.character(.data$subject_id_origin)
       ) %>%
       dplyr::rename(sex = "concept_name") %>%
       dplyr::mutate(
         temp_date = as.Date("1970-01-01")
       ) %>%
       dplyr::mutate(
-        cohort_start_date = !!CDMConnector::datediff(start = "temp_date", end = "cohort_start_date", interval = "day"),
-        cohort_end_date = !!CDMConnector::datediff(start = "temp_date", end = "cohort_end_date", interval = "day")
+        cohort_start_date = as.integer(!!CDMConnector::datediff(start = "temp_date", end = "cohort_start_date", interval = "day")),
+        cohort_end_date = as.integer(!!CDMConnector::datediff(start = "temp_date", end = "cohort_end_date", interval = "day"))
       ) %>%
       dplyr::select(
         "cohort_definition_id",
@@ -107,18 +98,27 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
         "cohort_end_date",
         "age",
         "sex"
-      )
-    
+      ) %>%
+      dplyr::compute()
+
     if (is.null(andromeda[[andromedaTableName]])) {
-      dplyr::copy_to(dest = andromeda, df = tbl, name = andromedaTableName, overwrite = TRUE)
+      dplyr::copy_to(dest = andromeda, df = cdm$tbl, name = andromedaTableName, overwrite = TRUE)
     } else {
-      dplyr::copy_to(dest = andromeda, df = tbl, name = "tbl_temp", overwrite = TRUE)
+      dplyr::copy_to(dest = andromeda, df = cdm$tbl, name = "tbl_temp", overwrite = TRUE)
       andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
         dplyr::union_all(andromeda$tbl_temp)
       andromeda$tbl_temp <- NULL
     }
   }
-  
+
+  andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+    dplyr::mutate(r = dplyr::row_number()) %>%
+    dplyr::group_by(.data$subject_id_origin) %>%
+    dplyr::mutate(
+      subject_id = as.integer(min(.data$r, na.rm = TRUE))
+    ) %>%
+    dplyr::select(-"r")
+
   targetId <- as.numeric(targetCohortIds)
   
   andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%

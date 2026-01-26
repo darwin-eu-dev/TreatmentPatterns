@@ -144,11 +144,11 @@ computePathways <- function(
       con = con,
       cdmSchema = cdmSchema,
       writeSchema = resultSchema,
-      cohortTables = cohortTableName
     )
-    withr::defer({
-      DatabaseConnector::disconnect(con)
-    })
+
+    cdm[[cohortTableName]] <- dplyr::tbl(src = con, cohortTableName)
+
+    on.exit(DatabaseConnector::disconnect(con))
   }
 
   validateComputePathways()
