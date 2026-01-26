@@ -62,7 +62,7 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
     cdm$tbl <- cdm[[tableName]] %>%
       dplyr::group_by(.data$subject_id) %>%
       dplyr::mutate(
-        subject_id_origin = as.character(.data$subject_id)
+        subject_id_origin = .data$subject_id
       ) %>%
       dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
       dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date", interval = "day") >= minEraDuration) %>%

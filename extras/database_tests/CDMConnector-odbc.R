@@ -15,7 +15,8 @@ test_that("Test Database", {
   cdm <- CDMConnector::cdmFromCon(
     con = con,
     cdmSchema = Sys.getenv("CDM_SCHEMA"),
-    writeSchema = Sys.getenv("RESULT_SCHEMA")
+    writeSchema = Sys.getenv("RESULT_SCHEMA"),
+    cdmVersion = "5.4"
   )
 
   ## Prepare ----
