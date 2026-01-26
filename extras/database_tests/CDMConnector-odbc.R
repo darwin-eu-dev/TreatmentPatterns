@@ -41,29 +41,10 @@ test_that("Test Database", {
     CDMConnector::dropSourceTable(cdm, cohortTableName)
   })
   
-  ## new() ----
-  cdmInterface <- TreatmentPatterns:::CDMInterface$new(
-    connectionDetails = NULL,
-    cdmSchema = NULL,
-    resultSchema = NULL,
-    tempEmulationSchema = NULL,
-    cdm = cdm
-  )
-
-  ## disconnect() ----
-  # When defered
-  withr::defer({
-    cdmInterface$disconnect()
-  })
-
-  expect_true(R6::is.R6(
-    cdmInterface
-  ))
-  
   ## fetchMetadata() ----
   andromeda <- Andromeda::andromeda()
   
-  andromeda <- cdmInterface$fetchMetadata(andromeda)
+  andromeda <- TreatmentPatterns:::fetchMetadata(andromeda = andromeda)
   
   metadata <- andromeda$metadata %>%
     collect()
@@ -79,7 +60,7 @@ test_that("Test Database", {
   expect_identical(ncol(metadata), 4L)
   
   ## fetchCdmSource()
-  andromeda <- cdmInterface$fetchCdmSource(andromeda)
+  andromeda <- TreatmentPatterns:::fetchCdmSource(cdm = cdm, andromeda = andromeda)
   # Close when defered
   withr::defer({
     Andromeda::close(andromeda)
@@ -97,7 +78,8 @@ test_that("Test Database", {
     type = "target"
   )
   
-  andromeda <- cdmInterface$fetchCohortTable(
+  andromeda <- TreatmentPatterns:::fetchCohortTable(
+    cdm = cdm,
     cohorts = cohorts,
     cohortTableName = cohortTableName,
     andromeda = andromeda,
