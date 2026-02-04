@@ -40,11 +40,6 @@ jobs:
           distribution: 'corretto'
           java-version: '8'
 
-      - name: Update Homebrew and Install qpdf
-        run: |
-          brew update
-          brew install qpdf
-
       - name: Ensure qpdf is correctly installed
         run: |
           brew install qpdf || true
