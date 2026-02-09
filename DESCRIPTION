@@ -26,7 +26,7 @@ Imports:
     tidyr,
     dbplyr,
     Andromeda,
-    CDMConnector
+    CDMConnector (>= 2.2.0)
 Suggests:
     knitr,
     rmarkdown,
@@ -34,7 +34,7 @@ Suggests:
     testthat (>= 3.0.0),
     usethis,
     Eunomia,
-    DatabaseConnector (>= 6.0.0),
+    DatabaseConnector (>= 7.0.0),
     SqlRender,
     CohortGenerator,
     ResultModelManager,

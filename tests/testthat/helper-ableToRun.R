@@ -1,19 +1,21 @@
+isOnline <- function(site="http://example.com/") {
+  tryCatch({
+    readLines(site,n=1)
+    TRUE
+  },
+  warning = function(w) invokeRestart("muffleWarning"),
+  error = function(e) FALSE)
+}
+
 ableToRun <- function() {
   list(
     CDMC = all(
       require("CirceR", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
       require("CDMConnector", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
       require("DBI", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
-      require("duckdb", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
+      require("duckdb", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
+      isOnline()
     ),
-
-    # CG = all(
-    #   require("CirceR", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
-    #   require("CohortGenerator", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
-    #   require("DatabaseConnector", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
-    #   require("SqlRender", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
-    #   require("Eunomia", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
-    # ),
 
     plotting = all(
       require("ggplot2", character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE),
