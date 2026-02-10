@@ -53,6 +53,6 @@ utils::globalVariables(
     "person_id",
     "concept_id",
     "year_of_birth",
-    "gender_concept_id "
+    "gender_concept_id"
   )
 )
