@@ -1,3 +1,17 @@
+# TreatmentPatterns 3.1.2
+---------
+- Fixes run-to-run stability of TreatmentPatterns.
+- Fixes issue for andromeda >= 1.0.0
+- Fixed issue where doubles casted to numeric were reported in scientific notation.
+- Fixed issue when parallelizing multiple computePathways(), caused by database-side conflicts.
+- Fixed issue where the same subject_id was assigned a different pseudo-subject_id when using multiple cohort tables.
+- Fixed issue when multiple target cohorts and multiple cohort tables were specified.
+- Added export of problematic records when combination check fails.
+- Deprecated SQL implementation for fetching cohort information.
+- Internal change to always use CDMConnector internally (either using ODBC or JDBC).
+- Require CDMConnector >= 2.0.0.
+- Gracefully exit when there is no internet connection when running internal helper functions for testing.
+
 # TreatmentPatterns 3.1.1
 ---------
 * Fixed issue when setting `filterTreatments = "Changes"` and made it ambiguous regardless of the Andromeda version.
