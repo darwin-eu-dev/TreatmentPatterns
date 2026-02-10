@@ -76,7 +76,7 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
         cdm$concept,
         by = dplyr::join_by(gender_concept_id == concept_id)) %>%
       dplyr::mutate(
-        date_of_birth = as.Date(paste0(as.character(year_of_birth), "-01-01"))) %>%
+        date_of_birth = as.Date(paste0(as.character(.data$year_of_birth), "-01-01"))) %>%
       dplyr::mutate(
         age = !!CDMConnector::datediff("date_of_birth", "cohort_start_date", interval = "year")) %>%
       dplyr::mutate(
