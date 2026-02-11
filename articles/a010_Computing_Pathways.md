@@ -111,7 +111,7 @@ con <- dbConnect(
     ## 
     ## Download completed!
 
-    ## Creating CDM database /tmp/RtmpiYWULy/file3a3d11ff70d9/GiBleed_5.3.zip
+    ## Creating CDM database /tmp/RtmpVBpsdC/file3a099f2ab5d/GiBleed_5.3.zip
 
 ``` r
 cdm <- cdmFromCon(
@@ -130,28 +130,28 @@ cdm <- generateCohortSet(
 
     ## ℹ Generating 8 cohorts
     ## ℹ Generating cohort (1/8) - acetaminophen
-    ## ✔ Generating cohort (1/8) - acetaminophen [296ms]
+    ## ✔ Generating cohort (1/8) - acetaminophen [366ms]
     ## 
     ## ℹ Generating cohort (2/8) - amoxicillin
-    ## ✔ Generating cohort (2/8) - amoxicillin [175ms]
+    ## ✔ Generating cohort (2/8) - amoxicillin [169ms]
     ## 
     ## ℹ Generating cohort (3/8) - aspirin
-    ## ✔ Generating cohort (3/8) - aspirin [163ms]
+    ## ✔ Generating cohort (3/8) - aspirin [161ms]
     ## 
     ## ℹ Generating cohort (4/8) - clavulanate
-    ## ✔ Generating cohort (4/8) - clavulanate [166ms]
+    ## ✔ Generating cohort (4/8) - clavulanate [154ms]
     ## 
     ## ℹ Generating cohort (5/8) - death
-    ## ✔ Generating cohort (5/8) - death [126ms]
+    ## ✔ Generating cohort (5/8) - death [122ms]
     ## 
     ## ℹ Generating cohort (6/8) - doxylamine
-    ## ✔ Generating cohort (6/8) - doxylamine [160ms]
+    ## ✔ Generating cohort (6/8) - doxylamine [148ms]
     ## 
     ## ℹ Generating cohort (7/8) - penicillinv
     ## ✔ Generating cohort (7/8) - penicillinv [151ms]
     ## 
     ## ℹ Generating cohort (8/8) - viralsinusitis
-    ## ✔ Generating cohort (8/8) - viralsinusitis [240ms]
+    ## ✔ Generating cohort (8/8) - viralsinusitis [239ms]
 
 Once we have our cohort generated, and our CDM-reference is setup, we
 can simply pass the CDM-reference to

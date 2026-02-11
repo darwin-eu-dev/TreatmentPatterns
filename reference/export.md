@@ -151,31 +151,31 @@ if (ableToRun) {
 }
 #> 
 #> Download completed!
-#> Creating CDM database /tmp/Rtmpczt2kT/file29be1c694d1b/GiBleed_5.3.zip
+#> Creating CDM database /tmp/RtmphA5SU8/file2970692b5842/GiBleed_5.3.zip
 #> ℹ Generating 8 cohorts
 #> ℹ Generating cohort (1/8) - acetaminophen
-#> ✔ Generating cohort (1/8) - acetaminophen [171ms]
+#> ✔ Generating cohort (1/8) - acetaminophen [169ms]
 #> 
 #> ℹ Generating cohort (2/8) - amoxicillin
-#> ✔ Generating cohort (2/8) - amoxicillin [157ms]
+#> ✔ Generating cohort (2/8) - amoxicillin [153ms]
 #> 
 #> ℹ Generating cohort (3/8) - aspirin
-#> ✔ Generating cohort (3/8) - aspirin [170ms]
+#> ✔ Generating cohort (3/8) - aspirin [173ms]
 #> 
 #> ℹ Generating cohort (4/8) - clavulanate
-#> ✔ Generating cohort (4/8) - clavulanate [158ms]
+#> ✔ Generating cohort (4/8) - clavulanate [162ms]
 #> 
 #> ℹ Generating cohort (5/8) - death
-#> ✔ Generating cohort (5/8) - death [120ms]
+#> ✔ Generating cohort (5/8) - death [128ms]
 #> 
 #> ℹ Generating cohort (6/8) - doxylamine
-#> ✔ Generating cohort (6/8) - doxylamine [153ms]
+#> ✔ Generating cohort (6/8) - doxylamine [147ms]
 #> 
 #> ℹ Generating cohort (7/8) - penicillinv
-#> ✔ Generating cohort (7/8) - penicillinv [156ms]
+#> ✔ Generating cohort (7/8) - penicillinv [158ms]
 #> 
 #> ℹ Generating cohort (8/8) - viralsinusitis
-#> ✔ Generating cohort (8/8) - viralsinusitis [229ms]
+#> ✔ Generating cohort (8/8) - viralsinusitis [232ms]
 #> 
 #> -- Qualifying records for cohort definitions: 1, 2, 3, 4, 5, 6, 7, 8
 #>  Records: 14041
@@ -213,7 +213,7 @@ if (ableToRun) {
 #>  Subjects: 512
 #> Warning: There was 1 warning in `dplyr::reframe()`.
 #> ℹ In argument: `dplyr::across("eventCohortName", paste, collapse = "-")`.
-#> ℹ In group 1: `n_target = 1`, `personId = 10`.
+#> ℹ In group 1: `n_target = 1`, `personId = 4`.
 #> Caused by warning:
 #> ! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
 #> Supply arguments directly to `.fns` through an anonymous function instead.

@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/darwin-eu/TreatmentPatterns/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/darwin-eu/TreatmentPatterns/blob/v3.1.2/inst/CITATION)
 
 Markus A, Verhamme K, Kors J, Rijnbeek P (2022). “TreatmentPatterns: An
 R package to facilitate the standardized development and analysis of
