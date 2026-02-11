@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">TreatmentPatterns</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,8 @@
     <li><a class="dropdown-item" href="../articles/a010_Computing_Pathways.html">Computing Pathways</a></li>
     <li><a class="dropdown-item" href="../articles/a020_Exporting.html">Exporing Results</a></li>
     <li><a class="dropdown-item" href="../articles/a030_Evaluating_Output.html">Evaluating Output</a></li>
-    <li><a class="dropdown-item" href="../articles/a999_Strategus.html">Strategus Execution</a></li>
+    <li><a class="dropdown-item" href="../articles/a998_Strategus.html">Strategus Execution</a></li>
+    <li><a class="dropdown-item" href="../articles/a999_Publications-Presentations.html">Publications and Presentations</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -57,7 +58,7 @@
 
 
 
-<link href="a030_Evaluating_Output_files/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<link href="a030_Evaluating_Output_files/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
 <script src="a030_Evaluating_Output_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="a030_Evaluating_Output_files/sequences-0.1/sequences.css" rel="stylesheet">
 <script src="a030_Evaluating_Output_files/sunburst-binding-2.1.8/sunburst.js"></script><script src="a030_Evaluating_Output_files/d3-4.9.1/d3.min.js"></script><script src="a030_Evaluating_Output_files/sankey-1/sankey.js"></script><script src="a030_Evaluating_Output_files/sankeyNetwork-binding-0.4.1/sankeyNetwork.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
@@ -65,7 +66,7 @@
       <h1>Evaluating Output</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/v3.1.1/vignettes/a030_Evaluating_Output.Rmd" class="external-link"><code>vignettes/a030_Evaluating_Output.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/darwin-eu/TreatmentPatterns/blob/main/vignettes/a030_Evaluating_Output.Rmd" class="external-link"><code>vignettes/a030_Evaluating_Output.Rmd</code></a></small>
       <div class="d-none name"><code>a030_Evaluating_Output.Rmd</code></div>
     </div>
 
@@ -104,7 +105,7 @@ target cohorts like chronic conditions.</p>
 <pre><code><span><span class="co">## Downloading GiBleed</span></span></code></pre>
 <pre><code><span><span class="co">## </span></span>
 <span><span class="co">## Download completed!</span></span></code></pre>
-<pre><code><span><span class="co">## Creating CDM database /tmp/RtmpgWbshD/file300c9baeee4/GiBleed_5.3.zip</span></span></code></pre>
+<pre><code><span><span class="co">## Creating CDM database /tmp/Rtmph7y7Da/file3f516e61561a/GiBleed_5.3.zip</span></span></code></pre>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cdm</span> <span class="op">&lt;-</span> <span class="fu">CDMConnector</span><span class="fu">::</span><span class="fu"><a href="https://darwin-eu.github.io/CDMConnector/reference/cdmFromCon.html" class="external-link">cdmFromCon</a></span><span class="op">(</span></span>
 <span>  con <span class="op">=</span> <span class="va">con</span>,</span>
@@ -120,28 +121,28 @@ target cohorts like chronic conditions.</p>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating 8 cohorts</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (1/8) - acetaminophen</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (1/8) - acetaminophen <span style="color: #B2B2B2;">[365ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (1/8) - acetaminophen <span style="color: #B2B2B2;">[323ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (2/8) - amoxicillin</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (2/8) - amoxicillin <span style="color: #B2B2B2;">[188ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (3/8) - aspirin</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (3/8) - aspirin <span style="color: #B2B2B2;">[173ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (3/8) - aspirin <span style="color: #B2B2B2;">[176ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (4/8) - clavulanate</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (4/8) - clavulanate <span style="color: #B2B2B2;">[164ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (4/8) - clavulanate <span style="color: #B2B2B2;">[172ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (5/8) - death</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (5/8) - death <span style="color: #B2B2B2;">[134ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (5/8) - death <span style="color: #B2B2B2;">[133ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (6/8) - doxylamine</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (6/8) - doxylamine <span style="color: #B2B2B2;">[151ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (6/8) - doxylamine <span style="color: #B2B2B2;">[153ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (7/8) - penicillinv</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (7/8) - penicillinv <span style="color: #B2B2B2;">[153ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (7/8) - penicillinv <span style="color: #B2B2B2;">[147ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Generating cohort (8/8) - viralsinusitis</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (8/8) - viralsinusitis <span style="color: #B2B2B2;">[231ms]</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Generating cohort (8/8) - viralsinusitis <span style="color: #B2B2B2;">[244ms]</span></span></span></code></pre>
 <pre><code><span><span class="co">## </span></span></code></pre>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cohorts</span> <span class="op">&lt;-</span> <span class="va">cohortSet</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -180,7 +181,7 @@ target cohorts like chronic conditions.</p>
 <pre><code><span><span class="co">## -- splitEventCohorts</span></span>
 <span><span class="co">##  Records: 8327</span></span>
 <span><span class="co">##  Subjects: 2142</span></span></code></pre>
-<pre><code><span><span class="co">## -- Collapsing eras, eraCollapse (30)</span></span>
+<pre><code><span><span class="co">## -- No eras needed Collapsing, eraCollapse (30)</span></span>
 <span><span class="co">##  Records: 8327</span></span>
 <span><span class="co">##  Subjects: 2142</span></span></code></pre>
 <pre><code><span><span class="co">## -- Iteration 1: minPostCombinationDuration (7), combinatinoWindow (7)</span></span>
@@ -211,7 +212,7 @@ target cohorts like chronic conditions.</p>
 <span>  nonePaths <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  outputPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Wrote csv-files to: /tmp/RtmpgWbshD</span></span></code></pre>
+<pre><code><span><span class="co">## Wrote csv-files to: /tmp/Rtmph7y7Da</span></span></code></pre>
 <div class="section level2">
 <h2 id="saving-results">Saving results<a class="anchor" aria-label="anchor" href="#saving-results"></a>
 </h2>
@@ -227,10 +228,10 @@ fact you can still do this. Or upload it to a database:</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Save to csv-, zip-file</span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="fu">saveAsCsv</span><span class="op">(</span>path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Wrote csv-files to: /tmp/RtmpgWbshD</span></span></code></pre>
+<pre><code><span><span class="co">## Wrote csv-files to: /tmp/Rtmph7y7Da</span></span></code></pre>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="fu">saveAsZip</span><span class="op">(</span>path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"tp-results.zip"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Wrote zip-file to: /tmp/RtmpgWbshD</span></span></code></pre>
+<pre><code><span><span class="co">## Wrote zip-file to: /tmp/Rtmph7y7Da</span></span></code></pre>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Upload to database</span></span>
 <span><span class="va">connectionDetails</span> <span class="op">&lt;-</span> <span class="fu">DatabaseConnector</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/DatabaseConnector/reference/createConnectionDetails.html" class="external-link">createConnectionDetails</a></span><span class="op">(</span></span>
@@ -254,39 +255,39 @@ fact you can still do this. Or upload it to a database:</p>
 <span><span class="co">## Uploading file: attrition.csv to table: attrition</span></span></code></pre>
 <pre><code><span><span class="co">## Warning: The following named parsers don't match the column names: time</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 12</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.0228 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.0212 secs</span></span>
 <span><span class="co">## Uploading file: counts_age.csv to table: counts_age</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 63</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.0341 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.031 secs</span></span>
 <span><span class="co">## Uploading file: counts_sex.csv to table: counts_sex</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 2</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00889 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00806 secs</span></span>
 <span><span class="co">## Uploading file: counts_year.csv to table: counts_year</span></span></code></pre>
 <pre><code><span><span class="co">## Warning: The following named parsers don't match the column names: year</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 52</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00841 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00817 secs</span></span>
 <span><span class="co">## Uploading file: metadata.csv to table: metadata</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 1</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00856 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00806 secs</span></span>
 <span><span class="co">## Uploading file: summary_event_duration.csv to table: summary_event_duration</span></span></code></pre>
 <pre><code><span><span class="co">## Warning: The following named parsers don't match the column names: min, q1,</span></span>
 <span><span class="co">## median, q2, max, average, sd, count</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 88</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.0102 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00961 secs</span></span>
 <span><span class="co">## Uploading file: treatment_pathways.csv to table: treatment_pathways</span></span></code></pre>
 <pre><code><span><span class="co">## Warning: The following named parsers don't match the column names: path</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 372</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00949 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00881 secs</span></span>
 <span><span class="co">## Uploading file: cdm_source_info.csv to table: cdm_source_info</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 1</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00959 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00911 secs</span></span>
 <span><span class="co">## Uploading file: analyses.csv to table: analyses</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 1</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00776 secs</span></span>
+<pre><code><span><span class="co">## Inserting data took 0.00751 secs</span></span>
 <span><span class="co">## Uploading file: arguments.csv to table: arguments</span></span></code></pre>
 <pre><code><span><span class="co">## - Preparing to upload rows 1 through 1</span></span></code></pre>
-<pre><code><span><span class="co">## Inserting data took 0.00775 secs</span></span></code></pre>
-<pre><code><span><span class="co">## Uploading data took 5.92 secs</span></span></code></pre>
+<pre><code><span><span class="co">## Inserting data took 0.00763 secs</span></span></code></pre>
+<pre><code><span><span class="co">## Uploading data took 8.32 secs</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="evaluating-results">Evaluating Results<a class="anchor" aria-label="anchor" href="#evaluating-results"></a>
@@ -366,7 +367,7 @@ Sunburst or Sankey diagrams. The summary statistics allow for plotting
 of boxplots with the <code><a href="../reference/plotEventDuration.html">plotEventDuration()</a></code> function.</p>
 <div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="fu">plotEventDuration</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="a030_Evaluating_Output_files/figure-html/summaryStatsTherapyDuration-1.png" width="700"></p>
+<p><img src="a030_Evaluating_Output_files/figure-html/summaryStatsTherapyDuration-1.png" class="r-plt" alt="" width="700"></p>
 <p>Not that besides our events there are two extra rows:
 <em>mono-event</em>, and <em>combination-event</em>. These are both
 types of events on average.</p>
@@ -380,7 +381,7 @@ events:</p>
 <div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="fu">plotEventDuration</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
-<p><img src="a030_Evaluating_Output_files/figure-html/unnamed-chunk-1-1.png" width="700">
+<p><img src="a030_Evaluating_Output_files/figure-html/unnamed-chunk-1-1.png" class="r-plt" alt="" width="700">
 Now we can more clearly investigate particular treatments. We can see
 that <em>penicilin v</em> tends to last quite short across all treatment
 lines, while <em>aspirin</em> and <em>acetaminophen</em> seem to skew to
@@ -390,7 +391,7 @@ individual events.</p>
 <div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span><span class="op">$</span><span class="fu">plotEventDuration</span><span class="op">(</span>minCellCount <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
-<p><img src="a030_Evaluating_Output_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+<p><img src="a030_Evaluating_Output_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="metadata">metadata<a class="anchor" aria-label="anchor" href="#metadata"></a>
@@ -403,7 +404,7 @@ and the CDM.</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
 <span><span class="co">##   execution_start package_version r_version   platform execution_end analysis_id</span></span>
 <span><span class="co">##             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span>     <span style="text-decoration: underline;">1</span>756<span style="text-decoration: underline;">115</span>402. 3.1.1           R version … x86_64-…   <span style="text-decoration: underline;">1</span>756<span style="text-decoration: underline;">115</span>416.           1</span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span>     <span style="text-decoration: underline;">1</span>770<span style="text-decoration: underline;">798</span>613. 3.1.2           R version … x86_64-…   <span style="text-decoration: underline;">1</span>770<span style="text-decoration: underline;">798</span>640.           1</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="sunburst-plot-sankey-diagram">Sunburst Plot &amp; Sankey Diagram<a class="anchor" aria-label="anchor" href="#sunburst-plot-sankey-diagram"></a>
@@ -449,7 +450,7 @@ addition so that single layer Sankey diagrams can still be plotted.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

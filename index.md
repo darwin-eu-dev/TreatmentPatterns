@@ -1,0 +1,69 @@
+# TreatmentPatterns
+
+## Supported Databases
+
+| Database   | DatabaseConnector (JDBC)                                                                                               | CDMConnector (ODBC)                                                                                                     |
+|------------|------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| PostgreSQL | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-postgresql.yaml/badge.svg) | ![PostgreSQL](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-postgresql.yaml/badge.svg) |
+| SQL Server | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-sqlserver.yaml/badge.svg)  | ![SQL Server](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-sqlserver.yaml/badge.svg)  |
+| Snowflake  | ![Snowflake](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-snowflake.yaml/badge.svg)   | ![Snowflake](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-snowflake.yaml/badge.svg)   |
+| Oracle     | ![Oracle](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-oracle.yaml/badge.svg)         |                                                                                                                         |
+| Redshift   | ![Redshift](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-redshift.yaml/badge.svg)     | ![Redshift](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-redshift.yaml/badge.svg)     |
+| Spark      | ![Spark](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-spark.yaml/badge.svg)           | ![Spark](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/odbc-cdmc-spark.yaml/badge.svg)           |
+| Iris       | ![Iris](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-iris.yaml/badge.svg)\*           |                                                                                                                         |
+| BigQuery   | ![BigQuery](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/jdbc-dbc-bigquery.yaml/badge.svg)     |                                                                                                                         |
+
+*\*Faulty Test Environment*
+
+[*Markus A, Verhamme K, Kors J, Rijnbeek P (2022). “TreatmentPatterns:
+An R package to facilitate the standardized development and analysis of
+treatment patterns across disease domains.” Computer Methods and
+Programs in Biomedicine.*](https://doi.org/10.1016/j.cmpb.2022.107081)
+
+This R package contains the resources for performing a treatment pathway
+analysis of a study population of interest in observational databases.
+The package partially relies on the Observational Medical Outcomes
+Partnership Common Data Model (OMOP CDM), but the main parts of the
+package are also usable with different data formats.
+
+## Features
+
+- Compatible with JSON, SQL, or [`CapR`](https://ohdsi.github.io/Capr/)
+  cohorts.
+- Compatible with
+  [`DatabaseConnector`](https://ohdsi.github.io/DatabaseConnector/),
+  [`CohortGenerator`](https://ohdsi.github.io/CohortGenerator/), and
+  [`CDMConnector`](https://darwin-eu.github.io/CDMConnector/).
+- Stratification by **age**, **sex**, and **index year**.
+- Treatment type agnostic.
+- Full control over treatment pathway definition:
+  1.  Duration of treatments
+  2.  Overlap of treatments
+  3.  Gaps between treatments
+- Intermediate patient level results can be reviewed, aggregate data can
+  be shared.
+- Easily integrate Sankey diagrams and sunburst plots (`htmlWidget`)
+  into ShinyApps or web-pages.
+
+## Installation
+
+You can install the most recently released CRAN version of
+TreatmentPatterns with:
+
+``` r
+install.packages("TreatmentPatterns")
+```
+
+Or from GitHub with:
+
+``` r
+remotes::install_github("darwin-eu-dev/TreatmentPatterns")
+```
+
+You can install the development version of TreatmentPatterns from
+[GitHub](https://github.com/) with:
+
+``` r
+install.packages("remotes")
+remotes::install_github("darwin-eu-dev/TreatmentPatterns@dev")
+```

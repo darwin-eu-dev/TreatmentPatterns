@@ -1,0 +1,162 @@
+# Defining Cohorts
+
+## ATLAS
+
+The most popular way is to create cohorts is to use
+[ATLAS](https://atlas-demo.ohdsi.org/).
+
+> ATLAS is an open source software tool for researchers to conduct
+> scientific analyses on standardized observational data converted to
+> the OMOP Common Data Model V5.
+
+[*GitHub.com/OHDSI/Atlas*](https://github.com/OHDSI/Atlas)
+
+A cohort definition for Viral Sinusitis may look like this:
+
+> ### Cohort information
+>
+> #### Viral Sinusitis Cohort parameters
+>
+> The following text is an export of ATLAS Version 2.12.2. The bold
+> parts of the text are parameters set in the cohort definition.
+>
+> ##### Cohort Entry Events
+>
+> People with continuous observation of **365** days before and
+> **1,095** days after event may enter the cohort when observing any of
+> the following:
+>
+> drug eras of **‘Viral Sinusistis drugs’**. Limit cohort entry events
+> to the **earliest event** per person.
+>
+> #### Inclusion Criteria
+>
+> **1. Viral Sinusitis diagnosis** Entry events having at least 1
+> condition occurrence of ‘\[MVK\] Viral Sinusitis diagnosis’, allow
+> events outside \>observation period.
+>
+> **2. Index year** Entry events with the following event criteria:
+> starting after December 31, 1949.
+>
+> ##### Cohort Exit
+>
+> The person exits the cohort at the end of **continuous observation**.
+>
+> ##### Cohort Eras
+>
+> Entry events will be combined into cohort eras if they are within
+> **0** days of each other.
+
+ATLAS allows you to export cohort definitions to `SQL`, `JSON`, or plain
+text (like above).
+
+Cohorts specified in SQL may be run on your database directly with
+[DatabaseConnector](https://ohdsi.github.io/DatabaseConnector/) and
+[SqlRender](https://ohdsi.github.io/SqlRender/) to generate the cohort
+table.
+
+Cohorts specified as JSON may be generated using
+[CohortGenerator](https://ohdsi.github.io/CohortGenerator/) or
+[CDMConnector](https://darwin-eu.github.io/CDMConnector/) to generate
+the cohort table.
+
+## CapR
+
+[CapR](https://ohdsi.github.io/Capr/) is a package that allows one to
+programatically generate cohorts. This is especially useful if lots of
+cohorts need to be created.
+
+> The goal of Capr, pronounced ‘kay-pr’ like the edible flower, is to
+> provide a language for expressing OHDSI Cohort definitions in R code.
+> OHDSI defines a cohort as “a set of persons who satisfy one or more
+> inclusion criteria for a duration of time” and provides a standardized
+> approach for defining them (Circe-be). Capr exposes the standardized
+> approach to cohort building through a programmatic interface in R
+> which is particularly helpful when creating a large number of similar
+> cohorts. Capr version 2 introduces a new user interface designed for
+> readability with the goal that Capr code being a human readable
+> description of a cohort while also being executable on an OMOP Common
+> Data Model.
+
+Specifying a cohort for Viral Sinusitis with CapR may look like this:
+
+``` r
+library(Capr)
+
+viralSinusitis <- cs(
+  descendants(40481087),
+  name = "viralSinusitis",
+  id = "Viral Sinusitis"
+)
+
+viralSinusitisCohort <- cohort(
+  entry = entry(
+    conditionOccurrence(viralSinusitis),
+    primaryCriteriaLimit = "First"
+  ),
+  exit = exit(
+    endStrategy = observationExit()
+  )
+)
+
+cohortSet <- list(ViralSinusitis = viralSinusitisCohort)
+```
+
+The cohortSet may then be generated using
+[CohortGenerator](https://ohdsi.github.io/CohortGenerator/) or
+[CDMConnector](https://darwin-eu.github.io/CDMConnector/).
+
+## Cohorts for `TreatmentPatterns`
+
+`TreatmentPatterns` includes the following dummy cohorts that were
+defined in ATLAS, and are usable with the
+[Eunomia](https://ohdsi.github.io/Eunomia/) package: *Viral Sinusitis*,
+*Acetaminophen*, *Amoxicillin*, *Aspirin*, *Clavunate*, *Doxylamine*,
+*Penicilin V*, and *Death*.
+
+These cohorts are of a specific *type*, meaning they serve a different
+purpose within `TreatmentPatterns`. The types are: **target**
+(required), **event** (at least one), **exit** (optional). **Target**
+cohorts is a cohort of subjects that you are interested in. **Event**
+cohorts are different treatments that may be to subjects within your
+**target** cohort. **Exit** cohorts are similar to **event** cohorts,
+but allow you to specify an exiting event, like death.
+
+In the table below you can see which cohort is of what type.
+
+| Cohorts         | Type   |
+|:----------------|:-------|
+| Viral Sinusitis | target |
+| Acetaminophen   | event  |
+| Amoxicillin     | event  |
+| Aspirin         | event  |
+| Clavunate       | event  |
+| Doxylamine      | event  |
+| Penicilin V     | event  |
+| Death           | exit   |
+
+Given these cohorts and their types we are looking within a **target**
+cohort of subjects diagnosed with *Viral Sinusitis*. We are interested
+in generating treatment pathways with the following **event** cohorts:
+*Acetaminophen*, *Amoxicillin*, *Aspirin*, *Clavunate*, *Doxylamine*,
+*Penicilin V*. If subjects **exit** the database by dying, within the
+bounds of the target cohort, tag on *Death*.
+
+After installing `TreatmentPatterns` these cohorts are accessible
+through the following code.
+
+``` r
+list.files(
+  system.file(package = "TreatmentPatterns", "exampleCohorts"),
+  full.names = TRUE
+)
+```
+
+    ## [1] "/home/runner/work/_temp/Library/TreatmentPatterns/exampleCohorts/Acetaminophen.json" 
+    ## [2] "/home/runner/work/_temp/Library/TreatmentPatterns/exampleCohorts/Amoxicillin.json"   
+    ## [3] "/home/runner/work/_temp/Library/TreatmentPatterns/exampleCohorts/Aspirin.json"       
+    ## [4] "/home/runner/work/_temp/Library/TreatmentPatterns/exampleCohorts/Clavulanate.json"   
+    ## [5] "/home/runner/work/_temp/Library/TreatmentPatterns/exampleCohorts/Death.json"         
+    ## [6] "/home/runner/work/_temp/Library/TreatmentPatterns/exampleCohorts/Doxylamine.json"    
+    ## [7] "/home/runner/work/_temp/Library/TreatmentPatterns/exampleCohorts/PenicillinV.json"   
+    ## [8] "/home/runner/work/_temp/Library/TreatmentPatterns/exampleCohorts/ViralSinusitis.json"
