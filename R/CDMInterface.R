@@ -111,7 +111,9 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
     }
   }
 
-  cdm <- CDMConnector::dropSourceTable(cdm = cdm, name = "tp_temp_tbl")
+  if ("tp_temp_tbl" %in% CDMConnector::listSourceTables(cdm)) {
+    cdm <- CDMConnector::dropSourceTable(cdm = cdm, name = "tp_temp_tbl")
+  }
 
   andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
     dplyr::mutate(r = dplyr::row_number()) %>%
