@@ -6,7 +6,7 @@ mergeIndividualPathways <- function(treatmentPathways, strataX, strataY) {
   
   naReplaceList <- as.list(rep("", maxLayer))
   names(naReplaceList) <- layerColumns
-  
+
   dat <- treatmentPathways |>
     dplyr::group_by(!!!rlang::parse_exprs(c(strataX, strataY))) |>
     dplyr::mutate(
@@ -20,12 +20,22 @@ mergeIndividualPathways <- function(treatmentPathways, strataX, strataY) {
       names = layerColumns,
       too_few = "align_start"
     ) |>
-    tidyr::replace_na(naReplaceList) |>
-    dplyr::group_by(.data$layer_1) |>
-    dplyr::mutate(l1_freq = sum(.data$freq)) |>
-    dplyr::ungroup() |>
+    tidyr::replace_na(naReplaceList)
+
+  for (i in seq_len(length(layerColumns))) {
+    dat <- dat |>
+      dplyr::group_by(!!!rlang::parse_exprs(c(strataX, strataY)), !!!rlang::parse_exprs(layerColumns[1:i])) |>
+      dplyr::mutate(!!rlang::sym(sprintf("l%s_freq", i)) := sum(.data$freq)) |>
+      dplyr::ungroup()
+  }
+
+  to0 <- as.list(rep(0, maxLayer))
+  names(to0) <- sprintf("l%s_freq", 1:maxLayer)
+
+  dat <- dat |>
+    tidyr::replace_na(to0) |>
     dplyr::group_by(!!!rlang::parse_exprs(c(strataX, strataY))) |>
-    dplyr::arrange(.data$l1_freq, !!!rlang::parse_exprs(layerColumns)) |>
+    dplyr::arrange(!!!rlang::parse_exprs(names(to0)), !!!rlang::parse_exprs(layerColumns)) |>
     dplyr::mutate(
       frac = .data$freq / .data$total * 100,
       xmax = cumsum(.data$frac),
@@ -36,8 +46,8 @@ mergeIndividualPathways <- function(treatmentPathways, strataX, strataY) {
     dplyr::group_by(!!!rlang::parse_exprs(c(strataX, strataY)), .data$path_id) |>
     dplyr::mutate(layer = dplyr::row_number()) |>
     dplyr::ungroup()
-  
-  lapply(1:maxLayer, function(i) {
+
+  dat <- lapply(1:maxLayer, function(i) {
     layerDat <- dat |>
       dplyr::filter(.data$layer == i) |>
       dplyr::group_by(!!!rlang::parse_exprs(c(strataX, strataY)), !!!rlang::parse_exprs(layerColumns[1:i])) |>
@@ -144,6 +154,19 @@ ggPlotSunburst2 <- function(treatmentPathways, minFreq = 0, strataX = "", strata
 # 
 # df <- tpr$treatment_pathways |>
 #   dplyr::mutate(database = "foo") |>
+#   dplyr::bind_rows(
+#     data.frame(
+#       pathway = "",
+#       freq = 1000,
+#       age = "all",
+#       sex = "all",
+#       index_year = "all",
+#       analysis_id = 1,
+#       target_cohort_id = 8,
+#       target_cohort_name = "viralsinusitis",
+#       database = "foo"
+#     )
+#   ) |>
 #   dplyr::bind_rows(
 #     tpr$treatment_pathways |>
 #       dplyr::mutate(database = "bar")
