@@ -125,7 +125,57 @@ plotSunburst <- function(treatmentPathways, strataX, strataY) {
     )
 }
 
-ggPlotSunburst2 <- function(treatmentPathways, minFreq = 0, strataX = "", strataY = "", style = "default") {
+#' ggPlotSunburst
+#'
+#' @param treatmentPathways 
+#' @param minFreq 
+#' @param strataX 
+#' @param strataY 
+#' @param style 
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+#' tpr <- TreatmentPatterns::TreatmentPatternsResults$new(
+#' filePath = system.file(
+#'   "DummyOutput", "output.zip",
+#'   package = "TreatmentPatterns"
+#' )
+#' )
+#' 
+#' df <- tpr$treatment_pathways |>
+#'   dplyr::mutate(database = "foo") |>
+#'   dplyr::bind_rows(
+#'     tpr$treatment_pathways |>
+#'       dplyr::mutate(database = "bar")
+#'   )
+#' 
+#' ggPlotSunburst2(treatmentPathways = df, minFreq = 20, style = "darwin")
+ggPlotSunburst <- function(treatmentPathways, minFreq = 0, strataX = "", strataY = "", style = "default") {
+  colNames <- names(treatmentPathways)
+
+  extraCols <- colNames[!colNames %in% c("pathway", "freq")]
+
+  colGroups <- treatmentPathways |>
+    dplyr::group_by(!!!rlang::parse_exprs(extraCols)) |>
+    dplyr::reframe()
+
+  cols <- sapply(extraCols, function(col) {
+    groups <- unique(colGroups[[col]])
+    if (length(groups) > 1) {
+      sprintf("%s: %s", col, paste(sprintf("`%s`", groups), collapse = ", "))
+    }
+  })
+
+  cols <- cols[!sapply(cols, is.null)] |>
+    unlist() |>
+    as.character()
+
+  if (length(cols) > 0) {
+    warning(sprintf("Found columns with multiple groups: %s. You can pass the columns as strata in: `strataX` and/or `strataY` ", cols))
+  }
+
   gg <- treatmentPathways |>
     dplyr::filter(.data$freq >= minFreq) |>
     plotSunburst(strataX, strataY)
@@ -144,32 +194,3 @@ ggPlotSunburst2 <- function(treatmentPathways, minFreq = 0, strataX = "", strata
 
   return(gg)
 }
-
-# tpr <- TreatmentPatterns::TreatmentPatternsResults$new(
-#   filePath = system.file(
-#     "DummyOutput", "output.zip",
-#     package = "TreatmentPatterns"
-#   )
-# )
-# 
-# df <- tpr$treatment_pathways |>
-#   dplyr::mutate(database = "foo") |>
-#   dplyr::bind_rows(
-#     data.frame(
-#       pathway = "",
-#       freq = 1000,
-#       age = "all",
-#       sex = "all",
-#       index_year = "all",
-#       analysis_id = 1,
-#       target_cohort_id = 8,
-#       target_cohort_name = "viralsinusitis",
-#       database = "foo"
-#     )
-#   ) |>
-#   dplyr::bind_rows(
-#     tpr$treatment_pathways |>
-#       dplyr::mutate(database = "bar")
-#   )
-# 
-# ggPlotSunburst2(treatmentPathways = df, minFreq = 20, strataX = "database", style = "darwin")
