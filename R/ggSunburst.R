@@ -164,8 +164,8 @@ ggSunburst <- function(treatmentPathways, minFreq = 0, strataX = "", strataY = "
   checkmate::assertDataFrame(x = treatmentPathways, min.cols = 2, add = collection)
   checkmate::assertNames(x = names(treatmentPathways), must.include = c("pathway", "freq"), .var.name = "treatmentPathways", add = collection)
   checkmate::assertIntegerish(x = minFreq, lower = 0, len = 1, add = collection)
-  checkmate::assertCharacter(x = strataX, len = 1, add = collection)
-  checkmate::assertCharacter(x = strataY, len = 1, add = collection)
+  checkmate::assertCharacter(x = strataX, add = collection)
+  checkmate::assertCharacter(x = strataY, add = collection)
   checkmate::assertCharacter(x = style, len = 1, add = collection)
   checkmate::reportAssertions(collection)
 
