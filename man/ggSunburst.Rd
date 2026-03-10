@@ -34,17 +34,19 @@ functions (i.e. \code{ggSunburst(df) + ggplot2::theme_classic()}).}
 ggplot2 implementation of the sunburst plot.
 }
 \examples{
-# Load in dummy results
-tpr <- TreatmentPatterns::TreatmentPatternsResults$new(
-filePath = system.file(
-  "DummyOutput", "output.zip",
-  package = "TreatmentPatterns"
-)
-)
+if (interactive()) {
+  # Load in dummy results
+  tpr <- TreatmentPatterns::TreatmentPatternsResults$new(
+    filePath = system.file(
+      "DummyOutput", "output.zip",
+       package = "TreatmentPatterns"
+     )
+   )
 
-ggSunburst(
-  treatmentPathways = tpr$treatment_pathways,
-  minFreq = 20,
-  style = "darwin"
-)
+  ggSunburst(
+    treatmentPathways = tpr$treatment_pathways,
+    minFreq = 20,
+    style = "darwin"
+  )
+}
 }
