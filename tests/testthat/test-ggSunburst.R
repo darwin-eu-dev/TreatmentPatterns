@@ -1,6 +1,8 @@
 test_that("ggSunburst", {
   skip_on_cran()
   skip_if_not_installed("ggplot2")
+  skip_if_not_installed("rlang")
+  skip_if_not_installed("visOmopResults")
 
   treatmentPathways <- data.frame(
     pathway = c("A", "C-B", "A-B-C", "B", "B+A", "B-A-C"),

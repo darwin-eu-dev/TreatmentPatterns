@@ -81,8 +81,8 @@ splitCombinations <- function(treatmentPathways, strataX, strataY) {
     ) |>
     dplyr::ungroup() |>
     dplyr::mutate(
-      ymin = 1 / .data$comb_max * (comb_id - 1) + .data$layer,
-      ymax = 1 / .data$comb_max * comb_id + .data$layer
+      ymin = 1 / .data$comb_max * (.data$comb_id - 1) + .data$layer,
+      ymax = 1 / .data$comb_max * .data$comb_id + .data$layer
     ) |>
     dplyr::rename(
       event_org = "event",
@@ -144,19 +144,21 @@ plotSunburst <- function(treatmentPathways, strataX, strataY) {
 #' @export
 #'
 #' @examples
-#' # Load in dummy results
-#' tpr <- TreatmentPatterns::TreatmentPatternsResults$new(
-#' filePath = system.file(
-#'   "DummyOutput", "output.zip",
-#'   package = "TreatmentPatterns"
-#' )
-#' )
+#' if (interactive()) {
+#'   # Load in dummy results
+#'   tpr <- TreatmentPatterns::TreatmentPatternsResults$new(
+#'     filePath = system.file(
+#'       "DummyOutput", "output.zip",
+#'        package = "TreatmentPatterns"
+#'      )
+#'    )
 #' 
-#' ggSunburst(
-#'   treatmentPathways = tpr$treatment_pathways,
-#'   minFreq = 20,
-#'   style = "darwin"
-#' )
+#'   ggSunburst(
+#'     treatmentPathways = tpr$treatment_pathways,
+#'     minFreq = 20,
+#'     style = "darwin"
+#'   )
+#' }
 ggSunburst <- function(treatmentPathways, minFreq = 0, strataX = "", strataY = "", style = "default") {
   collection <- checkmate::makeAssertCollection()
   checkmate::assertDataFrame(x = treatmentPathways, min.cols = 2, add = collection)
