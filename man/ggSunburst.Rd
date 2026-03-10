@@ -4,38 +4,47 @@
 \alias{ggSunburst}
 \title{ggSunburst}
 \usage{
-ggSunburst(treatmentPathways, groupCombinations = FALSE, unit = "percent")
+ggSunburst(
+  treatmentPathways,
+  minFreq = 0,
+  strataX = "",
+  strataY = "",
+  style = "default"
+)
 }
 \arguments{
-\item{treatmentPathways}{(\code{data.frame()})\cr
-The contents of the treatmentPathways.csv-file as a data.frame().}
+\item{treatmentPathways}{(\code{data.frame}) Treatment Pathways result containing
+at least a 'pathway' and 'freq' column.}
 
-\item{groupCombinations}{(\code{logical(1)}: \code{FALSE})\cr
-\describe{
-\item{\code{TRUE}}{Group all combination treatments in category \code{"Combination"}.}
-\item{\code{FALSE}}{Do not group combination treatments.}
-}}
+\item{minFreq}{(\code{numeric(1)}) A minimum frequency of pathways to plot.}
 
-\item{unit}{(\code{character(1)}) Either \code{"count"} or \code{"percent"}, to scale the plot to.}
+\item{strataX}{(\code{character(n)}) Column names to facet by horizontally.}
+
+\item{strataY}{(\code{character(n)}) Column names to facet by vertically.}
+
+\item{style}{(\code{character(1)}) Name of the style to use. Right now only
+\code{"darwin"} is supported. Anything else will default to the default styling.
+Themes can be changed by overwriting it with any of the ggplot2 theme
+functions (i.e. \code{ggSunburst(df) + ggplot2::theme_classic()}).}
 }
 \value{
-(\code{gg}, \code{ggplot})
+\code{ggplot}
 }
 \description{
-ggSunburst
+ggplot2 implementation of the sunburst plot.
 }
 \examples{
-# Dummy data, typically read from treatmentPathways.csv
-treatmentPatwhays <- data.frame(
-  pathway = c("Acetaminophen", "Acetaminophen-Amoxicillin+Clavulanate",
-           "Acetaminophen-Aspirin", "Amoxicillin+Clavulanate", "Aspirin"),
-  freq = c(206, 6, 14, 48, 221),
-  sex = rep("all", 5),
-  age = rep("all", 5),
-  index_year = rep("all", 5)
+# Load in dummy results
+tpr <- TreatmentPatterns::TreatmentPatternsResults$new(
+filePath = system.file(
+  "DummyOutput", "output.zip",
+  package = "TreatmentPatterns"
+)
 )
 
-if (interactive()) {
-  ggSunburst(treatmentPatwhays)
-}
+ggSunburst(
+  treatmentPathways = tpr$treatment_pathways,
+  minFreq = 20,
+  style = "darwin"
+)
 }
