@@ -1,10 +1,6 @@
 addOriginId <- function(table) {
-  andromeda <- table$src$con
-
-  andromeda$cohortTable %>%
-    dplyr::select("personId", "subject_id_origin") %>%
-    dplyr::inner_join(table, by = dplyr::join_by(personId == personId)) %>%
-    dplyr::distinct()
+  # personId already contains the original subject_id (as character)
+  table
 }
 
 writeTreatmentHistory <- function(andromeda, outputPath) {

@@ -207,7 +207,7 @@ computePathways <- function(
     toAdd = data.frame(
       number_records = attrCounts$nRecords,
       number_subjects = attrCounts$nSubjects,
-      reason_id = 9,
+      reason_id = 11,
       reason = sprintf("treatment construction done")
     ),
     andromeda = andromeda
@@ -449,7 +449,7 @@ checkCohortTable <- function(andromeda) {
 
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertIntegerish(cohortTableHead$cohort_definition_id, add = assertions)
-  checkmate::assertIntegerish(cohortTableHead$subject_id, add = assertions)
+  checkmate::assertCharacter(cohortTableHead$subject_id, add = assertions)
   checkmate::assertIntegerish(cohortTableHead$cohort_start_date, add = assertions)
   checkmate::assertIntegerish(cohortTableHead$cohort_end_date, add = assertions)
   checkmate::reportAssertions(assertions)

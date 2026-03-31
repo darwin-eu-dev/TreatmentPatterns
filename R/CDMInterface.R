@@ -60,17 +60,13 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
   
   for (tableName in cohortTableName) {
     cdm$tp_temp_tbl <- cdm[[tableName]] %>%
-      dplyr::group_by(.data$subject_id) %>%
-      dplyr::mutate(
-        subject_id_origin = .data$subject_id
-      ) %>%
       dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
-      dplyr::filter(!!CDMConnector::datediff("cohort_start_date", "cohort_end_date", interval = "day") >= minEraDuration) %>%
-      dplyr::group_by(.data$subject_id) %>%
-      dplyr::ungroup() %>%
+      dplyr::mutate(
+        subject_id = as.character(.data$subject_id)
+      ) %>%
       dplyr::inner_join(
-        cdm$person,
-        by = dplyr::join_by(subject_id_origin == person_id)
+        cdm$person %>% dplyr::mutate(person_id = as.character(.data$person_id)),
+        by = dplyr::join_by(subject_id == person_id)
       ) %>%
       dplyr::inner_join(
         cdm$concept,
@@ -79,9 +75,6 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
         date_of_birth = as.Date(paste0(as.character(.data$year_of_birth), "-01-01"))) %>%
       dplyr::mutate(
         age = !!CDMConnector::datediff("date_of_birth", "cohort_start_date", interval = "year")) %>%
-      dplyr::mutate(
-        subject_id_origin = as.character(.data$subject_id_origin)
-      ) %>%
       dplyr::rename(sex = "concept_name") %>%
       dplyr::mutate(
         temp_date = as.Date("1970-01-01")
@@ -93,7 +86,6 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
       dplyr::select(
         "cohort_definition_id",
         "subject_id",
-        "subject_id_origin",
         "cohort_start_date",
         "cohort_end_date",
         "age",
@@ -113,32 +105,49 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
 
   cdm <- CDMConnector::dropSourceTable(cdm = cdm, name = "tp_temp_tbl")
 
-  andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
-    dplyr::mutate(r = dplyr::row_number()) %>%
-    dplyr::group_by(.data$subject_id_origin) %>%
-    dplyr::mutate(
-      subject_id = as.integer(min(.data$r, na.rm = TRUE))
-    ) %>%
-    dplyr::select(-"r")
-
+  # Filter to persons with at least one target cohort record
   targetId <- as.numeric(targetCohortIds)
-  
+
   andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
     dplyr::mutate(cohort_definition_id = as.numeric(.data$cohort_definition_id)) %>%
     dplyr::group_by(.data$subject_id) %>%
     dplyr::filter(any(.data$cohort_definition_id %in% targetId, na.rm = TRUE)) %>%
     dplyr::ungroup()
-  
+
+  # Attrition: after target cohort filter
   n <- andromeda[[andromedaTableName]] %>%
     dplyr::group_by(.data$subject_id) %>%
     dplyr::summarise(n = dplyr::n()) %>%
     dplyr::pull()
-  
+
   appendAttrition(
     toAdd = data.frame(
       number_records = sum(n),
       number_subjects = length(n),
       reason_id = 2,
+      reason = "Persons with no record in target cohort",
+      time_stamp = as.numeric(Sys.time())
+    ),
+    andromeda = andromeda
+  )
+
+  # Filter by minEraDuration (dates are integers = days since epoch)
+  andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+    dplyr::filter(
+      (.data$cohort_end_date - .data$cohort_start_date) >= minEraDuration
+    )
+
+  # Attrition: after minEraDuration filter
+  n <- andromeda[[andromedaTableName]] %>%
+    dplyr::group_by(.data$subject_id) %>%
+    dplyr::summarise(n = dplyr::n()) %>%
+    dplyr::pull()
+
+  appendAttrition(
+    toAdd = data.frame(
+      number_records = sum(n),
+      number_subjects = length(n),
+      reason_id = 3,
       reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
       time_stamp = as.numeric(Sys.time())
     ),
