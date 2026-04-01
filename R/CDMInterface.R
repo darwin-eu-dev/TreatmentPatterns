@@ -61,11 +61,8 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
   for (tableName in cohortTableName) {
     cdm$tp_temp_tbl <- cdm[[tableName]] %>%
       dplyr::filter(.data$cohort_definition_id %in% cohortIds) %>%
-      dplyr::mutate(
-        subject_id = as.character(.data$subject_id)
-      ) %>%
       dplyr::inner_join(
-        cdm$person %>% dplyr::mutate(person_id = as.character(.data$person_id)),
+        cdm$person,
         by = dplyr::join_by(subject_id == person_id)
       ) %>%
       dplyr::inner_join(
@@ -105,34 +102,9 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
 
   cdm <- CDMConnector::dropSourceTable(cdm = cdm, name = "tp_temp_tbl")
 
-  # Filter to persons with at least one target cohort record
-  targetId <- as.numeric(targetCohortIds)
-
+  # Filter by minEraDuration first (dates are integers = days since epoch)
   andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
     dplyr::mutate(cohort_definition_id = as.numeric(.data$cohort_definition_id)) %>%
-    dplyr::group_by(.data$subject_id) %>%
-    dplyr::filter(any(.data$cohort_definition_id %in% targetId, na.rm = TRUE)) %>%
-    dplyr::ungroup()
-
-  # Attrition: after target cohort filter
-  n <- andromeda[[andromedaTableName]] %>%
-    dplyr::group_by(.data$subject_id) %>%
-    dplyr::summarise(n = dplyr::n()) %>%
-    dplyr::pull()
-
-  appendAttrition(
-    toAdd = data.frame(
-      number_records = sum(n),
-      number_subjects = length(n),
-      reason_id = 2,
-      reason = "Persons with no record in target cohort",
-      time_stamp = as.numeric(Sys.time())
-    ),
-    andromeda = andromeda
-  )
-
-  # Filter by minEraDuration (dates are integers = days since epoch)
-  andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
     dplyr::filter(
       (.data$cohort_end_date - .data$cohort_start_date) >= minEraDuration
     )
@@ -147,8 +119,33 @@ fetchCohortTable <- function(cdm, cohorts, cohortTableName, andromeda, andromeda
     toAdd = data.frame(
       number_records = sum(n),
       number_subjects = length(n),
-      reason_id = 3,
+      reason_id = 2,
       reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
+      time_stamp = as.numeric(Sys.time())
+    ),
+    andromeda = andromeda
+  )
+
+  # Filter to persons with at least one target cohort record
+  targetId <- as.numeric(targetCohortIds)
+
+  andromeda[[andromedaTableName]] <- andromeda[[andromedaTableName]] %>%
+    dplyr::group_by(.data$subject_id) %>%
+    dplyr::filter(any(.data$cohort_definition_id %in% targetId, na.rm = TRUE)) %>%
+    dplyr::ungroup()
+
+  # Attrition: after target cohort filter
+  n <- andromeda[[andromedaTableName]] %>%
+    dplyr::group_by(.data$subject_id) %>%
+    dplyr::summarise(n = dplyr::n()) %>%
+    dplyr::pull()
+
+  appendAttrition(
+    toAdd = data.frame(
+      number_records = sum(n),
+      number_subjects = length(n),
+      reason_id = 3,
+      reason = "After filtering to persons with >=1 target cohort record",
       time_stamp = as.numeric(Sys.time())
     ),
     andromeda = andromeda

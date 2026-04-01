@@ -1,5 +1,5 @@
 addOriginId <- function(table) {
-  # personId already contains the original subject_id (as character)
+  # personId already contains the original subject_id (no remapping)
   table
 }
 

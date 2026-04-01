@@ -252,33 +252,36 @@ createTreatmentHistory <- function(
   Andromeda::createIndex(andromeda$eventCohorts, c("personId", "startDate", "endDate"))
   Andromeda::createIndex(andromeda$targetCohorts, c("personId", "indexDate", "endDate"))
 
-  # Step 1: Equi-join on person to match events to targets
-  andromeda$treatmentHistoryJoined <- dplyr::inner_join(
+  # Join events to targets with date constraints in the join to avoid cartesian products
+  andromeda[[sprintf("cohortTable_%s", targetCohortId)]] <- dplyr::inner_join(
     x = andromeda$eventCohorts,
     y = andromeda$targetCohorts,
     by = dplyr::join_by(
-      personId == personId
+      personId == personId,
+      startDate >= indexDate,
+      startDate <= endDate
     ), suffix = c("Event", "Target")
   )
 
-  # Attrition: persons with no event records (may appear as 'None' paths if nonePaths = TRUE)
-  attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistoryJoined")
+  # Attrition: subjects with events within window
+  nTargetSubjects <- andromeda$targetCohorts %>%
+    dplyr::distinct(.data$personId) %>%
+    dplyr::summarise(n = dplyr::n()) %>%
+    dplyr::pull()
+
+  attrCounts <- fetchAttritionCounts(andromeda, sprintf("cohortTable_%s", targetCohortId))
+  nSubjectsWithEvents <- attrCounts$nSubjects
+  nSubjectsWithoutEvents <- nTargetSubjects - nSubjectsWithEvents
+
   appendAttrition(
     toAdd = data.frame(
       number_records = attrCounts$nRecords,
       number_subjects = attrCounts$nSubjects,
       reason_id = 4,
-      reason = "Subjects with no event records (may appear as 'None' paths)"
+      reason = sprintf("After joining events within window (%s subjects without events)", nSubjectsWithoutEvents)
     ),
     andromeda = andromeda
   )
-
-  # Step 2: Filter to events within the time window
-  andromeda[[sprintf("cohortTable_%s", targetCohortId)]] <- andromeda$treatmentHistoryJoined %>%
-    dplyr::filter(
-      .data$indexDate <= .data$startDateEvent,
-      .data$startDateEvent <= .data$endDateTarget
-    )
 
   andromeda$treatmentHistory <- andromeda[[sprintf("cohortTable_%s", targetCohortId)]] %>%
     dplyr::select(
@@ -297,21 +300,6 @@ createTreatmentHistory <- function(
       durationEra = .data$eventEndDate - .data$eventStartDate,
       eventCohortId = as.character(as.integer(.data$eventCohortId))
     )
-
-  # Attrition: events outside window
-  attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
-  appendAttrition(
-    toAdd = data.frame(
-      number_records = attrCounts$nRecords,
-      number_subjects = attrCounts$nSubjects,
-      reason_id = 5,
-      reason = sprintf(
-        "Removing events outside window (%s: %s | %s: %s)",
-        startAnchor, windowStart, endAnchor, windowEnd
-      )
-    ),
-    andromeda = andromeda
-  )
   return(invisible(NULL))
 }
 
