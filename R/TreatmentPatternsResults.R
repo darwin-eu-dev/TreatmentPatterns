@@ -25,35 +25,169 @@ TreatmentPatternsResults <- R6::R6Class(
   classname = "TreatmentPatternsResults",
   # Active Fields ----
   active = list(
-    #' @field attrition (`data.frame`) 
-    attrition = function() return(private$.attrition),
-
-    #' @field metadata (`data.frame`) 
-    metadata = function() return(private$.metadata),
-
-    #' @field treatment_pathways (`data.frame`) 
-    treatment_pathways = function() return(private$.treatmentPathways),
-
-    #' @field summary_event_duration (`data.frame`) 
-    summary_event_duration = function() return(private$.summaryEventDuration),
-
-    #' @field counts_age (`data.frame`) 
-    counts_age = function() return(private$.countsAge),
-
-    #' @field counts_sex (`data.frame`) 
-    counts_sex = function() return(private$.countsSex),
-
-    #' @field counts_year (`data.frame`) 
-    counts_year = function() return(private$.countsYear),
-
-    #' @field cdm_source_info (`data.frame`)
-    cdm_source_info = function() return(private$.cdmSourceInfo),
-
     #' @field analyses (`data.frame`)
-    analyses = function() return(private$.analyses),
-
-    #' @field arguments (`list`)
-    arguments = function() return(private$.arguments)
+    analyses = function(analyses) {
+      if (missing(analyses)) {
+        return(private$.analyses)
+      } else {
+        checkmate::checkDataFrame(
+          x = analyses,
+          col.names = c(
+            "analysis_id", "description", "result_id"
+          )
+        )
+        private$.analyses <- analyses
+      }
+    },
+    
+    #' @field treatment_pathways (`data.frame`)
+    treatment_pathways = function(treatment_pathways) {
+      if (missing(treatment_pathways)) {
+        return(private$.treatment_pathways)
+      } else {
+        checkmate::checkDataFrame(
+          x = treatment_pathways,
+          col.names = c(
+            "pathway", "freq", "age", "sex", "index_year", "analysis_id",
+            "target_cohort_id", "target_cohort_name", "result_id"
+          )
+        )
+        private$.treatment_pathways <- treatment_pathways
+      }
+    },
+    
+    #' @field summary_event_duration (`data.frame`)
+    summary_event_duration = function(summary_event_duration) {
+      if (missing(summary_event_duration)) {
+        return(private$.summary_event_duration)
+      } else {
+        checkmate::checkDataFrame(
+          x = summary_event_duration,
+          col.names = c(
+            "event_name", "duration_min", "duration_q1", "duration_median",
+            "duration_q2", "duration_max", "duration_average", "duration_sd",
+            "event_count", "line", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.summary_event_duration <- summary_event_duration
+      }
+    },
+    
+    #' @field counts_age (`data.frame`)
+    counts_age = function(counts_age) {
+      if (missing(counts_age)) {
+        return(private$.counts_age)
+      } else {
+        checkmate::assertDataFrame(
+          x = counts_age,
+          col.names = c(
+            "age", "n", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.counts_age <- counts_age
+      }
+    },
+    
+    #' @field counts_sex (`data.frame`)
+    counts_sex = function(counts_sex) {
+      if (missing(counts_sex)) {
+        return(private$.counts_sex)
+      } else {
+        checkmate::assertDataFrame(
+          x = counts_sex,
+          col.names = c(
+            "sex", "n", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.counts_sex <- counts_sex
+      }
+    },
+    
+    #' @field counts_year (`data.frame`)
+    counts_year = function(counts_year) {
+      if (missing(counts_year)) {
+        return(private$.counts_year)
+      } else {
+        checkmate::checkDataFrame(
+          x = counts_year,
+          col.names = c(
+            "index_year", "n", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.counts_year <- counts_year
+      }
+    },
+    
+    #' @field attrition (`data.frame`)
+    attrition = function(attrition) {
+      if (missing(attrition)) {
+        return(private$.attrition)
+      } else {
+        checkmate::checkDataFrame(
+          x = attrition,
+          col.names = c(
+            "number_records", "number_subjects", "reason_id", "reason",
+            "time_stamp", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.attrition <- attrition
+      }
+    },
+    
+    #' @field metadata (`data.frame`)
+    metadata = function(metadata) {
+      if (missing(metadata)) {
+        return(private$.metadata)
+      } else {
+        checkmate::checkDataFrame(
+          x = metadata,
+          col.names = c(
+            "execution_start", "package_version", "r_version", "platform",
+            "execution_end", "analysis_id", "result_id"
+          )
+        )
+        private$.metadata <- metadata
+      }
+    },
+    
+    #' @field arguments (`data.frame`)
+    arguments = function(arguments) {
+      if (missing(arguments)) {
+        return(private$.arguments)
+      } else {
+        checkmate::checkDataFrame(
+          x = arguments,
+          col.names = c(
+            "analysis_id", "arguments", "result_id"
+          )
+        )
+        private$.arguments <- arguments
+      }
+    },
+    
+    #' @field cdm_source_info (`data.frame`)
+    cdm_source_info = function(cdm_source_info) {
+      if (missing(cdm_source_info)) {
+        return(private$.cdm_source_info)
+      } else {
+        checkmate::assertDataFrame(
+          x = cdm_source_info,
+          col.names = c(
+            "cdm_source_name", "cdm_source_abbreviation", "cdm_holder",
+            "source_description", "source_documentation_reference",
+            "cdm_etl_reference", "source_release_date", "cdm_release_date",
+            "cdm_version", "cdm_version_concept_id", "vocabulary_version",
+            "analysis_id", "result_id"
+          )
+        )
+        private$.cdm_source_info <- cdm_source_info
+      }
+    }
   ),
 
   # Public ----
