@@ -187,7 +187,7 @@ export <- function(
       stratify = stratify
     ) %>%
       dplyr::distinct() %>%
-      rename(
+      dplyr::rename(
         index_year = "indexYear",
         pathway = "path"
       ) %>%
@@ -215,13 +215,14 @@ export <- function(
         )
     })
 
-    TreatmentPatternsResults$new(
+    res <- TreatmentPatternsResults$new(
       attrition = attrition,
       treatmentPathways = treatmentPathways,
       summaryEventDuration = summaryEventDuration,
       countsAge = counts$age,
       countsSex = counts$sex,
-      countsYear = counts$year
+      countsYear = counts$year,
+      filePath = NULL
     )
   })
 
@@ -385,8 +386,8 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
         event_count = n()
       ) %>%
-      mutate(line = as.character(.data$eventSeq)) %>%
-      select(-"eventSeq"),
+      dplyr::mutate(line = as.character(.data$eventSeq)) %>%
+      dplyr::select(-"eventSeq"),
     
     treatmentHistory %>%
       dplyr::filter(.data$eventCohortName != "None") %>%
@@ -623,8 +624,7 @@ computeTreatmentPathways <- function(treatmentHistory, ageWindow, minCellCount, 
         .data$durationEra, .data$n_target
       ) %>%
       dplyr::reframe(
-        dplyr::across(
-          "eventCohortName", paste, collapse = "-"
+        dplyr::across(.cols = "eventCohortName", .fns = \(x) paste(x, collapse = "-")
         )
       ) %>%
       dplyr::rename(path = "eventCohortName") %>%
@@ -655,18 +655,18 @@ collapsePaths <- function(treatmentHistory) {
     dplyr::ungroup() %>%
     dplyr::group_by(.data$indexYear, .data$pathway) %>%
     dplyr::mutate(freq = length(.data$personId), .groups = "drop") %>%
-    ungroup() %>%
-    rowwise() %>%
-    mutate(path = paste(.data$pathway, collapse = "-")) %>%
+    dplyr::ungroup() %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(path = paste(.data$pathway, collapse = "-")) %>%
     dplyr::group_by(.data$personId) %>%
     dplyr::slice(which.min(.data$indexYear))
 }
 
 stratisfyAgeSexYear <- function(treatmentHistory) {
   collapsePaths(treatmentHistory) %>%
-    group_by(.data$path, .data$ageBin, .data$sex, .data$indexYear) %>%
-    summarise(freq = n(), .groups = "drop") %>%
-    mutate(
+    dplyr::group_by(.data$path, .data$ageBin, .data$sex, .data$indexYear) %>%
+    dplyr::summarise(freq = n(), .groups = "drop") %>%
+    dplyr::mutate(
       indexYear = as.character(.data$indexYear)
     )
 }
@@ -674,60 +674,60 @@ stratisfyAgeSexYear <- function(treatmentHistory) {
 # All
 stratAll <- function(treatmentPathways) {
   treatmentPathways %>%
-    group_by(path) %>%
-    summarize(freq = sum(freq)) %>%
-    mutate(indexYear = "all", sex = "all", ageBin = "all")
+    dplyr::group_by(path) %>%
+    dplyr::summarize(freq = sum(freq)) %>%
+    dplyr::mutate(indexYear = "all", sex = "all", ageBin = "all")
 }
 
 # sex
 stratSex <- function(treatmentPathways) {
   dplyr::bind_rows(
     treatmentPathways %>%
-      group_by(.data$path, .data$indexYear, .data$ageBin) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(sex = "all"),
+      dplyr::group_by(.data$path, .data$indexYear, .data$ageBin) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(sex = "all"),
     treatmentPathways %>%
-      group_by(.data$path, .data$ageBin) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(sex = "all", indexYear = "all"),
+      dplyr::group_by(.data$path, .data$ageBin) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(sex = "all", indexYear = "all"),
     treatmentPathways %>%
-      group_by(.data$path, .data$indexYear) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(sex = "all", ageBin = "all")
+      dplyr::group_by(.data$path, .data$indexYear) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(sex = "all", ageBin = "all")
   )
 }
 
 stratAgeBin <- function(treatmentPathways) {
   dplyr::bind_rows(
     treatmentPathways %>%
-      group_by(.data$path, .data$indexYear, .data$sex) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(ageBin = "all"),
+      dplyr::group_by(.data$path, .data$indexYear, .data$sex) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(ageBin = "all"),
     treatmentPathways %>%
-      group_by(.data$path, .data$sex) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(ageBin = "all", indexYear = "all"),
+      dplyr::group_by(.data$path, .data$sex) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(ageBin = "all", indexYear = "all"),
     treatmentPathways %>%
-      group_by(.data$path, .data$indexYear) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(ageBin = "all", sex = "all")
+      dplyr::group_by(.data$path, .data$indexYear) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(ageBin = "all", sex = "all")
   )
 }
 
 stratIndexYear <- function(treatmentPathways) {
   dplyr::bind_rows(
     treatmentPathways %>%
-      group_by(.data$path, .data$sex, .data$ageBin) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(indexYear = "all"),
+      dplyr::group_by(.data$path, .data$sex, .data$ageBin) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(indexYear = "all"),
     treatmentPathways %>%
-      group_by(.data$path, .data$ageBin) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(sex = "all", indexYear = "all"),
+      dplyr::group_by(.data$path, .data$ageBin) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(sex = "all", indexYear = "all"),
     treatmentPathways %>%
-      group_by(.data$path, .data$sex) %>%
-      summarize(freq = sum(.data$freq), .groups = "drop") %>%
-      mutate(indexYear = "all", ageBin = "all")
+      dplyr::group_by(.data$path, .data$sex) %>%
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+      dplyr::mutate(indexYear = "all", ageBin = "all")
   )
 }
 
@@ -740,9 +740,9 @@ stratisfy <- function(treatmentHistory) {
     stratSex(treatmentPathways),
     stratIndexYear(treatmentPathways)
   ) %>%
-    mutate(sex = tolower(.data$sex)) %>%
-    rename(age = "ageBin") %>%
-    relocate("path", "freq", "age", "sex", "indexYear")
+    dplyr::mutate(sex = tolower(.data$sex)) %>%
+    dplyr::rename(age = "ageBin") %>%
+    dplyr::relocate("path", "freq", "age", "sex", "indexYear")
 }
 
 #' getFilteredSubjects
