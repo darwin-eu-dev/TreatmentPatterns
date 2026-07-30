@@ -351,7 +351,7 @@ computeStatsTherapy <- function(treatmentHistory) {
   dplyr::bind_rows(
     treatmentHistory %>%
       dplyr::mutate(eventName = dplyr::case_when(
-        nchar(.data$eventCohortId) > 1 ~ "combination-event",
+        grepl(pattrn = "+", .data$eventCohortId) ~ "combination-event",
         .default = "mono-event"
       )) %>%
       dplyr::group_by(.data$eventName) %>%
