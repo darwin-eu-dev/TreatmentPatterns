@@ -40,8 +40,10 @@ appendAttrition <- function(tbl, andromeda, reason, reason_id) {
         .default = .data$excluded_subjects
       )
     )
-  
-  return(andromeda)
+
+  appendLog(andromeda, "Updated `attrition` table")
+
+  return(invisible(andromeda))
 }
 
 initAttrition <- function(andromeda) {
@@ -54,5 +56,6 @@ initAttrition <- function(andromeda) {
     excluded_records = integer(0),
     excluded_subjects = integer(0)
   )
-  return(andromeda)
+  appendLog(andromeda, "Initiated `attrition` table")
+  return(invisible(andromeda))
 }

@@ -42,7 +42,7 @@ checkRows <- function(cohortTables) {
   return(cohortTables)
 }
 
-conInterface <- function(connectionDetails = NULL, cdm = NULL) {
+conInterface <- function(connectionDetails = NULL, cdm = NULL, andromeda) {
   if (is.null(connectionDetails) & is.null(cdm)) {
     stop("Neither `connectionDetails` or `cdm` are specified.")
   }
@@ -51,6 +51,7 @@ conInterface <- function(connectionDetails = NULL, cdm = NULL) {
     if (!is.null(connectionDetails) & !is.null(cdm)) {
       message("Both `connectionDetails` and `cdm` are specified. Using already open connection from `cdm`")
     }
+    appendLog(andromeda, "Using established DBI connection from `cdm_reference`")
     return(attr(cdm, "dbcon"))
   }
   
@@ -59,6 +60,7 @@ conInterface <- function(connectionDetails = NULL, cdm = NULL) {
       drv = DatabaseConnector::DatabaseConnectorDriver(),
       connectionDetails = connectionDetails
     )
+    appendLog(andromeda, "Opening DBI connection using `DatabaseConnector`")
     return(con)
   }
 }
@@ -124,19 +126,30 @@ conInterface <- function(connectionDetails = NULL, cdm = NULL) {
 #'   )
 #'   
 #' }
-fetchCohortTable <- function(cdm = NULL, connectionDetails = NULL, dbiConnection = NULL, cohorts, cohortTables, minEraDuration, perCohortSetting = FALSE) {
+fetchCohortTable <- function(
+    cdm = NULL,
+    connectionDetails = NULL,
+    dbiConnection = NULL,
+    cohorts,
+    cohortTables,
+    minEraDuration,
+    perCohortSetting = FALSE
+  ) {
   andromeda <- Andromeda::andromeda() |>
+    initLog() |>
     initAttrition()
 
   con <- if (!is.null(dbiConnection)) {
     dbiConnection
+    appendLog(andromeda, "Using established DBI connection")
   } else {
-    conInterface(connectionDetails, cdm)
+    conInterface(connectionDetails, cdm, andromeda)
   }
 
   dbCohortTables <- cohortTables |>
     purrr::map(dplyr::tbl, src = con) |>
     purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = TRUE)
+  appendLog(andromeda, "Joined `cohorts` to cohort tables")
 
   andromeda <- appendAttrition(
     tbl = dbCohortTables,
@@ -144,6 +157,10 @@ fetchCohortTable <- function(cdm = NULL, connectionDetails = NULL, dbiConnection
     reason = "Initial qualifying events",
     reason_id = 1
   )
+
+  dplyr::tbl(con, "cdm_source") |>
+    dplyr::copy_to(dest = andromeda, name = "cdm_source")
+  appendLog(andromeda, "Copied `cdm_source` to Andromeda")
 
   tpCohortTable <- dbCohortTables |>
     checkRows() |>
@@ -154,6 +171,7 @@ fetchCohortTable <- function(cdm = NULL, connectionDetails = NULL, dbiConnection
     ) |>
     purrr::reduce(dplyr::union_all) |>
     dplyr::compute(name = "tp_cohort_table", temporary = TRUE, overwrite = TRUE)
+  appendLog(andromeda, "Applied `minEraDuration` and merged relevant records from cohort tables.")
 
   andromeda <- appendAttrition(
     tbl = tpCohortTable,
@@ -165,18 +183,24 @@ fetchCohortTable <- function(cdm = NULL, connectionDetails = NULL, dbiConnection
   tpCohortTable |>
     dplyr::mutate(subject_id_org = as.character(.data$subject_id)) |>
     dplyr::copy_to(dest = andromeda, name = "cohort_table", overwrite = TRUE)
+  appendLog(andromeda, "Saved original `subject_id` as `org_subject_id` as VARCHAR")
+  appendLog(andromeda, "Copied merged cohort table to Andromeda as `cohort_table`")
 
   DBI::dbRemoveTable(conn = con, name = "tp_cohort_table")
+  appendLog(andromeda, "Dropped temp `tp_cohort_table`.")
 
   andromeda$cohort_table <- andromeda$cohort_table |>
     updateSubjectId() |>
     dplyr::compute()
+  appendLog(andromeda, "Re-assigned `subject_id` to be 32-bit integers based on `org_subject_id`")
 
   tmpTables <- names(andromeda)[grepl(pattern = "^dbplyr_", names(andromeda))]
   tmpTables |>
     purrr::map(\(tblName) {
       andromeda[[tblName]] <- NULL
     })
+
+  appendLog(andromeda, "Dropped dbplyr temp tables from Andromeda")
 
   return(andromeda)
 }
