@@ -12,9 +12,8 @@ addMinEraDuration <- function(cohortTable, perCohortSetting, minEraDuration) {
   }
 }
 
-filterMinEraDuration <- function(cohortTable, cohorts, perCohortSetting, minEraDuration) {
+filterMinEraDuration <- function(cohortTable, perCohortSetting, minEraDuration) {
   cohortTable |>
-    dplyr::left_join(cohorts, by = "cohort_definition_id", copy = TRUE) |>
     addMinEraDuration(perCohortSetting, minEraDuration) %>%
     dplyr::mutate(duration = !!CDMConnector::datediff(start = "cohort_start_date", end = "cohort_end_date")) |>
     dplyr::filter(dplyr::case_when(
@@ -43,10 +42,92 @@ checkRows <- function(cohortTables) {
   return(cohortTables)
 }
 
+conInterface <- function(connectionDetails = NULL, cdm = NULL) {
+  if (is.null(connectionDetails) & is.null(cdm)) {
+    stop("Neither `connectionDetails` or `cdm` are specified.")
+  }
+  
+  if (!is.null(cdm)) {
+    if (!is.null(connectionDetails) & !is.null(cdm)) {
+      message("Both `connectionDetails` and `cdm` are specified. Using already open connection from `cdm`")
+    }
+    return(attr(cdm, "dbcon"))
+  }
+  
+  if (!is.null(connectionDetails)) {
+    con <- DatabaseConnector::dbConnect(
+      drv = DatabaseConnector::DatabaseConnectorDriver(),
+      connectionDetails = connectionDetails
+    )
+    return(con)
+  }
+}
+
+appendAttrition <- function(tbl, andromeda, reason, reason_id) {
+  if ("list" %in% class(tbl)) {
+    tbl <- tbl |>
+      purrr::reduce(dplyr::union_all)
+  }
+
+  attrition <- tbl |>
+    dplyr::group_by(.data$cohort_definition_id) |>
+    dplyr::summarise(
+      number_records = dplyr::n(),
+      number_subjects = dplyr::n_distinct(.data$subject_id)
+    ) |>
+    dplyr::mutate(
+      reason_id = reason_id,
+      reason = reason,
+      excluded_records = NA,
+      excluded_subjects = NA
+    ) |>
+    dplyr::collect()
+
+  andromeda$attrition <- andromeda$attrition |>
+    dplyr::union_all(attrition, copy = TRUE) |>
+    dplyr::group_by(.data$cohort_definition_id) |>
+    dbplyr::window_order(dplyr::desc(.data$number_records)) |>
+    dplyr::mutate(
+      excluded_records = dplyr::case_when(
+        is.na(.data$excluded_records) ~ dplyr::lag(.data$number_records) - .data$number_records
+      ),
+      excluded_subjects = dplyr::case_when(
+        is.na(.data$excluded_subjects) ~ dplyr::lag(.data$number_subjects) - .data$number_subjects
+      )
+    ) |>
+    dplyr::mutate(
+      excluded_records = dplyr::case_when(
+        is.na(.data$excluded_records) ~ 0,
+        .default = .data$excluded_records
+      ),
+      excluded_subjects = dplyr::case_when(
+        is.na(.data$excluded_subjects) ~ 0,
+        .default = .data$excluded_subjects
+      )
+    )
+
+  return(andromeda)
+}
+
+initAttrition <- function(andromeda) {
+  andromeda$attrition <- data.frame(
+    cohort_definition_id = integer(0),
+    number_records = integer(0),
+    number_subjects = integer(0),
+    reason_id = integer(0),
+    reason = character(0),
+    excluded_records = integer(0),
+    excluded_subjects = integer(0)
+  )
+  return(andromeda)
+}
 
 #' fetchCohortTable
 #'
 #' @param cdm (`cdm_reference`) A CDM reference object.
+#' @param connectionDetails (`ConnectionDetails`) Connection details to
+#' establish a database connection with using DatabaseConnector.
+#' @param dbiConnection (`DBI Connection`) An already established DBI connection.
 #' @param cohorts (`data.frame`) A data.farme containing atleast the columns
 #' `cohort_definition_id`, `cohort_name`, and `type`. `cohort_definition_id`
 #' refers to the `cohort_definition_id` in the cohort table in the database.
@@ -102,24 +183,59 @@ checkRows <- function(cohortTables) {
 #'   )
 #'   
 #' }
-fetchCohortTable <- function(cdm, cohorts, cohortTables, minEraDuration, perCohortSetting = FALSE) {
-  cdm$tp_cohort_table <- cdm[cohortTables] |>
+fetchCohortTable <- function(cdm = NULL, connectionDetails = NULL, dbiConnection = NULL, cohorts, cohortTables, minEraDuration, perCohortSetting = FALSE) {
+  andromeda <- Andromeda::andromeda() |>
+    initAttrition()
+
+  con <- if (!is.null(dbiConnection)) {
+    dbiConnection
+  } else {
+    conInterface(connectionDetails, cdm)
+  }
+
+  dbCohortTables <- cohortTables |>
+    purrr::map(dplyr::tbl, src = con) |>
+    purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = TRUE)
+
+  andromeda <- appendAttrition(
+    tbl = dbCohortTables,
+    andromeda = andromeda,
+    reason = "Initial qualifying events",
+    reason_id = 1
+  )
+
+  tpCohortTable <- dbCohortTables |>
     checkRows() |>
-    purrr::map(filterMinEraDuration, cohorts = cohorts, perCohortSetting = perCohortSetting, minEraDuration = minEraDuration) |>
+    purrr::map(
+      .f = filterMinEraDuration,
+      perCohortSetting = perCohortSetting,
+      minEraDuration = minEraDuration
+    ) |>
     purrr::reduce(dplyr::union_all) |>
     dplyr::compute(name = "tp_cohort_table", temporary = TRUE, overwrite = TRUE)
-  
-  andromeda <- Andromeda::andromeda()
-  
-  cdm$tp_cohort_table |>
+
+  andromeda <- appendAttrition(
+    tbl = tpCohortTable,
+    andromeda = andromeda,
+    reason = "applying minEraDuration",
+    reason_id = 2
+  )
+
+  tpCohortTable |>
     dplyr::mutate(subject_id_org = as.character(.data$subject_id)) |>
     dplyr::copy_to(dest = andromeda, name = "cohort_table", overwrite = TRUE)
-  
-  cdm$tp_cohort_table <- NULL
-  
+
+  DBI::dbRemoveTable(conn = con, name = "tp_cohort_table")
+
   andromeda$cohort_table <- andromeda$cohort_table |>
     updateSubjectId() |>
     dplyr::compute()
-  
+
+  tmpTables <- names(andromeda)[grepl(pattern = "^dbplyr_", names(andromeda))]
+  tmpTables |>
+    purrr::map(\(tblName) {
+      andromeda[[tblName]] <- NULL
+    })
+
   return(andromeda)
 }
