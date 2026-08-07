@@ -1,25 +1,47 @@
-updateSubjectId <- function(aCohortTable) {
-  aCohortTable |>
-    dplyr::mutate(subject_id = dplyr::sql("dense_rank() OVER (ORDER BY subject_id_org)"))
-}
+intToDate <- function(andromeda, tbl, col) {
+  type <- andromeda[[tbl]] |>
+    head() |>
+    dplyr::pull(dplyr::any_of(col)) |>
+    class()
 
-addMinEraDuration <- function(cohortTable, perCohortSetting, minEraDuration) {
-  if (!perCohortSetting) {
-    cohortTable |>
-      dplyr::mutate(min_era_duration = minEraDuration)
+  if (type == "integer") {
+    andromeda[[tbl]] <- andromeda[[tbl]] |>
+      dplyr::mutate(
+        !!rlang::sym(col) := dplyr::sql(paste0(sprintf("strftime(TO_TIMESTAMP(%s)", col), ", '%Y-%m-%d')::DATE"))
+      )
+    appendLog(andromeda, sprintf("Converted `%s` to date in %s", col, tbl))
   } else {
-    cohortTable
+    return(andromeda)
   }
 }
 
-filterMinEraDuration <- function(cohortTable, perCohortSetting, minEraDuration) {
-  cohortTable |>
-    addMinEraDuration(perCohortSetting, minEraDuration) %>%
-    dplyr::mutate(duration = !!CDMConnector::datediff(start = "cohort_start_date", end = "cohort_end_date")) |>
-    dplyr::filter(dplyr::case_when(
-      .data$type == "event" ~ .data$duration >= .data$min_era_duration,
-      .default = TRUE
-    ))
+fixDates <- function(andromeda) {
+  startType <- andromeda$cohort_table |>
+    head() |>
+    dplyr::pull(.data$cohort_start_date) |>
+    class()
+  
+  endType <- andromeda$cohort_table |>
+    head() |>
+    dplyr::pull(.data$cohort_end_date) |>
+    class()
+  
+  if (startType == "integer" & endType == "integer") {
+    andromeda$cohort_table |>
+      dplyr::mutate(
+        cohort_start_date = dplyr::sql("strftime(TO_TIMESTAMP(cohort_start_date), '%Y-%m-%d')::DATE"),
+        cohort_end_date = dplyr::sql("strftime(TO_TIMESTAMP(cohort_end_date), '%Y-%m-%d')::DATE")
+      )
+  }
+
+  appendLog(andromeda, "Dropped dbplyr temp tables from Andromeda")
+
+  return(invisible(andromeda))
+}
+
+updateSubjectId <- function(aCohortTable) {
+  aCohortTable |>
+    dplyr::mutate(subject_id = dplyr::sql("dense_rank() OVER (ORDER BY subject_id_org)"))
 }
 
 checkRows <- function(cohortTables) {
@@ -85,11 +107,6 @@ conInterface <- function(connectionDetails = NULL, cdm = NULL, andromeda) {
 #' for per-cohort evaluation of these arguments.
 #' @param cohortTables (`character(n)`) Character vector of the names of the
 #' cohort tables to use. May be more than one table name.
-#' @param minEraDuration (`numeric(1)`) Minimum number of days the cohorts
-#' should last.
-#' @param perCohortSetting (`logical(1)`: `FALSE`) Allow per cohort evaluation
-#' of the `minEraDuration`, if it is added as an extra column to the `cohorts`
-#' data.frame.
 #'
 #' @returns `Andromeda`
 #' @export
@@ -100,59 +117,50 @@ conInterface <- function(connectionDetails = NULL, cdm = NULL, andromeda) {
 #'     cohort_definition_id = c(1, 2, 3),
 #'     cohort_name = c("A", "B", "C"),
 #'     type = c("event", "event", "target"),
-#'     min_era_duration = c(7, 14, 21),
-#'     perCohortSetting = TRUE
 #'   )
 #'
 #'   fetchCohortTable(
 #'     cdm = cdm,
 #'     cohorts = cohorts,
 #'     cohortTables = c(cohort_table_1, cohort_table_2),
-#'     minEraDuration = 7
-#'     # Apply a `minEraDuration` of `7` across all cohorts
-#'     perCohortSetting = FALSE
 #'   )
 #'
 #'   fetchCohortTable(
 #'     cdm = cdm,
 #'     cohorts = cohorts,
 #'     cohortTables = c(cohort_table_1, cohort_table_2),
-#'     minEraDuration = 7
-#'
-#'     # Apply a `minEraDuration` for each cohort seperately, based on the
-#'     # `min_era_duration` column in the `cohorts` data.frame.
-#'     # `minEraDuration` will be ignored.
-#'     perCohortSetting = TRUE
 #'   )
-#'   
 #' }
 fetchCohortTable <- function(
     cdm = NULL,
     connectionDetails = NULL,
     dbiConnection = NULL,
     cohorts,
-    cohortTables,
-    minEraDuration,
-    perCohortSetting = FALSE
+    cohortTables
   ) {
   andromeda <- Andromeda::andromeda() |>
     initLog() |>
     initAttrition()
 
   con <- if (!is.null(dbiConnection)) {
-    dbiConnection
     appendLog(andromeda, "Using established DBI connection")
+    dbiConnection
   } else {
     conInterface(connectionDetails, cdm, andromeda)
   }
 
-  dbCohortTables <- cohortTables |>
+  cohortTables |>
     purrr::map(dplyr::tbl, src = con) |>
-    purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = TRUE)
+    purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = TRUE) |>
+    purrr::reduce(dplyr::union_all) |>
+    dplyr::mutate(subject_id_org = as.character(.data$subject_id)) |>
+    dplyr::copy_to(dest = andromeda, name = "cohort_table")
   appendLog(andromeda, "Joined `cohorts` to cohort tables")
+  appendLog(andromeda, "Saved original `subject_id` as `org_subject_id` as VARCHAR")
+  appendLog(andromeda, "Copied merged cohort table to Andromeda as `cohort_table`")
 
   andromeda <- appendAttrition(
-    tbl = dbCohortTables,
+    tbl = andromeda$cohort_table,
     andromeda = andromeda,
     reason = "Initial qualifying events",
     reason_id = 1
@@ -162,45 +170,21 @@ fetchCohortTable <- function(
     dplyr::copy_to(dest = andromeda, name = "cdm_source")
   appendLog(andromeda, "Copied `cdm_source` to Andromeda")
 
-  tpCohortTable <- dbCohortTables |>
-    checkRows() |>
-    purrr::map(
-      .f = filterMinEraDuration,
-      perCohortSetting = perCohortSetting,
-      minEraDuration = minEraDuration
-    ) |>
-    purrr::reduce(dplyr::union_all) |>
-    dplyr::compute(name = "tp_cohort_table", temporary = TRUE, overwrite = TRUE)
-  appendLog(andromeda, "Applied `minEraDuration` and merged relevant records from cohort tables.")
-
-  andromeda <- appendAttrition(
-    tbl = tpCohortTable,
-    andromeda = andromeda,
-    reason = "applying minEraDuration",
-    reason_id = 2
-  )
-
-  tpCohortTable |>
-    dplyr::mutate(subject_id_org = as.character(.data$subject_id)) |>
-    dplyr::copy_to(dest = andromeda, name = "cohort_table", overwrite = TRUE)
-  appendLog(andromeda, "Saved original `subject_id` as `org_subject_id` as VARCHAR")
-  appendLog(andromeda, "Copied merged cohort table to Andromeda as `cohort_table`")
-
-  DBI::dbRemoveTable(conn = con, name = "tp_cohort_table")
-  appendLog(andromeda, "Dropped temp `tp_cohort_table`.")
-
   andromeda$cohort_table <- andromeda$cohort_table |>
     updateSubjectId() |>
     dplyr::compute()
   appendLog(andromeda, "Re-assigned `subject_id` to be 32-bit integers based on `org_subject_id`")
+
+  intToDate(andromeda, tbl = "cohort_table", col = "cohort_start_date")
+  intToDate(andromeda, tbl = "cohort_table", col = "cohort_end_date")
+
+  appendLog(andromeda, "Dropped dbplyr temp tables from Andromeda")
 
   tmpTables <- names(andromeda)[grepl(pattern = "^dbplyr_", names(andromeda))]
   tmpTables |>
     purrr::map(\(tblName) {
       andromeda[[tblName]] <- NULL
     })
-
-  appendLog(andromeda, "Dropped dbplyr temp tables from Andromeda")
 
   return(andromeda)
 }

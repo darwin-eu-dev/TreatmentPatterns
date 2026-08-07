@@ -14,6 +14,6 @@ appendLog <- function(andromeda, msg) {
   
   andromeda$log <- andromeda$log |>
     dplyr::union_all(log, copy = TRUE)
-  
+
   return(invisible(andromeda))
 }
