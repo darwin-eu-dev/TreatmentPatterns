@@ -87,12 +87,52 @@ conInterface <- function(connectionDetails = NULL, cdm = NULL, andromeda) {
   }
 }
 
+getSchema <- function(x) {
+  items <- attr(x, "name") |>
+    as.list()
+  
+  if (is.null(names(items))) {
+    if (length(items) > 1) {
+      items[[2]]
+    } else {
+      items[[1]]
+    }
+  } else {
+    items$schema
+  }
+}
+
+getCatalog <- function(x) {
+  items <- attr(x, "name") |>
+    as.list()
+  
+  if (is.null(names(items))) {
+    if (length(items) > 1) {
+      items[[1]]
+    }
+  } else {
+    items$catalog
+  }
+}
+
+attachTable <- function(con, catalog, schema, table) {
+  tbl <- tryCatch({
+    dplyr::tbl(con, DBI::Id(catalog = catalog, schema = schema, table = table))
+  }, error = function(e) {
+    dplyr::tbl(con, DBI::Id(catalog = catalog, schema = schema, table = toupper(table)))
+  })
+  tbl |>
+    dplyr::rename_with(tolower)
+}
+
 #' fetchCohortTable
 #'
 #' @param cdm (`cdm_reference`) A CDM reference object.
 #' @param connectionDetails (`ConnectionDetails`) Connection details to
 #' establish a database connection with using DatabaseConnector.
-#' @param dbiConnection (`DBI Connection`) An already established DBI connection.
+#' @param connection (`connection`) An already established connection to the databas.
+#' @param cdmSchema (`character(1)`) Schema where the OMOP CDM resides.
+#' @param writeSchema (`character(1)`) Schema where to write temporary tables to, and where the `cohortTable` exists.
 #' @param cohorts (`data.frame`) A data.farme containing atleast the columns
 #' `cohort_definition_id`, `cohort_name`, and `type`. `cohort_definition_id`
 #' refers to the `cohort_definition_id` in the cohort table in the database.
@@ -134,23 +174,78 @@ conInterface <- function(connectionDetails = NULL, cdm = NULL, andromeda) {
 fetchCohortTable <- function(
     cdm = NULL,
     connectionDetails = NULL,
-    dbiConnection = NULL,
+    connection = NULL,
+    cdmSchema = NULL,
+    writeSchema = NULL,
     cohorts,
     cohortTables
   ) {
+
+  if (class(cohortTables) != "list") {
+    cohortTables <- list(cohortTables)
+  }
+
+  assertions <- checkmate::makeAssertCollection()
+  checkmate::assertClass(
+    x = cdm,
+    classes = "cdm_reference",
+    null.ok = TRUE,
+    add = assertions
+  )
+  checkmate::assertClass(
+    x = connectionDetails,
+    classes = "ConnectionDetails",
+    null.ok = TRUE,
+    add = assertions
+  )
+  checkmate::assertList(
+    x = cohortTables,
+    any.missing = FALSE,
+    min.len = 1,
+    unique = TRUE,
+    null.ok = FALSE,
+    add = assertions
+  )
+  if (!is.null(connection)) {
+    checkmate::assertTRUE(
+      x = DBI::dbIsValid(connection),
+      na.ok = FALSE,
+      .var.name = "connection",
+      add = assertions 
+    )
+  }
+  checkmate::reportAssertions(assertions)
+
   andromeda <- Andromeda::andromeda() |>
     initLog() |>
     initAttrition()
 
-  con <- if (!is.null(dbiConnection)) {
+  con <- if (!is.null(connection)) {
     appendLog(andromeda, "Using established DBI connection")
-    dbiConnection
+    connection
   } else {
     conInterface(connectionDetails, cdm, andromeda)
   }
 
+  if (!is.null(connectionDetails)) {
+    on.exit(DBI::dbDisconnect(con))
+  }
+
+  if (!is.null(cdm) & is.null(cdmSchema)) {
+    cdmSchema <- attr(cdm, "cdm_schema") |>
+      as.list() |>
+      do.call(what = DBI::Id)
+  }
+
+  if (!is.null(cdm) & is.null(writeSchema)) {
+    writeSchema <- attr(cdm, "write_schema") |>
+      as.list() |>
+      do.call(what = DBI::Id)
+  }
+
   cohortTables |>
     purrr::map(dplyr::tbl, src = con) |>
+    purrr::map(dplyr::rename_with, .fn = tolower) |>
     purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = TRUE) |>
     purrr::reduce(dplyr::union_all) |>
     dplyr::mutate(subject_id_org = as.character(.data$subject_id)) |>
@@ -166,7 +261,7 @@ fetchCohortTable <- function(
     reason_id = 1
   )
 
-  dplyr::tbl(con, "cdm_source") |>
+  attachTable(con, catalog = getCatalog(cdmSchema), schema = getSchema(cdmSchema), "cdm_source") |>
     dplyr::copy_to(dest = andromeda, name = "cdm_source")
   appendLog(andromeda, "Copied `cdm_source` to Andromeda")
 
