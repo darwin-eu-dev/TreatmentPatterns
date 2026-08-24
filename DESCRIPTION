@@ -23,10 +23,9 @@ Imports:
     jsonlite,
     checkmate,
     dplyr,
-    tidyr,
     dbplyr,
-    Andromeda,
-    CDMConnector (>= 2.2.0)
+    tidyr,
+    Andromeda
 Suggests:
     knitr,
     rmarkdown,
@@ -74,4 +73,7 @@ Collate:
     'ggSunburst.R'
     'plotEventDuration.R'
     'utils.R'
+    'export2.R'
+    'fetchCohortTable.R'
+    'log.R'
 Config/roxygen2/version: 8.0.0
