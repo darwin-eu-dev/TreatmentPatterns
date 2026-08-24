@@ -246,7 +246,7 @@ fetchCohortTable <- function(
   cohortTables |>
     purrr::map(dplyr::tbl, src = con) |>
     purrr::map(dplyr::rename_with, .fn = tolower) |>
-    purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = TRUE) |>
+    purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = "inline") |>
     purrr::reduce(dplyr::union_all) |>
     dplyr::mutate(subject_id_org = as.character(.data$subject_id)) |>
     dplyr::copy_to(dest = andromeda, name = "cohort_table")

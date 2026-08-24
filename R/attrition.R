@@ -1,4 +1,12 @@
-appendAttrition <- function(tbl, andromeda, reason, reason_id) {
+appendAttrition <- function(tbl, andromeda, reason, reason_id = NULL) {
+  reason_id <- if (is.null(reason_id)) {
+    andromeda$attrition |>
+      dplyr::pull(.data$reason_id) |>
+      max() + 1
+  } else {
+    reason_id
+  }
+
   if ("list" %in% class(tbl)) {
     tbl <- tbl |>
       purrr::reduce(dplyr::union_all)
