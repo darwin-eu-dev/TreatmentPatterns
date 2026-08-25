@@ -74,4 +74,7 @@ Collate:
     'ggSunburst.R'
     'plotEventDuration.R'
     'utils.R'
+    'log.R'
+    'fetchCohortTable.R'
+    'initMetadata.R'
 Config/roxygen2/version: 8.0.0

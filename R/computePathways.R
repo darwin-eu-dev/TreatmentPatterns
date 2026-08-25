@@ -1,3 +1,8 @@
+#' @export
+as.character.Id <- function(x, ...) {
+  paste(attr(x, "name"), collapse = ".")
+}
+
 # Copyright 2024 DARWIN EU®
 #
 # This file is part of TreatmentPatterns
@@ -138,19 +143,6 @@ computePathways <- function(
     overlapMethod = "truncate",
     concatTargets = TRUE) {
 
-  if (!is.null(connectionDetails)) {
-    con <- DatabaseConnector::connect(connectionDetails)
-    cdm <- CDMConnector::cdmFromCon(
-      con = con,
-      cdmSchema = cdmSchema,
-      writeSchema = resultSchema,
-    )
-
-    cdm[[cohortTableName]] <- dplyr::tbl(src = con, cohortTableName)
-
-    on.exit(DatabaseConnector::disconnect(con))
-  }
-
   validateComputePathways()
 
   args <- eval(
@@ -158,7 +150,19 @@ computePathways <- function(
     envir = sys.frame(sys.nframe())
   )
 
-  andromeda <- Andromeda::andromeda()
+  andromeda <- fetchCohortTable(
+    cdm = cdm,
+    connectionDetails = connectionDetails,
+    connection = NULL,
+    cdmSchema = cdmSchema,
+    writeSchema = resultSchema,
+    cohorts = cohorts,
+    cohortTables = cohortTableName
+  )
+
+  args$cohortTableName <- as.character(args$cohortTableName)
+  args$resultSchema <- as.character(args$resultSchema)
+  args$cdmSchema <- as.character(args$cdmSchema)
 
   argsToSave <- as.character(jsonlite::toJSON(args[-grep("cdm|connectionDetails", names(args))]))
 
@@ -172,16 +176,13 @@ computePathways <- function(
     description = description
   )
 
-  andromeda <- fetchMetadata(andromeda)
-  andromeda <- fetchCdmSource(cdm, andromeda)
-  andromeda <- fetchCohortTable(
-    cdm = cdm,
-    cohorts = cohorts,
-    cohortTableName = cohortTableName,
-    andromeda = andromeda,
-    andromedaTableName = "cohortTable",
-    minEraDuration = minEraDuration
-  )
+  applyMinEraDuration(andromeda, minEraDuration = minEraDuration)
+
+  andromeda$cohortTable <- andromeda$cohort_table |>
+    dplyr::mutate(
+      cohort_start_date = .data$cohort_start_date - as.Date("1970-01-01"),
+      cohort_end_date = .data$cohort_end_date - as.Date("1970-01-01")
+    )
 
   checkCohortTable(andromeda)
 
@@ -199,8 +200,7 @@ computePathways <- function(
   )
 
   andromeda$metadata <- andromeda$metadata %>%
-    dplyr::collect() %>%
-    dplyr::mutate(execution_end = as.numeric(Sys.time()))
+    dplyr::mutate(execution_end = dplyr::sql("current_timestamp"))
 
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
@@ -345,11 +345,11 @@ validateComputePathways <- function() {
     .var.name = "cohorts$type"
   )
 
-  checkmate::assertCharacter(
-    x = args$cohortTableName,
-    null.ok = FALSE,
-    .var.name = "cohortTableName"
-  )
+  # checkmate::assertCharacter(
+  #   x = args$cohortTableName,
+  #   null.ok = FALSE,
+  #   .var.name = "cohortTableName"
+  # )
 
   checkmate::assertClass(
     x = args$connectionDetails,
@@ -367,21 +367,21 @@ validateComputePathways <- function() {
     .var.name = "connectionDetails"
   )
 
-  checkmate::assertCharacter(
-    args$cdmDatabaseSchema,
-    null.ok = TRUE,
-    len = 1,
-    add = assertCol,
-    .var.name = "cdmDatabaseSchema"
-  )
+  # checkmate::assertCharacter(
+  #   args$cdmDatabaseSchema,
+  #   null.ok = TRUE,
+  #   len = 1,
+  #   add = assertCol,
+  #   .var.name = "cdmDatabaseSchema"
+  # )
 
-  checkmate::assertCharacter(
-    args$resultSchema,
-    null.ok = TRUE,
-    len = 1,
-    add = assertCol,
-    .var.name = "resultSchema"
-  )
+  # checkmate::assertCharacter(
+  #   args$resultSchema,
+  #   null.ok = TRUE,
+  #   len = 1,
+  #   add = assertCol,
+  #   .var.name = "resultSchema"
+  # )
 
   checkmate::assertClass(
     args$cdm,

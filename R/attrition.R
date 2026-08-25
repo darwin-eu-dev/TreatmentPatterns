@@ -17,6 +17,7 @@ initAttrition <- function(andromeda) {
     reason = character(0),
     time_stamp = numeric(0)
   )
+  return(andromeda)
 }
 
 appendAttrition <- function(toAdd, andromeda) {

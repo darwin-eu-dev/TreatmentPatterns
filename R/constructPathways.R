@@ -166,6 +166,29 @@ constructPathways <- function(settings, andromeda) {
   return(andromeda)
 }
 
+applyMinEraDuration <- function(andromeda, minEraDuration) {
+  andromeda$cohort_table <- andromeda$cohort_table |>
+    dplyr::filter(.data$cohort_end_date - .data$cohort_start_date >= minEraDuration)
+
+  n <- andromeda$cohort_table |>
+    dplyr::group_by(.data$subject_id) |>
+    dplyr::summarise(n = as.integer(dplyr::n())) |>
+    dplyr::pull(.data$n)
+
+  appendAttrition(
+    toAdd = data.frame(
+      number_records = as.integer(sum(n)),
+      number_subjects = as.integer(length(n)),
+      reason_id = 2,
+      reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
+      time_stamp = as.numeric(Sys.time())
+    ),
+    andromeda = andromeda
+  )
+
+  return(andromeda)
+}
+
 getCohortIds <- function(cohorts, cohortType) {
   cohorts %>%
     dplyr::filter(.data$type == cohortType) %>%
