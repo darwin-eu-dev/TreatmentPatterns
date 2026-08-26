@@ -3,6 +3,16 @@ as.character.Id <- function(x, ...) {
   paste(attr(x, "name"), collapse = ".")
 }
 
+makeSchemaId <- function(schema) {
+  if (is.null(schema)) {
+    NULL
+  } else {
+    strsplit(schema, "\\.") |>
+      unlist() |>
+      DBI::Id()
+  }
+}
+
 # Copyright 2024 DARWIN EU®
 #
 # This file is part of TreatmentPatterns
@@ -159,10 +169,6 @@ computePathways <- function(
     cohorts = cohorts,
     cohortTables = cohortTableName
   )
-
-  args$cohortTableName <- as.character(args$cohortTableName)
-  args$resultSchema <- as.character(args$resultSchema)
-  args$cdmSchema <- as.character(args$cdmSchema)
 
   argsToSave <- as.character(jsonlite::toJSON(args[-grep("cdm|connectionDetails", names(args))]))
 
@@ -345,11 +351,11 @@ validateComputePathways <- function() {
     .var.name = "cohorts$type"
   )
 
-  # checkmate::assertCharacter(
-  #   x = args$cohortTableName,
-  #   null.ok = FALSE,
-  #   .var.name = "cohortTableName"
-  # )
+  checkmate::assertCharacter(
+    x = args$cohortTableName,
+    null.ok = FALSE,
+    .var.name = "cohortTableName"
+  )
 
   checkmate::assertClass(
     x = args$connectionDetails,
@@ -367,21 +373,21 @@ validateComputePathways <- function() {
     .var.name = "connectionDetails"
   )
 
-  # checkmate::assertCharacter(
-  #   args$cdmDatabaseSchema,
-  #   null.ok = TRUE,
-  #   len = 1,
-  #   add = assertCol,
-  #   .var.name = "cdmDatabaseSchema"
-  # )
+  checkmate::assertCharacter(
+    args$cdmDatabaseSchema,
+    null.ok = TRUE,
+    len = 1,
+    add = assertCol,
+    .var.name = "cdmDatabaseSchema"
+  )
 
-  # checkmate::assertCharacter(
-  #   args$resultSchema,
-  #   null.ok = TRUE,
-  #   len = 1,
-  #   add = assertCol,
-  #   .var.name = "resultSchema"
-  # )
+  checkmate::assertCharacter(
+    args$resultSchema,
+    null.ok = TRUE,
+    len = 1,
+    add = assertCol,
+    .var.name = "resultSchema"
+  )
 
   checkmate::assertClass(
     args$cdm,
