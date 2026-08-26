@@ -1,4 +1,7 @@
 addAgeSex <- function(tbl, con, cdmSchema) {
+  tbl <- tbl |>
+    dplyr::rename_with(tolower)
+
   tblCols <- colnames(tbl)
 
   person <- attachTable(
@@ -199,10 +202,27 @@ fetchCohortTable <- function(
     cohorts,
     cohortTables
   ) {
-
-  if (class(cohortTables) != "list") {
-    cohortTables <- list(cohortTables)
+  cdmSchema <- if (!is.null(cdm) & is.null(cdmSchema)) {
+    cdmSchema <- attr(cdm, "cdm_schema") |>
+      as.list() |>
+      do.call(what = DBI::Id)
+  } else if (is.null(cdm) & !is.null(cdmSchema)) {
+    makeSchemaId(cdmSchema)
   }
+  
+  writeSchema <- if (!is.null(cdm) & is.null(writeSchema)) {
+    writeSchemaRef <- attr(cdm, "write_schema")
+    tblPrefix <- as.list(writeSchemaRef)$prefix
+    writeSchemaRef[names(writeSchemaRef) %in% c("catalog", "schema")] |>
+      as.list() |>
+      do.call(what = DBI::Id)
+  } else if (is.null(cdm) & !is.null(writeSchema)) {
+    makeSchemaId(writeSchema)
+  }
+
+  cohortTables <- cohortTables |>
+    purrr::map(\(x) c(attr(writeSchema, "name"), table = x)) |>
+    purrr::map(DBI::Id)
 
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertClass(
@@ -251,18 +271,6 @@ fetchCohortTable <- function(
     on.exit(DBI::dbDisconnect(con))
   }
 
-  if (!is.null(cdm) & is.null(cdmSchema)) {
-    cdmSchema <- attr(cdm, "cdm_schema") |>
-      as.list() |>
-      do.call(what = DBI::Id)
-  }
-
-  if (!is.null(cdm) & is.null(writeSchema)) {
-    writeSchema <- attr(cdm, "write_schema") |>
-      as.list() |>
-      do.call(what = DBI::Id)
-  }
-
   cohorts <- cohorts |>
     dplyr::select(
       cohort_definition_id = "cohortId",
@@ -270,17 +278,33 @@ fetchCohortTable <- function(
       "type"
     )
 
+  copyMap <- list(
+    Snowflake = TRUE,
+    other = "inline"
+  )
+
+  copy <- if (!is.null(cdm)) {
+    db <- class(attr(cdm, "dbcon"))
+    if (is.null(db)) {
+      db <- "other"
+    }
+    copyMap[[db]]
+  }
+
   cohortTables |>
     purrr::map(dplyr::tbl, src = con) |>
     purrr::map(addAgeSex, con = con, cdmSchema = cdmSchema) |>
     purrr::map(dplyr::rename_with, .fn = tolower) |>
-    purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = "inline") |>
+    purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = copy) |>
     purrr::reduce(dplyr::union_all) |>
     dplyr::mutate(subject_id_origin = as.character(.data$subject_id)) |>
     dplyr::copy_to(dest = andromeda, name = "cohort_table")
   appendLog(andromeda, "Joined `cohorts` to cohort tables")
   appendLog(andromeda, "Saved original `subject_id` as `org_subject_id` as VARCHAR")
   appendLog(andromeda, "Copied merged cohort table to Andromeda as `cohort_table`")
+
+  intToDate(andromeda, tbl = "cohort_table", col = "cohort_start_date")
+  intToDate(andromeda, tbl = "cohort_table", col = "cohort_end_date")
 
   andromeda$cohort_table <- andromeda$cohort_table |>
     dplyr::mutate(age = dplyr::sql("year(cohort_start_date) - year_of_birth")) |>
@@ -310,9 +334,6 @@ fetchCohortTable <- function(
     updateSubjectId() |>
     dplyr::compute()
   appendLog(andromeda, "Re-assigned `subject_id` to be 32-bit integers based on `org_subject_id`")
-
-  intToDate(andromeda, tbl = "cohort_table", col = "cohort_start_date")
-  intToDate(andromeda, tbl = "cohort_table", col = "cohort_end_date")
 
   appendLog(andromeda, "Dropped dbplyr temp tables from Andromeda")
 
