@@ -26,7 +26,8 @@ Imports:
     tidyr,
     dbplyr,
     Andromeda,
-    CDMConnector (>= 2.2.0)
+    CDMConnector (>= 2.2.0),
+    purrr
 Suggests:
     knitr,
     rmarkdown,

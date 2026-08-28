@@ -24,6 +24,7 @@
 #' @import dplyr
 #' @import Andromeda
 #' @import R6
+#' @import purrr
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dbplyr window_order
 #' @importFrom stats sd median quantile
