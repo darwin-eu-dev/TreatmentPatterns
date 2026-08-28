@@ -52,6 +52,7 @@ utils::globalVariables(
     "event_name",
     "subject_id_origin",
     "person_id",
+    "subject_id",
     "concept_id",
     "year_of_birth",
     "gender_concept_id",
