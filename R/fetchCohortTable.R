@@ -331,8 +331,8 @@ fetchCohortTable <- function(
   )
 
   attachTable(con, catalog = getCatalog(cdmSchema), schema = getSchema(cdmSchema), "cdm_source") |>
-    dplyr::copy_to(dest = andromeda, name = "cdm_source")
-  appendLog(andromeda, "Copied `cdm_source` to Andromeda")
+    dplyr::copy_to(dest = andromeda, name = "cdm_source_info")
+  appendLog(andromeda, "Copied `cdm_source` to Andromeda as `cdm_source_info`")
 
   andromeda$cohort_table <- andromeda$cohort_table |>
     updateSubjectId() |>
