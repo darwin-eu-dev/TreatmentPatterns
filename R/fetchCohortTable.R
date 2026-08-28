@@ -285,10 +285,12 @@ fetchCohortTable <- function(
 
   copy <- if (!is.null(cdm)) {
     db <- class(attr(cdm, "dbcon"))
-    if (is.null(db)) {
+    if (!db %in% names(copyMap)) {
       db <- "other"
     }
     copyMap[[db]]
+  } else {
+    copyMap$other
   }
 
   cohortTables |>
