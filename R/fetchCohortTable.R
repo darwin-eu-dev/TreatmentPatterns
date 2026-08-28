@@ -171,7 +171,9 @@ attachTable <- function(con, catalog, schema, table) {
 #' cohort tables to use. May be more than one table name.
 #'
 #' @returns `Andromeda`
-#' @export
+#'
+#' @noRd
+#' @noMd
 #'
 #' @examples
 #' if (interactive()) {
