@@ -190,6 +190,8 @@ computePathways <- function(
       cohort_end_date = .data$cohort_end_date - as.Date("1970-01-01")
     )
 
+  andromeda$cohort_table <- NULL
+
   checkCohortTable(andromeda)
 
   andromeda$cohortTable <- andromeda$cohortTable %>%
