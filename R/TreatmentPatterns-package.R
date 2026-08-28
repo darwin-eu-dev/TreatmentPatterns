@@ -24,6 +24,7 @@
 #' @import dplyr
 #' @import Andromeda
 #' @import R6
+#' @import purrr
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dbplyr window_order
 #' @importFrom stats sd median quantile
@@ -51,6 +52,7 @@ utils::globalVariables(
     "event_name",
     "subject_id_origin",
     "person_id",
+    "subject_id",
     "concept_id",
     "year_of_birth",
     "gender_concept_id",
