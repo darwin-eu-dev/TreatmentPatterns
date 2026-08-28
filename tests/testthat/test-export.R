@@ -317,7 +317,7 @@ test_that("outputPath", {
 
   tempDirLocal <- file.path(tempdir(), "output")
 
-  result <- export(andromeda, outputPath = tempDirLocal)
+  result <- TreatmentPatterns::export(andromeda, outputPath = tempDirLocal)
 
   expect_true(
     file.exists(file.path(tempDirLocal, "treatment_pathways.csv"))
