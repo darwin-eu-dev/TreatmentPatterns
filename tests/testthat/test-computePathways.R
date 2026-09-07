@@ -616,7 +616,11 @@ test_that("No target records", {
     )
   })
 
-  expect_true(nrow(outputEnv$treatment_history %>% collect()) == 0)
+  outputEnv$treatmentHistory |>
+    dplyr::collect() |>
+    nrow() |>
+    as.logical() |>
+    testthat::expect_false()
 })
 
 test_that("Empty cohort table", {
@@ -624,18 +628,22 @@ test_that("Empty cohort table", {
   skip_if_not(ableToRun()$CDMC)
 
   .CM$cdm$cohort_table <- .CM$cdm$cohort_table %>%
-    filter(.data$cohort_definition_id <= 0) %>%
-    compute()
+    dplyr::filter(.data$cohort_definition_id < 0) %>%
+    dplyr::compute(name = "cohort_table", temporary = FALSE)
 
   expect_warning({
     outputEnv <- computePathways(
       cohorts = .CM$cohorts,
-      cohortTableName = .CM$cohortTableName,
+      cohortTableName = "cohort_table",
       cdm = .CM$cdm
     )
   })
 
-  expect_true(nrow(outputEnv$treatment_history %>% collect()) == 0)
+  outputEnv$treatmentHistory |>
+    dplyr::collect() |>
+    nrow() |>
+    as.logical() |>
+    testthat::expect_false()
 })
 
 test_that("No target defined", {
