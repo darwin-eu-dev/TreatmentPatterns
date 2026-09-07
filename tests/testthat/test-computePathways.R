@@ -627,14 +627,14 @@ test_that("Empty cohort table", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  .CM$cdm$cohort_table <- .CM$cdm$cohort_table %>%
+  .CM$cdm$cohort_table_empty <- .CM$cdm$cohort_table %>%
     dplyr::filter(.data$cohort_definition_id < 0) %>%
-    dplyr::compute(name = "cohort_table", temporary = FALSE)
+    dplyr::compute(name = "cohort_table_empty", temporary = FALSE)
 
   expect_warning({
     outputEnv <- computePathways(
       cohorts = .CM$cohorts,
-      cohortTableName = "cohort_table",
+      cohortTableName = "cohort_table_empty",
       cdm = .CM$cdm
     )
   })
