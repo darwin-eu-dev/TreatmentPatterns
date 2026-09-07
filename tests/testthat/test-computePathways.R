@@ -616,7 +616,7 @@ test_that("No target records", {
     )
   })
 
-  expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
+  expect_true(nrow(outputEnv$treatment_history %>% collect()) == 0)
 })
 
 test_that("Empty cohort table", {
@@ -635,7 +635,7 @@ test_that("Empty cohort table", {
     )
   })
 
-  expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
+  expect_true(nrow(outputEnv$treatment_history %>% collect()) == 0)
 })
 
 test_that("No target defined", {
