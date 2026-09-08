@@ -26,7 +26,6 @@ Imports:
     tidyr,
     dbplyr,
     Andromeda,
-    CDMConnector (>= 2.2.0),
     purrr
 Suggests:
     knitr,
@@ -35,6 +34,7 @@ Suggests:
     testthat (>= 3.0.0),
     usethis,
     Eunomia,
+    CDMConnector (>= 2.2.0),
     DatabaseConnector (>= 7.0.0),
     SqlRender,
     CohortGenerator,
@@ -60,7 +60,6 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 Roxygen: list(markdown = TRUE)
 Collate: 
-    'CDMInterface.R'
     'TreatmentPatterns-package.R'
     'TreatmentPatternsResults.R'
     'attrition.R'
