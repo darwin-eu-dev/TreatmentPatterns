@@ -3,28 +3,20 @@ library(testthat)
 library(TreatmentPatterns)
 library(dplyr)
 
-# test_that("computePathways DatabaseConnector", {
-#   skip("Eunomia [2.0.0] bug")
-#   skip_on_cran()
-#   skip_if_not(ableToRun()$CG)
-# 
-#   expect_message(
-#     expect_message(
-#       expect_message(
-#         computePathways(
-#           cohorts = .CG$cohorts,
-#           cohortTableName = .CG$cohortTableName,
-#           connectionDetails = .CG$connectionDetails,
-#           cdmSchema = "main",
-#           resultSchema = "main"
-#         ),
-#         "After maxPathLength: 554"
-#       ),
-#       "After combinationWindow: 554"
-#     ),
-#     "Original number of rows: 8366"
-#   )
-# })
+test_that("computePathways DatabaseConnector", {
+  skip_on_cran()
+  skip_if_not(ableToRun()$CG)
+
+  testthat::expect_no_error({
+    computePathways(
+      cohorts = .CG$cohorts,
+      cohortTableName = .CG$cohortTableName,
+      connectionDetails = .CG$connectionDetails,
+      cdmSchema = "main",
+      resultSchema = "main"
+    )
+  })
+})
 
 test_that("computePathways CDMConnector", {
   skip_on_cran()
