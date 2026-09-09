@@ -171,6 +171,7 @@ applyMinEraDuration <- function(andromeda, minEraDuration) {
     dplyr::filter(.data$cohort_end_date - .data$cohort_start_date >= minEraDuration)
 
   n <- andromeda$cohort_table |>
+    dplyr::filter(.data$type == "target") |>
     dplyr::group_by(.data$subject_id) |>
     dplyr::summarise(n = as.integer(dplyr::n())) |>
     dplyr::pull(.data$n)

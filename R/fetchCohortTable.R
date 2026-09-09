@@ -315,10 +315,11 @@ fetchCohortTable <- function(
     dplyr::select(-"year_of_birth")
 
   n <- andromeda$cohort_table |>
+    dplyr::filter(.data$type == "target") |>
     dplyr::group_by(.data$subject_id) |>
     dplyr::summarise(n = as.integer(dplyr::n())) |>
     dplyr::pull(.data$n)
-
+  
   appendAttrition(
     toAdd = data.frame(
       number_records = as.integer(sum(n)),
