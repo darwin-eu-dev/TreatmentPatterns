@@ -314,16 +314,24 @@ fetchCohortTable <- function(
     dplyr::mutate(age = dplyr::sql("year(cohort_start_date) - year_of_birth")) |>
     dplyr::select(-"year_of_birth")
 
-  n <- andromeda$cohort_table |>
+  nTarget <- andromeda$cohort_table |>
     dplyr::filter(.data$type == "target") |>
     dplyr::group_by(.data$subject_id) |>
     dplyr::summarise(n = as.integer(dplyr::n())) |>
     dplyr::pull(.data$n)
-  
+
+  nEvent <- andromeda$cohort_table |>
+    dplyr::filter(.data$type == "event") |>
+    dplyr::group_by(.data$subject_id) |>
+    dplyr::summarise(n = as.integer(dplyr::n())) |>
+    dplyr::pull(.data$n)
+
   appendAttrition(
     toAdd = data.frame(
-      number_records = as.integer(sum(n)),
-      number_subjects = as.integer(length(n)),
+      number_target_subjects = as.integer(length(nTarget)),
+      number_target_records = as.integer(sum(nTarget)),
+      number_event_subjects = as.integer(length(nEvent)),
+      number_event_records = as.integer(sum(nEvent)),
       reason_id = 1,
       reason = "Initial qualifying events",
       time_stamp = as.numeric(Sys.time())

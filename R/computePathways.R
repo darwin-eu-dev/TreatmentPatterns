@@ -213,9 +213,11 @@ computePathways <- function(
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
     toAdd = data.frame(
-      number_records = attrCounts$nRecords,
-      number_subjects = attrCounts$nSubjects,
-      reason_id = 9,
+      number_target_subjects = attrCounts$nSubjects,
+      number_target_records = attrCounts$nSubjects,
+      number_event_subjects = attrCounts$nSubjects,
+      number_event_records = attrCounts$nRecords,
+      reason_id = 10,
       reason = sprintf("treatment construction done")
     ),
     andromeda = andromeda
