@@ -33,5 +33,12 @@ appendAttrition <- function(toAdd, andromeda) {
     copy = TRUE
   )
 
-  message(sprintf("-- %s\n\tSubjects: %s", toAdd$reason, toAdd$number_target_subjects))
+  message(sprintf(
+    "-- %s\n\tTarget Subjects: %s (%s)\n\tEvents Subjects: %s (%s)",
+    toAdd$reason,
+    toAdd$number_target_subjects,
+    toAdd$number_target_records,
+    toAdd$number_event_subjects,
+    toAdd$number_event_records
+  ))
 }
