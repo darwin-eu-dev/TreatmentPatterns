@@ -295,12 +295,16 @@ fetchCohortTable <- function(
     copyMap$other
   }
 
+  dbObservationPeriod <- attachTable(con, catalog = getCatalog(cdmSchema), schema = getSchema(cdmSchema), "observation_period")
+
   cohortTables |>
     purrr::map(dplyr::tbl, src = con) |>
     purrr::map(addAgeSex, con = con, cdmSchema = cdmSchema) |>
     purrr::map(dplyr::rename_with, .fn = tolower) |>
     purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = copy) |>
     purrr::reduce(dplyr::union_all) |>
+    dplyr::left_join(dbObservationPeriod, by = dplyr::join_by(subject_id == person_id)) |>
+    dplyr::select(-"observation_period_id", -"period_type_concept_id") |>
     dplyr::mutate(subject_id_origin = as.character(.data$subject_id)) |>
     dplyr::copy_to(dest = andromeda, name = "cohort_table")
   appendLog(andromeda, "Joined `cohorts` to cohort tables")
