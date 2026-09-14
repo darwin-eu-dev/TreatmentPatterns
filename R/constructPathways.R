@@ -125,7 +125,7 @@ constructPathways <- function(settings, andromeda) {
             number_target_records = attrCounts$nSubjects,
             number_event_subjects = attrCounts$nSubjects,
             number_event_records = attrCounts$nRecords,
-            reason_id = 9,
+            reason_id = 12,
             reason = sprintf("Max path length (%s)", settings$maxPathLength)
           ),
           andromeda = andromeda
@@ -190,7 +190,7 @@ applyMinEraDuration <- function(andromeda, minEraDuration) {
       number_target_records = as.integer(sum(nTarget)),
       number_event_subjects = as.integer(length(nEvent)),
       number_event_records = as.integer(sum(nEvent)),
-      reason_id = 2,
+      reason_id = 3,
       reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
       time_stamp = as.numeric(Sys.time())
     ),
@@ -326,7 +326,7 @@ createTreatmentHistory <- function(
       number_target_records = attrCounts$nSubjects,
       number_event_subjects = attrCounts$nSubjects,
       number_event_records = attrCounts$nRecords,
-      reason_id = 3,
+      reason_id = 4,
       reason = sprintf(
         "Removing events outside window (%s: %s | %s: %s)",
         startAnchor, windowStart, endAnchor, windowEnd
@@ -401,7 +401,7 @@ doSplitEventCohorts <- function(
       number_target_records = attrCounts$nSubjects,
       number_event_subjects = attrCounts$nSubjects,
       number_event_records = attrCounts$nRecords,
-      reason_id = 4,
+      reason_id = 5,
       reason = sprintf("splitEventCohorts")
     ),
     andromeda = andromeda
@@ -479,7 +479,7 @@ doEraCollapseNew <- function(andromeda, eraCollapseSize) {
           number_target_records = attrCounts$nSubjects,
           number_event_subjects = attrCounts$nSubjects,
           number_event_records = attrCounts$nRecords,
-          reason_id = 5,
+          reason_id = 6,
           reason = sprintf("Iteration %s: Collapsing eras, eraCollapse (%s)", counter, eraCollapseSize)
         ),
         andromeda = andromeda
@@ -495,7 +495,7 @@ doEraCollapseNew <- function(andromeda, eraCollapseSize) {
           number_target_records = attrCounts$nSubjects,
           number_event_subjects = attrCounts$nSubjects,
           number_event_records = attrCounts$nRecords,
-          reason_id = 5,
+          reason_id = 7,
           reason = sprintf("No eras needed Collapsing, eraCollapse (%s)", eraCollapseSize)
         ),
         andromeda = andromeda
@@ -569,7 +569,7 @@ doEraCollapse <- function(andromeda, eraCollapseSize) {
       number_target_records = attrCounts$nSubjects,
       number_event_subjects = attrCounts$nSubjects,
       number_event_records = attrCounts$nRecords,
-      reason_id = 5,
+      reason_id = 8,
       reason = sprintf("Collapsing eras, eraCollapse (%s)", eraCollapseSize)
     ),
     andromeda = andromeda
@@ -852,7 +852,7 @@ doCombinationWindow <- function(
         number_target_records = attrCounts$nSubjects,
         number_event_subjects = attrCounts$nSubjects,
         number_event_records = attrCounts$nRecords,
-        reason_id = 6,
+        reason_id = 9,
         reason = sprintf("Iteration %s: minPostCombinationDuration (%s), combinatinoWindow (%s)", iterations, minPostCombinationDuration, combinationWindow)
       ),
       andromeda = andromeda
@@ -877,7 +877,7 @@ doCombinationWindow <- function(
       number_target_records = attrCounts$nSubjects,
       number_event_subjects = attrCounts$nSubjects,
       number_event_records = attrCounts$nRecords,
-      reason_id = 7,
+      reason_id = 10,
       reason = sprintf("After Combination")
     ),
     andromeda = andromeda
@@ -1046,7 +1046,7 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
       number_target_records = attrCounts$nSubjects,
       number_event_subjects = attrCounts$nSubjects,
       number_event_records = attrCounts$nRecords,
-      reason_id = 8,
+      reason_id = 11,
       reason = sprintf("filterTreatments (%s)", filterTreatments)
     ),
     andromeda = andromeda

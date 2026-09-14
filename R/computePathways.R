@@ -217,7 +217,7 @@ computePathways <- function(
       number_target_records = attrCounts$nSubjects,
       number_event_subjects = attrCounts$nSubjects,
       number_event_records = attrCounts$nRecords,
-      reason_id = 10,
+      reason_id = 13,
       reason = sprintf("treatment construction done")
     ),
     andromeda = andromeda
