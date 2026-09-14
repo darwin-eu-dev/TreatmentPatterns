@@ -311,6 +311,8 @@ fetchCohortTable <- function(
   appendLog(andromeda, "Saved original `subject_id` as `org_subject_id` as VARCHAR")
   appendLog(andromeda, "Copied merged cohort table to Andromeda as `cohort_table`")
 
+  intToDate(andromeda, tbl = "cohort_table", col = "observation_period_start_date")
+  intToDate(andromeda, tbl = "cohort_table", col = "observation_period_end_date")
   intToDate(andromeda, tbl = "cohort_table", col = "cohort_start_date")
   intToDate(andromeda, tbl = "cohort_table", col = "cohort_end_date")
 
@@ -338,6 +340,37 @@ fetchCohortTable <- function(
       number_event_records = as.integer(sum(nEvent)),
       reason_id = 1,
       reason = "Initial qualifying events",
+      time_stamp = as.numeric(Sys.time())
+    ),
+    andromeda = andromeda
+  )
+
+  andromeda$cohort_table <- andromeda$cohort_table |>
+    dplyr::filter(
+      .data$cohort_start_date >= .data$observation_period_start_date,
+      .data$cohort_end_date <= .data$observation_period_end_date
+    )
+
+  nTarget <- andromeda$cohort_table |>
+    dplyr::filter(.data$type == "target") |>
+    dplyr::group_by(.data$subject_id) |>
+    dplyr::summarise(n = as.integer(dplyr::n())) |>
+    dplyr::pull(.data$n)
+  
+  nEvent <- andromeda$cohort_table |>
+    dplyr::filter(.data$type == "event") |>
+    dplyr::group_by(.data$subject_id) |>
+    dplyr::summarise(n = as.integer(dplyr::n())) |>
+    dplyr::pull(.data$n)
+  
+  appendAttrition(
+    toAdd = data.frame(
+      number_target_subjects = as.integer(length(nTarget)),
+      number_target_records = as.integer(sum(nTarget)),
+      number_event_subjects = as.integer(length(nEvent)),
+      number_event_records = as.integer(sum(nEvent)),
+      reason_id = 2,
+      reason = "Filtered records spanning more than one observation period.",
       time_stamp = as.numeric(Sys.time())
     ),
     andromeda = andromeda
