@@ -77,4 +77,5 @@ Collate:
     'log.R'
     'fetchCohortTable.R'
     'initMetadata.R'
+    'summariseTargetIndexToEndOfObservation.R'
 Config/roxygen2/version: 8.0.0
