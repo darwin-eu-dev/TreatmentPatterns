@@ -18,7 +18,7 @@
 #' }
 summariseGaps <- function(andromeda) {
   assertions <- checkmate::makeAssertCollection()
-  checkmate::assertClass(andromeda$cohortTable, "tbl_Andromeda", add = assertions)
+  checkmate::assertClass(andromeda$treatmentHistoryFinal, "tbl_Andromeda", add = assertions)
   checkmate::assertClass(andromeda$analyses, "tbl_Andromeda", add = assertions)
   checkmate::assertClass(andromeda$cohorts, "tbl_Andromeda", add = assertions)
   checkmate::reportAssertions(assertions)
@@ -119,7 +119,8 @@ plotGaps <- function(result, timeScale = "day", ...) {
     x = names(result),
     identical.to = c(
       "analysis_id", "target_cohort", "type", "min", "q25", "median", "q75",
-      "max","mean", "sd"),
+      "max","mean", "sd"
+    ),
     add = assertions
   )
   checkmate::assertChoice(
@@ -199,7 +200,10 @@ tableGaps <- function(result, timeScale = "day", ...) {
   checkmate::assertClass(result, "data.frame", add = assertions)
   checkmate::assertNames(
     x = names(result),
-    identical.to = c("analysis_id", "target_cohort", "type", "min", "q25", "median", "q75", "max", "mean", "sd"),
+    identical.to = c(
+      "analysis_id", "target_cohort", "type", "min", "q25", "median", "q75",
+      "max", "mean", "sd"
+    ),
     add = assertions
   )
   checkmate::assertChoice(
