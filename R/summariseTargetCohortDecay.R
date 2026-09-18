@@ -121,7 +121,7 @@ plotTargetCohortDecay <- function(result, timeScale = "day", ...) {
 
 #' tableTargetCohortDecay
 #'
-#' Creates a table of summary statistics of the 
+#' Creates a table of summary statistics of the cohort decay.
 #'
 #' @param result (`data.frame`) Result from `summariseTargetCohortDecay()`
 #' @param timeScale (`character(1)`: `"day"`) Time scale to use for the summary statistics. May be one of: `"day"`, `"week"`, `"month"`, `"year"`

@@ -17,7 +17,7 @@ tableTargetCohortDecay(result, timeScale = "day", ...)
 \code{data.frame}
 }
 \description{
-Creates a table of summary statistics of the
+Creates a table of summary statistics of the cohort decay.
 }
 \examples{
 {
