@@ -26,7 +26,8 @@ Imports:
     tidyr,
     dbplyr,
     Andromeda (>= 1.0.0),
-    purrr
+    purrr,
+    visOmopResults
 Suggests:
     knitr,
     rmarkdown,
@@ -49,7 +50,7 @@ Suggests:
     networkD3,
     ggplot2,
     htmlwidgets,
-    visOmopResults,
+    gt,
     PaRe,
     rlang
 License: Apache License (>= 2)
