@@ -80,4 +80,5 @@ Collate:
     'initMetadata.R'
     'summariseTargetIndexToEndOfObservation.R'
     'summariseTargetCohortDecay.R'
+    'summariseGaps.R'
 Config/roxygen2/version: 8.0.0
