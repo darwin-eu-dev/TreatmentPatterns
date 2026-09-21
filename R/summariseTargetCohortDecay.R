@@ -127,7 +127,7 @@ plotTargetCohortDecay <- function(result, timeScale = "day", ...) {
 #' @param timeScale (`character(1)`: `"day"`) Time scale to use for the summary statistics. May be one of: `"day"`, `"week"`, `"month"`, `"year"`
 #' @param ... Arguments for `visOmopResults::visTable()`
 #'
-#' @returns `data.frame`
+#' @returns A formatted table of the class selected in "type" argument.
 #' @export
 #'
 #' @examples {
