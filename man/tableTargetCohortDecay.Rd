@@ -14,7 +14,7 @@ tableTargetCohortDecay(result, timeScale = "day", ...)
 \item{...}{Arguments for \code{visOmopResults::visTable()}}
 }
 \value{
-\code{data.frame}
+A formatted table of the class selected in "type" argument.
 }
 \description{
 Creates a table of summary statistics of the cohort decay.
