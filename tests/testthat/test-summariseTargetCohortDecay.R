@@ -9,6 +9,10 @@ testthat::test_that("summariseTargetCohortDecay", {
   )
 
   testthat::expect_no_error(
+    summariseTargetCohortDecay(outputEnv, minCellCount = 1)
+  )
+
+  testthat::expect_error(
     summariseTargetCohortDecay(outputEnv)
   )
 
@@ -16,7 +20,7 @@ testthat::test_that("summariseTargetCohortDecay", {
   outputEnv$backup <- outputEnv$cohorts
   outputEnv$cohorts <- NULL
   testthat::expect_error(
-    summariseTargetCohortDecay(outputEnv)
+    summariseTargetCohortDecay(outputEnv, minCellCount = 1)
   )
   outputEnv$cohorts <- outputEnv$backup
   
@@ -24,7 +28,7 @@ testthat::test_that("summariseTargetCohortDecay", {
   outputEnv$backup <- outputEnv$analyses
   outputEnv$analyses <- NULL
   testthat::expect_error(
-    summariseTargetCohortDecay(outputEnv)
+    summariseTargetCohortDecay(outputEnv, minCellCount = 1)
   )
   outputEnv$analyses <- outputEnv$backup
   
@@ -32,7 +36,7 @@ testthat::test_that("summariseTargetCohortDecay", {
   outputEnv$backup <- outputEnv$cohortTable
   outputEnv$cohortTable <- NULL
   testthat::expect_error(
-    summariseTargetCohortDecay(outputEnv)
+    summariseTargetCohortDecay(outputEnv, minCellCount = 1)
   )
   outputEnv$cohortTable <- outputEnv$backup
 })
@@ -47,7 +51,7 @@ testthat::test_that("plotTargetCohortDecay", {
     .CM$cohortTableName
   )
 
-  result <- summariseTargetCohortDecay(outputEnv)
+  result <- summariseTargetCohortDecay(outputEnv, minCellCount = 1)
 
   testthat::expect_no_error(
     plotTargetCohortDecay(result, timeScale = "day")
@@ -84,7 +88,7 @@ testthat::test_that("tableTargetCohortDecay", {
     .CM$cohortTableName
   )
 
-  result <- summariseTargetCohortDecay(outputEnv)
+  result <- summariseTargetCohortDecay(outputEnv, minCellCount = 1)
 
   testthat::expect_no_error(
     tableTargetCohortDecay(result)
@@ -125,7 +129,7 @@ testthat::test_that("tableTargetCohortDecayAtDays", {
     .CM$cohortTableName
   )
   
-  result <- summariseTargetCohortDecay(outputEnv)
+  result <- summariseTargetCohortDecay(outputEnv, minCellCount = 1)
 
   testthat::expect_no_error(
     tableTargetCohortDecayAtDays(result, timePoints = 1)

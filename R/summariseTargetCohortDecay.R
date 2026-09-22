@@ -3,6 +3,7 @@
 #' Summarises the decay of the Target cohort over time.
 #'
 #' @param andromeda (`Andromeda`) Andromeda object returned by `computePathways()` 
+#' @param minCellCount (`numeric(1)`) Cut off value to censor any counts, that fall below this value.
 #'
 #' @returns `data.frame`
 #' @export
@@ -16,15 +17,21 @@
 #'   tableTargetCohortDecayAtDays(result, timePoints = 1:30, timeScale = "year", style = "darwin")
 #' }
 #' }
-summariseTargetCohortDecay <- function(andromeda) {
+summariseTargetCohortDecay <- function(andromeda, minCellCount) {
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertClass(andromeda$cohortTable, "tbl_Andromeda", add = assertions)
   checkmate::assertClass(andromeda$analyses, "tbl_Andromeda", add = assertions)
   checkmate::assertClass(andromeda$cohorts, "tbl_Andromeda", add = assertions)
+  checkmate::assertIntegerish(minCellCount, lower = 1, len = 1, null.ok = TRUE, add = assertions)
   checkmate::reportAssertions(assertions)
 
   analysisId <- andromeda$analyses |>
     dplyr::pull(.data$analysis_id)
+
+  totalPop <- andromeda$cohortTable |>
+    dplyr::filter(.data$type == "target") |>
+    dplyr::summarise(n = dplyr::n()) |>
+    dplyr::pull(.data$n)
 
   andromeda$cohortTable |>
     dplyr::left_join(andromeda$cohorts, by = c("cohortId", "type")) |>
@@ -57,12 +64,26 @@ summariseTargetCohortDecay <- function(andromeda) {
     dplyr::ungroup() |>
     dplyr::arrange(.data$pos) |>
     dplyr::collect() |>
-    dplyr::mutate(analysis_id = analysisId) |>
+    dplyr::mutate(
+      analysis_id = analysisId,
+      pct = .data$value / !!totalPop * 100
+    ) |>
     dplyr::select(
       "analysis_id",
       target_cohort = "cohort_name",
       n = "value",
+      "pct",
       days = "pos"
+    ) |>
+    dplyr::mutate(
+      n = dplyr::case_when(
+        .data$n < !!minCellCount ~ NA,
+        .default = .data$n
+      ),
+      pct = dplyr::case_when(
+        is.na(.data$n) ~ NA,
+        .default = .data$pct
+      )
     )
 }
 
@@ -89,7 +110,7 @@ summariseTargetCohortDecay <- function(andromeda) {
 plotTargetCohortDecay <- function(result, timeScale = "day", ...) {
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertClass(result, "data.frame", add = assertions)
-  checkmate::assertNames(names(result), identical.to = c("analysis_id", "target_cohort", "n", "days"), add = assertions)
+  checkmate::assertNames(names(result), identical.to = c("analysis_id", "target_cohort", "n", "pct", "days"), add = assertions)
   checkmate::assertChoice(timeScale, choices = c("day", "week", "month", "year"), add = assertions)
   checkmate::reportAssertions(assertions)
 
@@ -100,6 +121,14 @@ plotTargetCohortDecay <- function(result, timeScale = "day", ...) {
         !!timeScale == "month" ~ .data$days / 30,
         !!timeScale == "week" ~ .data$days / 7,
         .default = .data$days
+      ),
+      n = dplyr::case_when(
+        is.na(.data$n) ~ 0,
+        .default = .data$n
+      ),
+      pct = dplyr::case_when(
+        is.na(.data$pct) ~ 0,
+        .default = .data$pct
       )
     )
 
@@ -107,13 +136,14 @@ plotTargetCohortDecay <- function(result, timeScale = "day", ...) {
     data = df,
     mapping = ggplot2::aes(
       x = .data$time,
-      y = .data$n,
+      y = .data$pct,
       group = .data$target_cohort
     )) +
     ggplot2::geom_step() +
     ggplot2::facet_grid(rows = ggplot2::vars(target_cohort)) +
     ggplot2::labs(
       title = "Target Cohort Decay",
+      y = "%",
       x = sprintf("time (%s)", timeScale)
     ) +
     visOmopResults::themeVisOmop(...)
@@ -142,7 +172,7 @@ plotTargetCohortDecay <- function(result, timeScale = "day", ...) {
 tableTargetCohortDecay <- function(result, timeScale = "day", ...) {
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertClass(result, "data.frame", add = assertions)
-  checkmate::assertNames(names(result), identical.to = c("analysis_id", "target_cohort", "n", "days"), add = assertions)
+  checkmate::assertNames(names(result), identical.to = c("analysis_id", "target_cohort", "n", "pct", "days"), add = assertions)
   checkmate::assertChoice(timeScale, choices = c("day", "week", "month", "year"), add = assertions)
   checkmate::reportAssertions(assertions)
 
@@ -194,7 +224,7 @@ tableTargetCohortDecay <- function(result, timeScale = "day", ...) {
 tableTargetCohortDecayAtDays <- function(result, timePoints, timeScale = "day", ...) {
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertClass(result, "data.frame", add = assertions)
-  checkmate::assertNames(names(result), identical.to = c("analysis_id", "target_cohort", "n", "days"), add = assertions)
+  checkmate::assertNames(names(result), identical.to = c("analysis_id", "target_cohort", "n", "pct", "days"), add = assertions)
   checkmate::assertIntegerish(timePoints, lower = 0, min.len = 1, null.ok = FALSE, add = assertions)
   checkmate::assertChoice(timeScale, choices = c("day", "week", "month", "year"), add = assertions)
   checkmate::reportAssertions(assertions)
@@ -213,9 +243,10 @@ tableTargetCohortDecayAtDays <- function(result, timePoints, timeScale = "day", 
         dplyr::filter(.data$time <= timePoint) |>
         dplyr::filter(.data$time == max(.data$time, na.rm = TRUE)) |>
         dplyr::mutate(
+          pct = round(.data$pct, 2),
           !!rlang::sym(timeScale) := timePoint
         ) |>
-        dplyr::select("analysis_id", "target_cohort", dplyr::any_of(timeScale), "n")
+        dplyr::select("analysis_id", "target_cohort", dplyr::any_of(timeScale), "n", "pct")
     }) |>
     purrr::reduce(dplyr::bind_rows) |>
     visOmopResults::visTable(...)
