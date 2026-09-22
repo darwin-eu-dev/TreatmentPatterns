@@ -134,3 +134,43 @@ tableTargetIndexToEndOfObservation <- function(result, ...) {
     ) |>
     visOmopResults::visTable(...)
 }
+
+#' plotTargetIndexToEndOfObservation
+#'
+#' Makes a plot out of the result of `summariseTargetIndexToEndOfObservation()`.
+#'
+#' @param result (`data.frame`) Result from `summariseTargetIndexToEndOfObservation()`
+#' @param ... Arguments for `visOmopResults::themeVisOmop()`
+#'
+#' @returns `ggplot`
+#' @export
+#'
+#' @examples {
+#'   if (interactive()) {
+#'     outputEnv <- computePathways(
+#'       cohorts = cohorts,
+#'       cohortTableName = "cohort_table",
+#'       cdm = cdm
+#'     )
+#'     result <- summariseTargetIndexToEndOfObservation(outputEnv, minCellCount = 5)
+#'
+#'     plotTargetIndexToEndOfObservation(result, style = "darwin")
+#'   }
+#' }
+plotTargetIndexToEndOfObservation <- function(result, ...) {
+  result |>
+    ggplot2::ggplot() +
+    ggplot2::geom_boxplot(
+      stat = "identity",
+      mapping = ggplot2::aes(
+        y = .data$events,
+        xmin = .data$min,
+        xlower = .data$q25,
+        xmiddle = .data$median,
+        xupper = .data$q75,
+        xmax = .data$max
+      )
+    ) +
+    ggplot2::facet_grid(rows = ggplot2::vars(target_cohort_name)) +
+    visOmopResults::themeVisOmop(...)
+}
