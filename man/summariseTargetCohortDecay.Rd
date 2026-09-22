@@ -4,10 +4,12 @@
 \alias{summariseTargetCohortDecay}
 \title{summariseTargetCohortDecay}
 \usage{
-summariseTargetCohortDecay(andromeda)
+summariseTargetCohortDecay(andromeda, minCellCount)
 }
 \arguments{
 \item{andromeda}{(\code{Andromeda}) Andromeda object returned by \code{computePathways()}}
+
+\item{minCellCount}{(\code{numeric(1)}) Cut off value to censor any counts, that fall below this value.}
 }
 \value{
 \code{data.frame}
