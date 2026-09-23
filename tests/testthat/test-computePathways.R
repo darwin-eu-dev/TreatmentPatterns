@@ -93,7 +93,7 @@ test_that("windowStart", {
       cdm = .CM$cdm,
       windowStart = 0
     ),
-    "Records: 8366"
+    "(8366)"
   )
 
   expect_message(
@@ -103,7 +103,7 @@ test_that("windowStart", {
       cdm = .CM$cdm,
       windowStart = -30
     ),
-    "Records: 8366"
+    "(8366)"
   )
 
   expect_message(
@@ -113,7 +113,7 @@ test_that("windowStart", {
       cdm = .CM$cdm,
       windowStart = 30
     ),
-    "Records: 6267"
+    "(6267)"
   )
 })
 

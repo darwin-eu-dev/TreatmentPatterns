@@ -62,7 +62,7 @@ constructPathways <- function(settings, andromeda) {
     n <- andromeda$attrition %>%
       dplyr::collect() %>%
       tail(1) %>%
-      dplyr::pull(.data$number_records)
+      dplyr::pull(.data$number_target_records)
 
     if (n > 0) {
       andromeda$exitHistory <- andromeda$treatmentHistory %>%
@@ -121,9 +121,11 @@ constructPathways <- function(settings, andromeda) {
         attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
         appendAttrition(
           toAdd = data.frame(
-            number_records = attrCounts$nRecords,
-            number_subjects = attrCounts$nSubjects,
-            reason_id = 10,
+            number_target_subjects = attrCounts$nSubjects,
+            number_target_records = attrCounts$nSubjects,
+            number_event_subjects = attrCounts$nSubjects,
+            number_event_records = attrCounts$nRecords,
+            reason_id = 12,
             reason = sprintf("Max path length (%s)", settings$maxPathLength)
           ),
           andromeda = andromeda
@@ -170,16 +172,25 @@ applyMinEraDuration <- function(andromeda, minEraDuration) {
   andromeda$cohort_table <- andromeda$cohort_table |>
     dplyr::filter(.data$cohort_end_date - .data$cohort_start_date >= minEraDuration)
 
-  n <- andromeda$cohort_table |>
+  nTarget <- andromeda$cohort_table |>
+    dplyr::filter(.data$type == "target") |>
+    dplyr::group_by(.data$subject_id) |>
+    dplyr::summarise(n = as.integer(dplyr::n())) |>
+    dplyr::pull(.data$n)
+  
+  nEvent <- andromeda$cohort_table |>
+    dplyr::filter(.data$type == "event") |>
     dplyr::group_by(.data$subject_id) |>
     dplyr::summarise(n = as.integer(dplyr::n())) |>
     dplyr::pull(.data$n)
 
   appendAttrition(
     toAdd = data.frame(
-      number_records = as.integer(sum(n)),
-      number_subjects = as.integer(length(n)),
-      reason_id = 2,
+      number_target_subjects = as.integer(length(nTarget)),
+      number_target_records = as.integer(sum(nTarget)),
+      number_event_subjects = as.integer(length(nEvent)),
+      number_event_records = as.integer(sum(nEvent)),
+      reason_id = 3,
       reason = sprintf("Removing records < minEraDuration (%s)", minEraDuration),
       time_stamp = as.numeric(Sys.time())
     ),
@@ -311,9 +322,11 @@ createTreatmentHistory <- function(
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
     toAdd = data.frame(
-      number_records = attrCounts$nRecords,
-      number_subjects = attrCounts$nSubjects,
-      reason_id = 3,
+      number_target_subjects = attrCounts$nSubjects,
+      number_target_records = attrCounts$nSubjects,
+      number_event_subjects = attrCounts$nSubjects,
+      number_event_records = attrCounts$nRecords,
+      reason_id = 4,
       reason = sprintf(
         "Removing events outside window (%s: %s | %s: %s)",
         startAnchor, windowStart, endAnchor, windowEnd
@@ -384,9 +397,11 @@ doSplitEventCohorts <- function(
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
     toAdd = data.frame(
-      number_records = attrCounts$nRecords,
-      number_subjects = attrCounts$nSubjects,
-      reason_id = 4,
+      number_target_subjects = attrCounts$nSubjects,
+      number_target_records = attrCounts$nSubjects,
+      number_event_subjects = attrCounts$nSubjects,
+      number_event_records = attrCounts$nRecords,
+      reason_id = 5,
       reason = sprintf("splitEventCohorts")
     ),
     andromeda = andromeda
@@ -460,9 +475,11 @@ doEraCollapseNew <- function(andromeda, eraCollapseSize) {
       attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
       appendAttrition(
         toAdd = data.frame(
-          number_records = attrCounts$nRecords,
-          number_subjects = attrCounts$nSubjects,
-          reason_id = 5,
+          number_target_subjects = attrCounts$nSubjects,
+          number_target_records = attrCounts$nSubjects,
+          number_event_subjects = attrCounts$nSubjects,
+          number_event_records = attrCounts$nRecords,
+          reason_id = 6,
           reason = sprintf("Iteration %s: Collapsing eras, eraCollapse (%s)", counter, eraCollapseSize)
         ),
         andromeda = andromeda
@@ -474,9 +491,11 @@ doEraCollapseNew <- function(andromeda, eraCollapseSize) {
       attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
       appendAttrition(
         toAdd = data.frame(
-          number_records = attrCounts$nRecords,
-          number_subjects = attrCounts$nSubjects,
-          reason_id = 5,
+          number_target_subjects = attrCounts$nSubjects,
+          number_target_records = attrCounts$nSubjects,
+          number_event_subjects = attrCounts$nSubjects,
+          number_event_records = attrCounts$nRecords,
+          reason_id = 7,
           reason = sprintf("No eras needed Collapsing, eraCollapse (%s)", eraCollapseSize)
         ),
         andromeda = andromeda
@@ -546,9 +565,11 @@ doEraCollapse <- function(andromeda, eraCollapseSize) {
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
     toAdd = data.frame(
-      number_records = attrCounts$nRecords,
-      number_subjects = attrCounts$nSubjects,
-      reason_id = 5,
+      number_target_subjects = attrCounts$nSubjects,
+      number_target_records = attrCounts$nSubjects,
+      number_event_subjects = attrCounts$nSubjects,
+      number_event_records = attrCounts$nRecords,
+      reason_id = 8,
       reason = sprintf("Collapsing eras, eraCollapse (%s)", eraCollapseSize)
     ),
     andromeda = andromeda
@@ -827,9 +848,11 @@ doCombinationWindow <- function(
     attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
     appendAttrition(
       toAdd = data.frame(
-        number_records = attrCounts$nRecords,
-        number_subjects = attrCounts$nSubjects,
-        reason_id = 6,
+        number_target_subjects = attrCounts$nSubjects,
+        number_target_records = attrCounts$nSubjects,
+        number_event_subjects = attrCounts$nSubjects,
+        number_event_records = attrCounts$nRecords,
+        reason_id = 9,
         reason = sprintf("Iteration %s: minPostCombinationDuration (%s), combinatinoWindow (%s)", iterations, minPostCombinationDuration, combinationWindow)
       ),
       andromeda = andromeda
@@ -850,9 +873,11 @@ doCombinationWindow <- function(
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
     toAdd = data.frame(
-      number_records = attrCounts$nRecords,
-      number_subjects = attrCounts$nSubjects,
-      reason_id = 7,
+      number_target_subjects = attrCounts$nSubjects,
+      number_target_records = attrCounts$nSubjects,
+      number_event_subjects = attrCounts$nSubjects,
+      number_event_records = attrCounts$nRecords,
+      reason_id = 10,
       reason = sprintf("After Combination")
     ),
     andromeda = andromeda
@@ -1017,9 +1042,11 @@ doFilterTreatments <- function(andromeda, filterTreatments) {
   attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
   appendAttrition(
     toAdd = data.frame(
-      number_records = attrCounts$nRecords,
-      number_subjects = attrCounts$nSubjects,
-      reason_id = 8,
+      number_target_subjects = attrCounts$nSubjects,
+      number_target_records = attrCounts$nSubjects,
+      number_event_subjects = attrCounts$nSubjects,
+      number_event_records = attrCounts$nRecords,
+      reason_id = 11,
       reason = sprintf("filterTreatments (%s)", filterTreatments)
     ),
     andromeda = andromeda

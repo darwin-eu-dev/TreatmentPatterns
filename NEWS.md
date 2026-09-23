@@ -1,3 +1,23 @@
+# TreatmentPatterns 3.2.0
+---------
+- Added `summariseTargetIndexToEndOfObservation()`.
+- Added `tableTagetIndexToEndOfObservation()`.
+- Added `plotTargetIndexToEndOfObservation()`.
+- Added `summariseTargetCohortDecay()`.
+- Added `tableTargetCohortDecay()`.
+- Added `tableTargetCohortDecayAtDays()`.
+- Added `plotTargetCohortDecay()`.
+- Added `summariseGaps()`.
+- Added `tableGaps()`.
+- Added `plotGaps()`.
+- Added `summariseOnEvent()`.
+- Added `tableOnEvent()`.
+- Added `plotOnEvent()`.
+- Updated the way how to connect to the database, CDMConnector is now fully by-passed.
+- Fixed issue when summonsing combination-events in summary_event_duration.
+- Updated `ggSunburst()`
+
+
 # TreatmentPatterns 3.1.2
 ---------
 - Fixes run-to-run stability of TreatmentPatterns.
