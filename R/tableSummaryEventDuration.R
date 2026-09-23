@@ -14,6 +14,13 @@
 #' }
 #' }
 tableSummaryEventDuration <- function(result, ...) {
+  checkmate::assertClass(result, classes = "TreatmentPatternsResults")
+
+  if (is.null(result$summary_event_duration)) {
+    warning("`summary_event_duration` is `NULL`")
+    return(invisible(NULL))
+  }
+
   result$summary_event_duration |>
     dplyr::left_join(result$cdm_source_info, by = "analysis_id") |>
     dplyr::left_join(result$analyses, by = "analysis_id") |>
