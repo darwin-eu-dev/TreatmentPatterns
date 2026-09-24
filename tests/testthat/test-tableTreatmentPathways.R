@@ -19,7 +19,7 @@ testthat::test_that("tableTreatmentPathways", {
   )
 
   result$summary_event_duration <- NULL
-  testthat::expect_error(
+  testthat::expect_warning(
     tableTreatmentPathways(result)
   )
 })
