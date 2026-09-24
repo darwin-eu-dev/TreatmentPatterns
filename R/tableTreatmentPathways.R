@@ -14,7 +14,6 @@
 #' }
 #' }
 tableTreatmentPathways <- function(result, ...) {
-  browser()
   checkmate::assertClass(result, "TreatmentPatternsResults")
 
   if (is.null(result$treatment_pathways)) {
