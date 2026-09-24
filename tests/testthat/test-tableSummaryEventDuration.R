@@ -19,7 +19,7 @@ testthat::test_that("tableSummaryEventDuration", {
   )
 
   result$summary_event_duration <- NULL
-  testthat::expect_warning(
+  testthat::expect_error(
     tableSummaryEventDuration(result)
   )
 })

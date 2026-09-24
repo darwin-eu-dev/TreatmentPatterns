@@ -14,11 +14,11 @@
 #' }
 #' }
 tableTreatmentPathways <- function(result, ...) {
+  browser()
   checkmate::assertClass(result, "TreatmentPatternsResults")
 
   if (is.null(result$treatment_pathways)) {
-    warning("`treatment_pathways` is `NULL`")
-    return(invisible(NULL))
+    stop("`treatment_pathways` is `NULL`")
   }
 
   result$treatment_pathways |>
