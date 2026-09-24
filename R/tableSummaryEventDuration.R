@@ -17,8 +17,7 @@ tableSummaryEventDuration <- function(result, ...) {
   checkmate::assertClass(result, classes = "TreatmentPatternsResults")
 
   if (is.null(result$summary_event_duration)) {
-    warning("`summary_event_duration` is `NULL`")
-    return(invisible(NULL))
+    stop("`summary_event_duration` is `NULL`")
   }
 
   result$summary_event_duration |>

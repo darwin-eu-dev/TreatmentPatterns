@@ -18,8 +18,8 @@ testthat::test_that("tableTreatmentPathways", {
     tableTreatmentPathways(result, style = "darwin")
   )
 
-  result$summary_event_duration <- NULL
-  testthat::expect_warning(
+  result$treatment_pathways <- NULL
+  testthat::expect_error(
     tableTreatmentPathways(result)
   )
 })
