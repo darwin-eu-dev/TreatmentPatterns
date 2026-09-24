@@ -19,7 +19,40 @@ testthat::test_that("CohortSet", {
   )
 })
 
-testthat::test_that("CohortsToCreate-CohortsGenerated", {
+testthat::test_that("cohortsToCreate", {
+  cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
+  
+  cohortJsonFiles <- list.files(path = system.file("exampleCohorts", package = "TreatmentPatterns"), full.names = TRUE)
+  
+  for (i in 1:length(cohortJsonFiles)) {
+    cohortJsonFileName <- cohortJsonFiles[i]
+    cohortName <- tools::file_path_sans_ext(basename(cohortJsonFileName))
+    cohortJson <- readChar(cohortJsonFileName, file.info(cohortJsonFileName)$size)
+    cohortExpression <- CirceR::cohortExpressionFromJson(cohortJson)
+    cohortSql <- CirceR::buildCohortQuery(cohortExpression, options = CirceR::createGenerateOptions(generateStats = FALSE))
+    cohortsToCreate <- data.frame(
+      cohortId = i,
+      cohortName = cohortName, 
+      sql = cohortSql,
+      stringsAsFactors = FALSE
+    ) |>
+      rbind(cohortsToCreate)
+  }
+
+  testthat::expect_error(
+    setCohortTypes(cohortsToCreate)
+  )
+  
+  testthat::expect_error(
+    setCohortTypes(cohortsToCreate, "event")
+  )
+  
+  testthat::expect_no_error(
+    setCohortTypes(cohortsToCreate, c(rep("event", 7), "target"))
+  )
+})
+
+testthat::test_that("CohortsGenerated", {
   testthat::skip_on_cran()
   testthat::skip_if_not(ableToRun()$CG)
 
@@ -57,19 +90,6 @@ testthat::test_that("CohortsToCreate-CohortsGenerated", {
     cohortDatabaseSchema = "main",
     cohortTableNames = cohortTableNames,
     cohortDefinitionSet = cohortsToCreate
-  )
-
-  # cohortsToCreate
-  testthat::expect_error(
-    setCohortTypes(cohortsToCreate)
-  )
-  
-  testthat::expect_error(
-    setCohortTypes(cohortsToCreate, "event")
-  )
-  
-  testthat::expect_no_error(
-    setCohortTypes(cohortsToCreate, c(rep("event", 7), "target"))
   )
 
   # cohortsGenerated
