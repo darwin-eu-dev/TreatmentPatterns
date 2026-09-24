@@ -59,7 +59,23 @@ summariseGaps <- function(andromeda) {
     dplyr::ungroup() |>
     dbplyr::window_order()
 
-  c("gap_to_first", "gap_between", "gap_to_end") |>
+  layers <- df |>
+    dplyr::summarise(
+      layer = .data$eventSeq,
+      analysis_id = !!analysisId,
+      type = dplyr::sql("'gap_layer_' || eventSeq::INT || '-' || (eventSeq + 1)::INT"),
+      min = min(.data$gap_between, na.rm = TRUE),
+      q25 = stats::quantile(.data$gap_between, 0.25, na.rm = TRUE),
+      median = stats::median(.data$gap_between, na.rm = TRUE),
+      q75 = stats::quantile(.data$gap_between, 0.75, na.rm = TRUE),
+      max = max(.data$gap_between, na.rm = TRUE),
+      mean = mean(.data$gap_between, na.rm = TRUE),
+      sd = stats::sd(.data$gap_between, na.rm = TRUE),
+      .by = c("cohortName", "eventSeq")
+    ) |>
+    dplyr::filter(.data$layer != max(.data$layer))
+
+  ends <- c("gap_to_first", "gap_to_end") |>
     purrr::map(\(col) {
       df |>
         dplyr::summarise(
@@ -75,7 +91,10 @@ summariseGaps <- function(andromeda) {
           .by = c("cohortName")
         )
     }) |>
-    purrr::reduce(dplyr::union_all) |>
+    purrr::reduce(dplyr::union_all)
+
+  layers |>
+    dplyr::union_all(ends) |>
     dplyr::select(
       "analysis_id",
       target_cohort = "cohortName",
