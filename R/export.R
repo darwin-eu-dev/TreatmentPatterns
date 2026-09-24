@@ -355,8 +355,13 @@ validateExport <- function() {
 #'
 #' @return (`data.frame()`)
 computeStatsTherapy <- function(treatmentHistory) {
+  eventCount <- treatmentHistory |>
+    dplyr::filter(.data$eventCohortName != "None") |>
+    nrow()
+
   dplyr::bind_rows(
     treatmentHistory |>
+      dplyr::filter(.data$eventCohortName != "None") |>
       dplyr::mutate(
         eventName = dplyr::case_when(
           grepl(pattern = "\\+", .data$eventCohortId) ~ "combination-event",
@@ -372,12 +377,13 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_average = mean(.data$durationEra, na.rm = TRUE),
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
         event_count = dplyr::n(),
-        pct = round(.data$event_count / nrow(treatmentHistory) * 100, 2),
+        pct = round(.data$event_count / !!eventCount * 100, 2),
         .by = c("eventName")
       ) |>
       dplyr::mutate(line = "overall"),
 
     treatmentHistory |>
+      dplyr::filter(.data$eventCohortName != "None") |>
       dplyr::group_by(.data$eventSeq) |>
       dplyr::mutate(eventName = dplyr::case_when(
         nchar(.data$eventCohortId) > 1 ~ "combination-event",
@@ -393,7 +399,7 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_average = mean(.data$durationEra, na.rm = TRUE),
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
         event_count = dplyr::n(),
-        pct = round(.data$event_count / nrow(treatmentHistory) * 100),
+        pct = round(.data$event_count / !!eventCount * 100),
         .by = c("eventName", "eventSeq")
       ) |>
       dplyr::mutate(line = as.character(.data$eventSeq)) |>
@@ -410,7 +416,7 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_average = mean(.data$durationEra, na.rm = TRUE),
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
         event_count = dplyr::n(),
-        pct = round(.data$event_count / nrow(treatmentHistory) * 100),
+        pct = round(.data$event_count / !!eventCount * 100),
         .by = "eventCohortName"
       ) |>
       dplyr::mutate(line = "overall") |>
@@ -427,7 +433,7 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_average = mean(.data$durationEra, na.rm = TRUE),
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
         event_count = dplyr::n(),
-        pct = round(.data$event_count / nrow(treatmentHistory) * 100),
+        pct = round(.data$event_count / !!eventCount * 100),
         .by = c("eventSeq", "eventCohortName")
       ) |>
       dplyr::mutate(line = as.character(.data$eventSeq)) |>
