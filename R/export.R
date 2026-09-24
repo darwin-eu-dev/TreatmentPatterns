@@ -76,14 +76,14 @@
 #'     name = "cohort_table"
 #'   )
 #'
-#'   cohorts <- cohortSet %>%
+#'   cohorts <- cohortSet |>
 #'     # Remove 'cohort' and 'json' columns
-#'     select(-"cohort", -"json") %>%
-#'     mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target")) %>%
+#'     select(-"cohort", -"json") |>
+#'     mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target")) |>
 #'     rename(
 #'       cohortId = "cohort_definition_id",
 #'       cohortName = "cohort_name",
-#'     ) %>%
+#'     ) |>
 #'     select("cohortId", "cohortName", "type")
 #'
 #'   outputEnv <- computePathways(
@@ -111,8 +111,8 @@ export <- function(
     stratify = FALSE) {
   validateExport()
   
-  nrows <- andromeda$treatmentHistoryFinal %>%
-    dplyr::summarize(n()) %>%
+  nrows <- andromeda$treatmentHistoryFinal |>
+    dplyr::summarize(n()) |>
     dplyr::pull()
   
   if (nrows == 0) {
@@ -124,34 +124,34 @@ export <- function(
     dir.create(outputPath, showWarnings = FALSE, recursive = TRUE)
   }
 
-  treatmentHistory <- andromeda$treatmentHistoryFinal %>%
-    dplyr::inner_join(andromeda$cohorts, join_by(targetCohortId == cohortId)) %>%
-    dplyr::collect() %>%
+  treatmentHistory <- andromeda$treatmentHistoryFinal |>
+    dplyr::inner_join(andromeda$cohorts, dplyr::join_by(targetCohortId == cohortId)) |>
+    dplyr::collect() |>
     dplyr::select(
       "personId", "indexYear", "age", "sex", "eventCohortName", "eventCohortId",
       targetCohortName = "cohortName",
       "targetCohortId", "eventSeq", "durationEra", "n_target"
     )
 
-  targetsTH <- treatmentHistory %>%
-    dplyr::group_by(.data$targetCohortName) %>%
+  targetsTH <- treatmentHistory |>
+    dplyr::group_by(.data$targetCohortName) |>
     dplyr::group_split()
   
-  analysisId <- andromeda$analyses %>%
+  analysisId <- andromeda$analyses |>
     dplyr::pull(.data$analysis_id)
   
-  analyses <- andromeda$analyses %>%
+  analyses <- andromeda$analyses |>
     dplyr::collect()
 
-  metadata <- andromeda$metadata %>%
-    dplyr::collect() %>%
+  metadata <- andromeda$metadata |>
+    dplyr::collect() |>
     dplyr::mutate(analysis_id = analysisId)
 
-  cdmSourceInfo <- andromeda$cdm_source_info %>%
-    dplyr::collect() %>%
+  cdmSourceInfo <- andromeda$cdm_source_info |>
+    dplyr::collect() |>
     dplyr::mutate(analysis_id = analysisId)
 
-  arguments <- andromeda$arguments %>%
+  arguments <- andromeda$arguments |>
     dplyr::collect()
 
   results <- lapply(targetsTH, function(treatmentHistory) {
@@ -162,7 +162,7 @@ export <- function(
       dplyr::bind_rows(
         treatmentHistory,
         getFilteredSubjects(andromeda)
-      ) %>%
+      ) |>
         mutate(
           targetCohortId = targetCohortId,
           targetCohortName = targetCohortName
@@ -171,33 +171,39 @@ export <- function(
       treatmentHistory
     }
     
-    attrition <- andromeda$attrition %>%
-      dplyr::collect() %>%
+    attrition <- andromeda$attrition |>
+      dplyr::collect() |>
       dplyr::mutate(
         analysis_id = analysisId,
         target_cohort_id = targetCohortId,
         target_cohort_name = targetCohortName
       )
-    
+
+    totalPop <- andromeda$cohortTable |>
+      dplyr::filter(.data$type == "target") |>
+      dplyr::summarise(n = dplyr::n()) |>
+      dplyr::pull(.data$n)
+
     treatmentPathways <- computeTreatmentPathways(
       treatmentHistory = treatmentHistory,
       ageWindow = ageWindow,
       minCellCount = minCellCount,
       censorType = censorType,
-      stratify = stratify
-    ) %>%
-      dplyr::distinct() %>%
+      stratify = stratify,
+      total = totalPop
+    ) |>
+      dplyr::distinct() |>
       dplyr::rename(
         index_year = "indexYear",
         pathway = "path"
-      ) %>%
+      ) |>
       dplyr::mutate(
         analysis_id = analysisId,
         target_cohort_id = targetCohortId,
         target_cohort_name = targetCohortName
       )
     
-    summaryEventDuration <- computeStatsTherapy(treatmentHistory) %>%
+    summaryEventDuration <- computeStatsTherapy(treatmentHistory) |>
       dplyr::mutate(
         analysis_id = analysisId,
         target_cohort_id = targetCohortId,
@@ -207,7 +213,7 @@ export <- function(
     counts <- computeCounts(treatmentHistory, minCellCount)
     
     counts <- lapply(counts, function(item) {
-      item %>%
+      item |>
         dplyr::mutate(
           analysis_id = analysisId,
           target_cohort_id = targetCohortId,
@@ -228,32 +234,32 @@ export <- function(
 
   attrition <- lapply(results, function(tpr) {
     tpr$attrition
-  }) %>%
+  }) |>
     dplyr::bind_rows()
 
   treatmentPathways <- lapply(results, function(tpr) {
     tpr$treatment_pathways
-  }) %>%
+  }) |>
     dplyr::bind_rows()
 
   summaryEventDuration <- lapply(results, function(tpr) {
     tpr$summary_event_duration
-  }) %>%
+  }) |>
     dplyr::bind_rows()
 
   countsAge <- lapply(results, function(tpr) {
     tpr$counts_age
-  }) %>%
+  }) |>
     dplyr::bind_rows()
 
   countsSex <- lapply(results, function(tpr) {
     tpr$counts_sex
-  }) %>%
+  }) |>
     dplyr::bind_rows()
 
   countsYear <- lapply(results, function(tpr) {
     tpr$counts_year
-  }) %>%
+  }) |>
     dplyr::bind_rows()
 
   tpr <- TreatmentPatternsResults$new(
@@ -350,12 +356,13 @@ validateExport <- function() {
 #' @return (`data.frame()`)
 computeStatsTherapy <- function(treatmentHistory) {
   dplyr::bind_rows(
-    treatmentHistory %>%
-      dplyr::mutate(eventName = dplyr::case_when(
-        grepl(pattern = "+", .data$eventCohortId) ~ "combination-event",
-        .default = "mono-event"
-      )) %>%
-      dplyr::group_by(.data$eventName) %>%
+    treatmentHistory |>
+      dplyr::mutate(
+        eventName = dplyr::case_when(
+          grepl(pattern = "\\+", .data$eventCohortId) ~ "combination-event",
+          .default = "mono-event"
+          )
+      ) |>
       dplyr::summarise(
         duration_min = min(.data$durationEra, na.rm = TRUE),
         duration_q1 = quantile(.data$durationEra, probs = 0.25, na.rm = TRUE),
@@ -364,18 +371,19 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_max = max(.data$durationEra, na.rm = TRUE),
         duration_average = mean(.data$durationEra, na.rm = TRUE),
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
-        event_count = n()
-      ) %>%
+        event_count = dplyr::n(),
+        pct = round(.data$event_count / nrow(treatmentHistory) * 100, 2),
+        .by = c("eventName")
+      ) |>
       dplyr::mutate(line = "overall"),
 
-    treatmentHistory %>%
-      dplyr::group_by(.data$eventSeq) %>%
+    treatmentHistory |>
+      dplyr::group_by(.data$eventSeq) |>
       dplyr::mutate(eventName = dplyr::case_when(
         nchar(.data$eventCohortId) > 1 ~ "combination-event",
         .default = "mono-event"
-      )) %>%
-      dplyr::ungroup() %>%
-      dplyr::group_by(.data$eventName, .data$eventSeq) %>%
+      )) |>
+      dplyr::ungroup() |>
       dplyr::summarise(
         duration_min = min(.data$durationEra, na.rm = TRUE),
         duration_q1 = quantile(.data$durationEra, probs = 0.25, na.rm = TRUE),
@@ -384,14 +392,15 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_max = max(.data$durationEra, na.rm = TRUE),
         duration_average = mean(.data$durationEra, na.rm = TRUE),
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
-        event_count = n()
-      ) %>%
-      dplyr::mutate(line = as.character(.data$eventSeq)) %>%
+        event_count = dplyr::n(),
+        pct = round(.data$event_count / nrow(treatmentHistory) * 100),
+        .by = c("eventName", "eventSeq")
+      ) |>
+      dplyr::mutate(line = as.character(.data$eventSeq)) |>
       dplyr::select(-"eventSeq"),
     
-    treatmentHistory %>%
-      dplyr::filter(.data$eventCohortName != "None") %>%
-      dplyr::group_by(.data$eventCohortName) %>%
+    treatmentHistory |>
+      dplyr::filter(.data$eventCohortName != "None") |>
       dplyr::summarise(
         duration_min = min(.data$durationEra, na.rm = TRUE),
         duration_q1 = stats::quantile(.data$durationEra, probs = 0.25, na.rm = TRUE),
@@ -400,14 +409,15 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_max = max(.data$durationEra, na.rm = TRUE),
         duration_average = mean(.data$durationEra, na.rm = TRUE),
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
-        event_count = n()
-      ) %>%
-      dplyr::mutate(line = "overall") %>%
+        event_count = dplyr::n(),
+        pct = round(.data$event_count / nrow(treatmentHistory) * 100),
+        .by = "eventCohortName"
+      ) |>
+      dplyr::mutate(line = "overall") |>
       dplyr::rename(eventName = "eventCohortName"),
     
-    treatmentHistory %>%
-      dplyr::filter(.data$eventCohortName != "None") %>%
-      dplyr::group_by(.data$eventSeq, .data$eventCohortName) %>%
+    treatmentHistory |>
+      dplyr::filter(.data$eventCohortName != "None") |>
       dplyr::summarise(
         duration_min = min(.data$durationEra, na.rm = TRUE),
         duration_q1 = stats::quantile(.data$durationEra, probs = 0.25, na.rm = TRUE),
@@ -416,50 +426,52 @@ computeStatsTherapy <- function(treatmentHistory) {
         duration_max = max(.data$durationEra, na.rm = TRUE),
         duration_average = mean(.data$durationEra, na.rm = TRUE),
         duration_sd = stats::sd(.data$durationEra, na.rm = TRUE),
-        event_count = n(), .groups = "drop"
-      ) %>%
-      dplyr::mutate(line = as.character(.data$eventSeq)) %>%
-      dplyr::select(-"eventSeq") %>%
+        event_count = dplyr::n(),
+        pct = round(.data$event_count / nrow(treatmentHistory) * 100),
+        .by = c("eventSeq", "eventCohortName")
+      ) |>
+      dplyr::mutate(line = as.character(.data$eventSeq)) |>
+      dplyr::select(-"eventSeq") |>
       dplyr::rename(eventName = "eventCohortName")
-  ) %>%
+  ) |>
     dplyr::rename(event_name = "eventName")
 }
 
 countYear <- function(treatmentHistory, minCellCount) {
-  treatmentHistory %>%
-    dplyr::group_by(.data$personId) %>%
-    dplyr::slice(which.min(.data$indexYear)) %>%
-    dplyr::group_by(.data$indexYear) %>%
-    dplyr::count() %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(n = case_when(
+  treatmentHistory |>
+    dplyr::group_by(.data$personId) |>
+    dplyr::slice(which.min(.data$indexYear)) |>
+    dplyr::group_by(.data$indexYear) |>
+    dplyr::count() |>
+    dplyr::ungroup() |>
+    dplyr::mutate(n = dplyr::case_when(
       .data$n < minCellCount ~ sprintf("<%s", minCellCount),
       .default = as.character(.data$n)
-    )) %>%
+    )) |>
     dplyr::rename(index_year = "indexYear")
 }
 
 countSex <- function(treatmentHistory, minCellCount) {
-  treatmentHistory %>%
-    dplyr::group_by(.data$personId) %>%
-    dplyr::slice(which.min(.data$indexYear)) %>%
-    dplyr::group_by(.data$sex) %>%
-    dplyr::count() %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(n = case_when(
+  treatmentHistory |>
+    dplyr::group_by(.data$personId) |>
+    dplyr::slice(which.min(.data$indexYear)) |>
+    dplyr::group_by(.data$sex) |>
+    dplyr::count() |>
+    dplyr::ungroup() |>
+    dplyr::mutate(n = dplyr::case_when(
       .data$n < minCellCount ~ sprintf("<%s", minCellCount),
       .default = as.character(.data$n)
     ))
 }
 
 countAge <- function(treatmentHistory, minCellCount) {
-  treatmentHistory %>%
-    dplyr::group_by(.data$personId) %>%
-    dplyr::slice(which.min(.data$indexYear)) %>%
-    dplyr::group_by(.data$age) %>%
-    dplyr::count() %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(n = case_when(
+  treatmentHistory |>
+    dplyr::group_by(.data$personId) |>
+    dplyr::slice(which.min(.data$indexYear)) |>
+    dplyr::group_by(.data$age) |>
+    dplyr::count() |>
+    dplyr::ungroup() |>
+    dplyr::mutate(n = dplyr::case_when(
       .data$n < minCellCount ~ sprintf("<%s", minCellCount),
       .default = as.character(.data$n)
     ))
@@ -488,7 +500,7 @@ computeCounts <- function(treatmentHistory, minCellCount) {
 #' 
 #' @noRd
 censorminCellCount <- function(treatmentPathways, minCellCount) {
-  treatmentPathways %>%
+  treatmentPathways |>
     dplyr::mutate(freq = dplyr::case_when(
       .data$freq >= minCellCount ~ .data$freq,
       .data$freq < minCellCount ~ minCellCount,
@@ -501,7 +513,7 @@ censorminCellCount <- function(treatmentPathways, minCellCount) {
 #' 
 #' @noRd
 censorRemove <- function(treatmentPathways, minCellCount) {
-  treatmentPathways %>%
+  treatmentPathways |>
     dplyr::filter(.data$freq >= minCellCount)
 }
 
@@ -512,13 +524,13 @@ censorRemove <- function(treatmentPathways, minCellCount) {
 #' 
 #' @noRd
 censorMean <- function(treatmentPathways, minCellCount) {
-  meanFreq <- treatmentPathways %>%
-    dplyr::filter(.data$freq < minCellCount) %>%
-    dplyr::pull(.data$freq) %>%
-    mean() %>%
+  meanFreq <- treatmentPathways |>
+    dplyr::filter(.data$freq < minCellCount) |>
+    dplyr::pull(.data$freq) |>
+    mean() |>
     round()
   
-  treatmentPathways %>%
+  treatmentPathways |>
     dplyr::mutate(freq = dplyr::case_when(
       .data$freq >= minCellCount ~ .data$freq,
       .data$freq < minCellCount ~ meanFreq,
@@ -532,8 +544,8 @@ censorMean <- function(treatmentPathways, minCellCount) {
 #' 
 #' @noRd
 censorData <- function(treatmentPathways, minCellCount, censorType) {
-  nCensored <- treatmentPathways %>%
-    dplyr::filter(.data$freq < minCellCount) %>%
+  nCensored <- treatmentPathways |>
+    dplyr::filter(.data$freq < minCellCount) |>
     nrow()
   
   treatmentPathways <- switch(
@@ -573,8 +585,8 @@ makeAgeWindow <- function(ageWindow) {
 #'
 #' @noRd
 groupByAgeWindow <- function(treatmentHistory, ageWindow) {
-  treatmentHistory %>%
-    dplyr::rowwise() %>%
+  treatmentHistory |>
+    dplyr::rowwise() |>
     dplyr::mutate(
       ageBin = paste(
         unlist(stringi::stri_extract_all(
@@ -597,44 +609,47 @@ groupByAgeWindow <- function(treatmentHistory, ageWindow) {
 #' @return (`data.frame()`)
 #' 
 #' @noRd
-computeTreatmentPathways <- function(treatmentHistory, ageWindow, minCellCount, censorType, stratify) {
+computeTreatmentPathways <- function(treatmentHistory, ageWindow, minCellCount, censorType, stratify, total) {
   treatmentPathways <- groupByAgeWindow(treatmentHistory, ageWindow)
   
-  treatmentPathways <- treatmentPathways %>%
+  treatmentPathways <- treatmentPathways |>
     dplyr::mutate(indexYear = as.character(.data$indexYear))
   
   treatmentPathways <- if (stratify) {
-    treatmentPathways <- stratisfy(treatmentPathways)
-    treatmentPathways[is.na(treatmentPathways)] <- "all"
-    treatmentPathways <- censorData(treatmentPathways, minCellCount, censorType)
-    treatmentPathways$path[treatmentPathways$path == "NA"] <- "None"
-    treatmentPathways
+    stratisfy(treatmentPathways)
   } else {
-    treatmentHistory %>%
-      dplyr::collect() %>%
+    treatmentHistory |>
+      dplyr::collect() |>
       dplyr::mutate(n_target = dplyr::case_when(
         is.na(.data$n_target) ~ 1,
         .default = .data$n_target
-      )) %>%
-      dplyr::group_by(.data$n_target, .data$personId) %>%
-      dplyr::arrange(.data$eventSeq) %>%
+      )) |>
+      dplyr::group_by(.data$n_target, .data$personId) |>
+      dplyr::arrange(.data$eventSeq) |>
       dplyr::distinct(
         .data$personId, .data$eventCohortName, .data$eventCohortId,
         .data$targetCohortName, .data$targetCohortId, .data$eventSeq,
         .data$durationEra, .data$n_target
-      ) %>%
+      ) |>
       dplyr::reframe(
         dplyr::across(.cols = "eventCohortName", .fns = \(x) paste(x, collapse = "-")
         )
-      ) %>%
-      dplyr::rename(path = "eventCohortName") %>%
-      dplyr::group_by(path) %>%
-      dplyr::summarise(freq = n()) %>%
-      dplyr::mutate(age = "all", sex = "all", indexYear = "all") %>%
+      ) |>
+      dplyr::rename(path = "eventCohortName") |>
+      dplyr::group_by(path) |>
+      dplyr::reframe(
+        freq = dplyr::n(),
+        pct = round(.data$freq / !!total * 100, 2)
+      ) |>
+      dplyr::mutate(age = "all", sex = "all", indexYear = "all") |>
       dplyr::arrange(desc(.data$freq), .data$path)
   }
 
-  treatmentHistory <- treatmentHistory %>%
+  treatmentPathways[is.na(treatmentPathways)] <- "all"
+  treatmentPathways <- censorData(treatmentPathways, minCellCount, censorType)
+  treatmentPathways$path[treatmentPathways$path == "NA"] <- "None"
+
+  treatmentHistory <- treatmentHistory |>
     dplyr::mutate(
       n_target = dplyr::case_when(
         is.na(.data$n_target) ~ 1,
@@ -645,27 +660,27 @@ computeTreatmentPathways <- function(treatmentHistory, ageWindow, minCellCount, 
 }
 
 collapsePaths <- function(treatmentHistory) {
-  treatmentHistory %>%
-    dplyr::arrange(.data$eventSeq) %>%
-    dplyr::group_by(.data$personId, .data$indexYear) %>%
+  treatmentHistory |>
+    dplyr::arrange(.data$eventSeq) |>
+    dplyr::group_by(.data$personId, .data$indexYear) |>
     dplyr::mutate(
       pathway = list(.data$eventCohortName[.data$eventSeq]),
       .groups = "drop"
-    ) %>%
-    dplyr::ungroup() %>%
-    dplyr::group_by(.data$indexYear, .data$pathway) %>%
-    dplyr::mutate(freq = length(.data$personId), .groups = "drop") %>%
-    dplyr::ungroup() %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(path = paste(.data$pathway, collapse = "-")) %>%
-    dplyr::group_by(.data$personId) %>%
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::group_by(.data$indexYear, .data$pathway) |>
+    dplyr::mutate(freq = length(.data$personId), .groups = "drop") |>
+    dplyr::ungroup() |>
+    dplyr::rowwise() |>
+    dplyr::mutate(path = paste(.data$pathway, collapse = "-")) |>
+    dplyr::group_by(.data$personId) |>
     dplyr::slice(which.min(.data$indexYear))
 }
 
 stratisfyAgeSexYear <- function(treatmentHistory) {
-  collapsePaths(treatmentHistory) %>%
-    dplyr::group_by(.data$path, .data$ageBin, .data$sex, .data$indexYear) %>%
-    dplyr::summarise(freq = n(), .groups = "drop") %>%
+  collapsePaths(treatmentHistory) |>
+    dplyr::group_by(.data$path, .data$ageBin, .data$sex, .data$indexYear) |>
+    dplyr::summarise(freq = dplyr::n(), .groups = "drop") |>
     dplyr::mutate(
       indexYear = as.character(.data$indexYear)
     )
@@ -673,60 +688,60 @@ stratisfyAgeSexYear <- function(treatmentHistory) {
 
 # All
 stratAll <- function(treatmentPathways) {
-  treatmentPathways %>%
-    dplyr::group_by(path) %>%
-    dplyr::summarize(freq = sum(freq)) %>%
+  treatmentPathways |>
+    dplyr::group_by(path) |>
+    dplyr::summarize(freq = sum(freq)) |>
     dplyr::mutate(indexYear = "all", sex = "all", ageBin = "all")
 }
 
 # sex
 stratSex <- function(treatmentPathways) {
   dplyr::bind_rows(
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$indexYear, .data$ageBin) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$indexYear, .data$ageBin) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(sex = "all"),
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$ageBin) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$ageBin) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(sex = "all", indexYear = "all"),
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$indexYear) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$indexYear) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(sex = "all", ageBin = "all")
   )
 }
 
 stratAgeBin <- function(treatmentPathways) {
   dplyr::bind_rows(
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$indexYear, .data$sex) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$indexYear, .data$sex) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(ageBin = "all"),
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$sex) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$sex) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(ageBin = "all", indexYear = "all"),
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$indexYear) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$indexYear) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(ageBin = "all", sex = "all")
   )
 }
 
 stratIndexYear <- function(treatmentPathways) {
   dplyr::bind_rows(
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$sex, .data$ageBin) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$sex, .data$ageBin) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(indexYear = "all"),
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$ageBin) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$ageBin) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(sex = "all", indexYear = "all"),
-    treatmentPathways %>%
-      dplyr::group_by(.data$path, .data$sex) %>%
-      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") %>%
+    treatmentPathways |>
+      dplyr::group_by(.data$path, .data$sex) |>
+      dplyr::summarize(freq = sum(.data$freq), .groups = "drop") |>
       dplyr::mutate(indexYear = "all", ageBin = "all")
   )
 }
@@ -739,9 +754,9 @@ stratisfy <- function(treatmentHistory) {
     stratAgeBin(treatmentPathways),
     stratSex(treatmentPathways),
     stratIndexYear(treatmentPathways)
-  ) %>%
-    dplyr::mutate(sex = tolower(.data$sex)) %>%
-    dplyr::rename(age = "ageBin") %>%
+  ) |>
+    dplyr::mutate(sex = tolower(.data$sex)) |>
+    dplyr::rename(age = "ageBin") |>
     dplyr::relocate("path", "freq", "age", "sex", "indexYear")
 }
 
@@ -753,20 +768,20 @@ stratisfy <- function(treatmentHistory) {
 #' 
 #' @return data.frame()
 getFilteredSubjects <- function(andromeda) {
-  targetCohortId <- andromeda$cohorts %>%
-    dplyr::filter(.data$type == "target") %>%
+  targetCohortId <- andromeda$cohorts |>
+    dplyr::filter(.data$type == "target") |>
     dplyr::pull(.data$cohortId)
   
-  out <- andromeda$currentCohorts %>%
-    dplyr::anti_join(andromeda$treatmentHistory, join_by(personId == personId)) %>%
-    dplyr::filter(.data$cohortId %in% targetCohortId) %>%
+  out <- andromeda$currentCohorts |>
+    dplyr::anti_join(andromeda$treatmentHistory, dplyr::join_by(personId == personId)) |>
+    dplyr::filter(.data$cohortId %in% targetCohortId) |>
     dplyr::mutate(
       indexYear = floor(.data$startDate / 365.25) + 1970,
       eventCohortName = "None",
       eventCohortId = "-1",
       durationEra = 0,
-      eventSeq = 1) %>%
-    dplyr::select("personId", "indexYear", "age", "sex", "eventCohortName", "eventCohortId", "eventSeq") %>%
+      eventSeq = 1) |>
+    dplyr::select("personId", "indexYear", "age", "sex", "eventCohortName", "eventCohortId", "eventSeq") |>
     dplyr::collect()
   
   if (nrow(out) == 0) {
