@@ -20,6 +20,9 @@ testthat::test_that("CohortSet", {
 })
 
 testthat::test_that("cohortsToCreate", {
+  testthat::skip_on_cran()
+  testthat::skip_if_not(ableToRun()$CG)
+
   cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
   
   cohortJsonFiles <- list.files(path = system.file("exampleCohorts", package = "TreatmentPatterns"), full.names = TRUE)
