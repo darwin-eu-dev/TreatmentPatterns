@@ -25,7 +25,6 @@ tableSummaryEventDuration <- function(result, ...) {
     dplyr::left_join(result$analyses, by = "analysis_id") |>
     dplyr::group_by(.data$cdm_source_abbreviation, .data$description, .data$line) |>
     dplyr::mutate(
-      `%` = round(.data$event_count / sum(.data$event_count) * 100, 2),
       duration_average = round(.data$duration_average, 2),
       duration_sd = round(.data$duration_sd, 2)
     ) |>
@@ -43,7 +42,7 @@ tableSummaryEventDuration <- function(result, ...) {
       mean = "duration_average",
       `st dev` = "duration_sd",
       n = "event_count",
-      "%"
+      `%` = "pct"
     ) |>
     dplyr::arrange(.data$data_source, .data$analysis, .data$event_line) |>
     visOmopResults::visTable(...)

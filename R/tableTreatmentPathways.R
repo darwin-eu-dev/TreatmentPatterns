@@ -32,8 +32,16 @@ tableTreatmentPathways <- function(result, ...) {
       .data$target_cohort_id,
       .data$target_cohort_name
     ) |>
-    dplyr::mutate(`%` = round(.data$freq / sum(.data$freq) * 100, 2)) |>
     dplyr::ungroup() |>
-    dplyr::select(data_source = "cdm_source_abbreviation", analysis = "description", "age", "sex", "index_year", "pathway", n = "freq", "%") |>
+    dplyr::select(
+      data_source = "cdm_source_abbreviation",
+      analysis = "description",
+      "age",
+      "sex",
+      "index_year",
+      "pathway",
+      n = "freq",
+      `%` = "pct"
+    ) |>
     visOmopResults::visTable(...)
 }
