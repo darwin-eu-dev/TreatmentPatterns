@@ -83,4 +83,7 @@ Collate:
     'summariseGaps.R'
     'summariseOnEvent.R'
     'setCohortTypes.R'
+    'tableSummaryEventDuration.R'
+    'tableTreatmentPathways.R'
+>>>>>>> develop
 Config/roxygen2/version: 8.0.0
