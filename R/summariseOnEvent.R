@@ -121,7 +121,8 @@ summariseOnEvent <- function(andromeda, minCellCount, timeScale = "day", timeGro
         is.na(.data$value) ~ NA,
         .default = .data$pct
       )
-    )
+    ) |>
+    dplyr::rename(n = "value")
 }
 
 #' plotOnEvent
@@ -147,19 +148,22 @@ summariseOnEvent <- function(andromeda, minCellCount, timeScale = "day", timeGro
 #' }
 plotOnEvent <- function(result, ...) {
   assertions <- checkmate::makeAssertCollection()
-  checkmate::assertNames(names(result), identical.to = c("pos", "target_cohort", "value", "analysis_id", "timeScale", "pct"), add = assertions)
+  checkmate::assertNames(names(result), identical.to = c("pos", "target_cohort", "n", "analysis_id", "timeScale", "pct"), add = assertions)
   checkmate::reportAssertions(assertions)
 
   ggplot2::ggplot(
     data = result |>
-      dplyr::mutate(value = dplyr::case_when(
-        is.na(.data$value) ~ 0,
-        .default = .data$value
+      dplyr::mutate(n = dplyr::case_when(
+        is.na(.data$n) ~ 0,
+        .default = .data$n
       )),
-    mapping = ggplot2::aes(x = .data$pos, y = .data$value)
+    mapping = ggplot2::aes(x = .data$pos, y = .data$n)
   ) +
     ggplot2::geom_line() +
-    ggplot2::labs(x = unique(result$timeScale)) +
+    ggplot2::labs(
+      x = unique(result$timeScale),
+      y = "Number of subjects"
+    ) +
     ggplot2::facet_grid(rows = ggplot2::vars(target_cohort)) +
     visOmopResults::themeVisOmop(...)
 }
@@ -188,7 +192,7 @@ plotOnEvent <- function(result, ...) {
 #' }
 tableOnEvent <- function(result, .force = FALSE, ...) {
   assertions <- checkmate::makeAssertCollection()
-  checkmate::assertNames(names(result), identical.to = c("pos", "target_cohort", "value", "analysis_id", "timeScale", "pct"), add = assertions)
+  checkmate::assertNames(names(result), identical.to = c("pos", "target_cohort", "n", "analysis_id", "timeScale", "pct"), add = assertions)
   checkmate::assertLogical(.force, len = 1, add = assertions)
   checkmate::reportAssertions(assertions)
 
@@ -212,8 +216,7 @@ tableOnEvent <- function(result, .force = FALSE, ...) {
     result |>
       dplyr::relocate("analysis_id", "target_cohort") |>
       dplyr::rename(
-        !!rlang::sym(unique(result$timeScale)) := "pos",
-        n = "value"
+        !!rlang::sym(unique(result$timeScale)) := "pos"
       ) |>
       dplyr::mutate(pct = round(.data$pct, 2)) |>
       dplyr::select(-"timeScale", `%` = "pct") |>
