@@ -82,7 +82,8 @@ test_that("Test Database", {
     connection = connection,
     databaseSchema = RESULT_SCHEMA,
     tableName = cohortTableName,
-    data = dummyCohortTable
+    data = dummyCohortTable,
+    tempEmulationSchema = RESULT_SCHEMA
   )
 
   withr::defer({
