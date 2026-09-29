@@ -86,7 +86,12 @@ test_that("Test Database", {
   )
 
   withr::defer({
-    CDMConnector::dropSourceTable(cdm, cohortTableName)
+    DatabaseConnector::renderTranslateExecuteSql(
+      connection = connection,
+      sql = "DORP TABLE @schema.@table",
+      schema = RESULT_SCHEMA,
+      table = cohortTableName
+    )
   })
 
   cohorts <- data.frame(
