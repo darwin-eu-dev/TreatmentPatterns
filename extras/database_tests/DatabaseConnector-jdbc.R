@@ -69,7 +69,7 @@ test_that("Test Database", {
 
   # Make CDM Reference with JDBC ----
   ## Prepare ----
-  cohortTableName <- "temp_tp_cohort_table_2"
+  cohortTableName <- "TMP_TP_COHORT_TABLE"
 
   dummyCohortTable <- data.frame(
     cohort_definition_id = 1,
@@ -82,8 +82,7 @@ test_that("Test Database", {
     connection = connection,
     databaseSchema = RESULT_SCHEMA,
     tableName = cohortTableName,
-    data = dummyCohortTable,
-    tempEmulationSchema = RESULT_SCHEMA
+    data = dummyCohortTable
   )
 
   withr::defer({
