@@ -88,7 +88,7 @@ test_that("Test Database", {
   withr::defer({
     DatabaseConnector::renderTranslateExecuteSql(
       connection = connection,
-      sql = "DORP TABLE @schema.@table",
+      sql = "DROP TABLE @schema.@table",
       schema = RESULT_SCHEMA,
       table = cohortTableName
     )
