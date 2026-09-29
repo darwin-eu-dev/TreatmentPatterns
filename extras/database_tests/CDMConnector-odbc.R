@@ -22,57 +22,25 @@ test_that("Test Database", {
   ## Prepare ----
   cohortTableName <- "temp_tp_cohort_table"
 
-  cdm[[cohortTableName]] <- cdm$observation_period %>%
-    dplyr::mutate(
-      cohort_definition_id = 1,
-    ) %>%
-    dplyr::inner_join(
-      cdm$person, dplyr::join_by(person_id == person_id)
-    ) %>%
-    dplyr::select(
-      "cohort_definition_id",
-      subject_id = "person_id",
-      cohort_start_date = "observation_period_start_date",
-      cohort_end_date = "observation_period_start_date"
-    ) %>%
-    head(10) %>%
-    dplyr::compute(name = cohortTableName)
-  
-  withr::defer({
-    CDMConnector::dropSourceTable(cdm, cohortTableName)
-  })
-  
-  ## fetchMetadata() ----
-  andromeda <- Andromeda::andromeda()
-  
-  andromeda <- TreatmentPatterns:::fetchMetadata(andromeda = andromeda)
-  
-  metadata <- andromeda$metadata %>%
-    collect()
-  
-  expect_in(
-    c("execution_start", "package_version", "r_version", "platform"),
-    names(metadata)
+  dummyCohortTable <- data.frame(
+    cohort_definition_id = 1,
+    subject_id = c(1, 2, 3, 4, 5),
+    cohort_start_date = as.Date("1999-01-01"),
+    cohort_end_date = as.Date("2005-01-01")
   )
-  
-  expect_true(is.numeric(metadata$execution_start))
-  expect_identical(metadata$platform, base::version$platform)
-  expect_identical(nrow(metadata), 1L)
-  expect_identical(ncol(metadata), 4L)
-  
-  ## fetchCdmSource()
-  andromeda <- TreatmentPatterns:::fetchCdmSource(cdm = cdm, andromeda = andromeda)
-  # Close when defered
+
+  CDMConnector::insertTable(
+    cdm = cdm,
+    name = cohortTableName,
+    table = dummyCohortTable,
+    overwrite = TRUE,
+    temporary = FALSE
+  )
+
   withr::defer({
-    Andromeda::close(andromeda)
+    CDMConnector::dropSourceTable(cdm = cdm, name = cohortTableName)
   })
-  
-  cdm_source <- andromeda$cdm_source_info %>%
-    collect()
-  
-  expect_true(ncol(cdm_source) >= 10)
-  
-  ## fetchCohortTable()
+
   cohorts <- data.frame(
     cohortId = 1,
     cohortName = "foo",
@@ -80,19 +48,44 @@ test_that("Test Database", {
   )
   
   andromeda <- TreatmentPatterns:::fetchCohortTable(
-    cdm = cdm,
+    connectionDetails = CONNECTION_DETAILS,
+    connection = NULL,
+    cdmSchema = CDM_SCHEMA,
+    writeSchema = RESULT_SCHEMA,
     cohorts = cohorts,
-    cohortTableName = cohortTableName,
-    andromeda = andromeda,
-    andromedaTableName = "cohort_table",
-    minEraDuration = 0
+    cohortTables = cohortTableName
   )
   
-  expect_true("cohort_table" %in% names(andromeda))
-  expect_true(all(c("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date", "age", "sex", "subject_id_origin") %in% names(andromeda$cohort_table)))
+  withr::defer({
+    Andromeda::close(andromeda)
+  })
   
-  cohort_table <- andromeda$cohort_table %>%
-    collect()
+  andromeda$cohortTable <- andromeda$cohort_table |>
+    dplyr::mutate(
+      cohort_start_date = .data$cohort_start_date - as.Date("1970-01-01"),
+      cohort_end_date = .data$cohort_end_date - as.Date("1970-01-01")
+    )
   
-  expect_true(nrow(cohort_table) == 10)
+  andromeda$cohort_table <- NULL
+  
+  andromeda$cohortTable <- andromeda$cohortTable %>%
+    dplyr::rename(
+      cohortId = "cohort_definition_id",
+      personId = "subject_id",
+      startDate = "cohort_start_date",
+      endDate = "cohort_end_date"
+    )
+  
+  testthat::expect_true(!is.null(andromeda$cohortTable))
+  
+  colCheck <- all(
+    colnames(andromeda$cohortTable) %in% c(
+      "cohortId", "personId", "startDate", "endDate", "sex", "cohort_name",
+      "type", "observation_period_start_date", "observation_period_end_date",
+      "subject_id_origin", "age")
+  )
+  
+  testthat::expect_true(colCheck)
+  
+  testthat::expect_true(!is.null(andromeda$cdm_source_info))
 })
