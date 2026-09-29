@@ -48,10 +48,10 @@ test_that("Test Database", {
   )
   
   andromeda <- TreatmentPatterns:::fetchCohortTable(
-    connectionDetails = CONNECTION_DETAILS,
+    cdm = cdm,
     connection = NULL,
-    cdmSchema = CDM_SCHEMA,
-    writeSchema = RESULT_SCHEMA,
+    cdmSchema = NULL,
+    writeSchema = NULL,
     cohorts = cohorts,
     cohortTables = cohortTableName
   )
