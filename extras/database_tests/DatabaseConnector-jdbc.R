@@ -69,7 +69,11 @@ test_that("Test Database", {
 
   # Make CDM Reference with JDBC ----
   ## Prepare ----
-  cohortTableName <- "TMP_TP_COHORT_TABLE"
+  cohortTableName <- "tmp_tp_cohort_table"
+
+  if (DBMS == "oracle") {
+    cohortTableName <- toupper(cohortTableName)
+  }
 
   dummyCohortTable <- data.frame(
     cohort_definition_id = 1,
