@@ -168,7 +168,11 @@ plotGaps <- function(result, timeScale = "day", ...) {
       type = dplyr::case_when(
         .data$type == "gap_to_first" ~ "time to first event",
         .data$type == "gap_to_end" ~ "time from last event to end of target",
-        .data$type == "gap_between" ~ "time between events"
+        grepl(pattern = "^gap_layer", x = .data$type)
+        ~ stringi::stri_replace(
+          str = .data$type,
+          regex = "gap_layer_", 
+          replacement = "Time between layers ")
       )
     )
 
@@ -252,7 +256,10 @@ tableGaps <- function(result, timeScale = "day", ...) {
       type = dplyr::case_when(
         .data$type == "gap_to_first" ~ "Time to first event",
         .data$type == "gap_to_end" ~ "Time from last event to end of target",
-        .data$type == "gap_between" ~ "Time between events"
+        grepl(x = .data$type, pattern = "^gap_layer_") ~ stringi::stri_replace(
+          str = .data$type,
+          regex = "gap_layer_", 
+          replacement = "Time between layers ")
       )
     ) |>
     visOmopResults::visTable(...)
