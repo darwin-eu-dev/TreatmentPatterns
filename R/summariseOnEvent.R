@@ -73,8 +73,8 @@ summariseOnEvent <- function(andromeda, minCellCount, timeScale = "day", timeGro
       targetEndDate = "endDate"
     ) |>
     dplyr::mutate(
-      s1 = as.integer(abs(.data$eventStartDate) - 1),
-      s2 = as.integer(.data$eventEndDate - .data$eventStartDate),
+      s1 = as.integer(.data$eventStartDate - .data$targetStartDate),
+      s2 = as.integer((.data$eventEndDate - .data$eventStartDate)),
       s3 = as.integer((.data$targetEndDate + 1) - .data$eventEndDate)
     ) |>
     dplyr::mutate(
