@@ -43,7 +43,7 @@ summariseTargetCohortDecay <- function(andromeda, minCellCount) {
     ) |>
     dplyr::mutate(
       start_point = .data$startDate - .data$startDate,
-      end_point = abs(.data$startDate) + abs(.data$observation_period_end_date)
+      end_point = .data$endDate - .data$startDate
     ) |>
     dplyr::select("cohort_name", "personId", "start_point", "end_point") |>
     dplyr::mutate(
