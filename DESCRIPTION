@@ -24,7 +24,7 @@ Imports:
     checkmate,
     dplyr,
     tidyr,
-    dbplyr,
+    dbplyr (>= 2.6.0),
     Andromeda (>= 1.0.0),
     purrr,
     visOmopResults
