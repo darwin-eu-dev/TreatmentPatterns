@@ -148,6 +148,16 @@ attachTable <- function(con, catalog, schema, table) {
     dplyr::rename_with(tolower)
 }
 
+setOriginSubjectId <- function(tbl, dbms) {
+  if (dbms == "iris") {
+    tbl |>
+      dplyr::mutate(subject_id_origin = dplyr::sql("CAST(subject_id AS CHAR)"))
+  } else {
+    tbl |>
+      dplyr::mutate(subject_id_origin = as.character(.data$subject_id))
+  }
+}
+
 #' fetchCohortTable
 #'
 #' @param cdm (`cdm_reference`) A CDM reference object.
@@ -269,43 +279,58 @@ fetchCohortTable <- function(
     conInterface(connectionDetails, cdm, andromeda)
   }
 
-  if (!is.null(connectionDetails)) {
-    on.exit(DBI::dbDisconnect(con))
-  }
-
   cohorts <- cohorts |>
     dplyr::select(
       cohort_definition_id = "cohortId",
       cohort_name = "cohortName",
       "type"
-    )
+    ) |>
+    as.data.frame()
 
-  copyMap <- list(
-    Snowflake = TRUE,
-    other = "inline"
+  dbObservationPeriod <- attachTable(
+    con = con,
+    catalog = getCatalog(cdmSchema),
+    schema = getSchema(cdmSchema),
+    table = "observation_period"
   )
 
-  copy <- if (!is.null(cdm)) {
-    db <- class(attr(cdm, "dbcon"))
-    if (!db %in% names(copyMap)) {
-      db <- "other"
-    }
-    copyMap[[db]]
-  } else {
-    copyMap$other
-  }
+  DBI::dbWriteTable(
+    conn = con,
+    name = DBI::Id(schema = getSchema(writeSchema), table = "tp_cohorts"),
+    value = cohorts,
+    overwrite = TRUE,
+    temporary = FALSE
+  )
 
-  dbObservationPeriod <- attachTable(con, catalog = getCatalog(cdmSchema), schema = getSchema(cdmSchema), "observation_period")
+  on.exit({
+    tryCatch({
+      DBI::dbRemoveTable(con, DBI::Id(schema = getSchema(writeSchema), table = "tp_cohorts"))
+    }, error = function(e) {
+      warning(sprintf("Could not remove `%s.tp_cohorts` from the database with error:\n  %s", getSchema(writeSchema), as.character(e)))
+    })
+
+    if (!is.null(connectionDetails)) {
+      DBI::dbDisconnect(con)
+    }
+  })
+
+  dbCohorts <- attachTable(
+    con = con,
+    catalog = getCatalog(writeSchema),
+    schema = getSchema(writeSchema),
+    table = "tp_cohorts"
+  )
+
 
   cohortTables |>
     purrr::map(dplyr::tbl, src = con) |>
     purrr::map(addAgeSex, con = con, cdmSchema = cdmSchema) |>
     purrr::map(dplyr::rename_with, .fn = tolower) |>
-    purrr::map(dplyr::right_join, y = cohorts, by = "cohort_definition_id", copy = copy) |>
+    purrr::map(dplyr::right_join, y = dbCohorts, by = "cohort_definition_id") |>
     purrr::reduce(dplyr::union_all) |>
     dplyr::left_join(dbObservationPeriod, by = dplyr::join_by(subject_id == person_id)) |>
     dplyr::select(-"observation_period_id", -"period_type_concept_id") |>
-    dplyr::mutate(subject_id_origin = as.character(.data$subject_id)) |>
+    setOriginSubjectId(dbms = con@dbms) |>
     dplyr::copy_to(dest = andromeda, name = "cohort_table")
   appendLog(andromeda, "Joined `cohorts` to cohort tables")
   appendLog(andromeda, "Saved original `subject_id` as `org_subject_id` as VARCHAR")
