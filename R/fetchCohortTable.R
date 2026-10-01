@@ -151,7 +151,7 @@ attachTable <- function(con, catalog, schema, table) {
 setOriginSubjectId <- function(tbl, dbms) {
   if (dbms == "iris") {
     tbl |>
-      dplyr::mutate(subject_id_origin = dplyr::sql("CAST(subject_id AS CHAR)"))
+      dplyr::mutate(subject_id_origin = dplyr::sql("CAST(subject_id AS VARCHAR)"))
   } else {
     tbl |>
       dplyr::mutate(subject_id_origin = as.character(.data$subject_id))
@@ -289,7 +289,7 @@ fetchCohortTable <- function(
     dplyr::select(
       cohort_definition_id = "cohortId",
       cohort_name = "cohortName",
-      "type"
+      cohort_type = "type"
     ) |>
     as.data.frame()
 
@@ -302,7 +302,11 @@ fetchCohortTable <- function(
 
   DBI::dbWriteTable(
     conn = con,
-    name = DBI::Id(schema = getSchema(writeSchema), table = "tp_cohorts"),
+    name = DBI::Id(
+      catalog = getCatalog(writeSchema),
+      schema = getSchema(writeSchema),
+      table = "tp_cohorts"
+    ),
     value = cohorts,
     overwrite = TRUE,
     temporary = FALSE
@@ -327,7 +331,6 @@ fetchCohortTable <- function(
     table = "tp_cohorts"
   )
 
-
   cohortTables |>
     purrr::map(dplyr::tbl, src = con) |>
     purrr::map(addAgeSex, con = con, cdmSchema = cdmSchema) |>
@@ -341,6 +344,9 @@ fetchCohortTable <- function(
   appendLog(andromeda, "Joined `cohorts` to cohort tables")
   appendLog(andromeda, "Saved original `subject_id` as `org_subject_id` as VARCHAR")
   appendLog(andromeda, "Copied merged cohort table to Andromeda as `cohort_table`")
+
+  andromeda$cohort_table <- andromeda$cohort_table |>
+    dplyr::rename(type = "cohort_type")
 
   intToDate(andromeda, tbl = "cohort_table", col = "observation_period_start_date")
   intToDate(andromeda, tbl = "cohort_table", col = "observation_period_end_date")
