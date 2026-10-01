@@ -86,7 +86,8 @@ test_that("Test Database", {
     connection = connection,
     databaseSchema = RESULT_SCHEMA,
     tableName = cohortTableName,
-    data = dummyCohortTable
+    data = dummyCohortTable,
+    dropTableIfExists = TRUE
   )
 
   withr::defer({
