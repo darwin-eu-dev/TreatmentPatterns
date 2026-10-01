@@ -300,13 +300,17 @@ fetchCohortTable <- function(
     table = "observation_period"
   )
 
+  cohortsName <- sprintf("tp_%s_cohorts", as.integer(Sys.time()))
+
+  tpCohortsRef <-DBI::Id(
+    catalog = getCatalog(writeSchema),
+    schema = getSchema(writeSchema),
+    table = cohortsName
+  )
+
   DBI::dbWriteTable(
     conn = con,
-    name = DBI::Id(
-      catalog = getCatalog(writeSchema),
-      schema = getSchema(writeSchema),
-      table = "tp_cohorts"
-    ),
+    name = tpCohortsRef,
     value = cohorts,
     overwrite = TRUE,
     temporary = FALSE
@@ -314,9 +318,14 @@ fetchCohortTable <- function(
 
   on.exit({
     tryCatch({
-      DBI::dbRemoveTable(con, DBI::Id(schema = getSchema(writeSchema), table = "tp_cohorts"))
+      DBI::dbRemoveTable(con, tpCohortsRef)
     }, error = function(e) {
-      warning(sprintf("Could not remove `%s.tp_cohorts` from the database with error:\n  %s", getSchema(writeSchema), as.character(e)))
+      warning(sprintf(
+        "Could not remove `%s.%s` from the database with error:\n  %s",
+        getSchema(writeSchema),
+        cohortsName,
+        as.character(e)
+      ))
     })
 
     if (!is.null(connectionDetails)) {
@@ -328,7 +337,7 @@ fetchCohortTable <- function(
     con = con,
     catalog = getCatalog(writeSchema),
     schema = getSchema(writeSchema),
-    table = "tp_cohorts"
+    table = cohortsName
   )
 
   cohortTables |>
