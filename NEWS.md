@@ -17,9 +17,10 @@
 - Added `tableSummaryEventDuration()` Function to create a table the `summary_event_duration` result form `export()`.
 - Added `setCohortTypes()` Function to create a `data.frame` from either a `CohortSet` from `CDMConnector`; or a `CohortDefinitionSet` or `GeneratedCohortSet` from `CohortGenerator` to assign cohort types.
 - Added internal log in Andromeda database.
-- Updated the way how to connect to the database, CDMConnector is now fully by-passed.
+- Updated the way how to connect to the database, `CDMConnector` is now fully by-passed.
 - Fixed issue when summonsing combination-events in summary_event_duration.
 - Fixed issue where `ggSunburst()` did not sometimes stack events correctly.
+- Fixed issue where in some edge cases the event sequence could be different.
 
 # TreatmentPatterns 3.1.2
 ---------
