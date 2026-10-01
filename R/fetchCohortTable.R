@@ -279,6 +279,12 @@ fetchCohortTable <- function(
     conInterface(connectionDetails, cdm, andromeda)
   }
 
+  dbms <- tryCatch({
+    con@dbms
+  }, error = function(e) {
+    ""
+  })
+
   cohorts <- cohorts |>
     dplyr::select(
       cohort_definition_id = "cohortId",
@@ -330,7 +336,7 @@ fetchCohortTable <- function(
     purrr::reduce(dplyr::union_all) |>
     dplyr::left_join(dbObservationPeriod, by = dplyr::join_by(subject_id == person_id)) |>
     dplyr::select(-"observation_period_id", -"period_type_concept_id") |>
-    setOriginSubjectId(dbms = con@dbms) |>
+    setOriginSubjectId(dbms = dbms) |>
     dplyr::copy_to(dest = andromeda, name = "cohort_table")
   appendLog(andromeda, "Joined `cohorts` to cohort tables")
   appendLog(andromeda, "Saved original `subject_id` as `org_subject_id` as VARCHAR")
