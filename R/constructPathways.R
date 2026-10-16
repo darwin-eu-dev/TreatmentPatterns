@@ -640,7 +640,6 @@ doCombinationWindow <- function(
     combinationWindow,
     minPostCombinationDuration,
     overlapMethod) {
-
   appendLog(andromeda = andromeda, msg = "[doCombinationWindow: %s] Start combination")
   testFun(andromeda)
   # Find which rows contain some overlap
@@ -824,7 +823,7 @@ doCombinationWindow <- function(
         dplyr::mutate(
           eventEndDate = dplyr::case_when(
             dplyr::lead(.data$switch) == 1
-            & !is.na(.data$eventStartDateNext) ~ .data$eventStartDateNext - 1,
+            & !is.na(.data$eventStartDateNext) ~ .data$eventStartDateNext,
             .default = .data$eventEndDate
           )
         ) |>
@@ -918,10 +917,6 @@ doCombinationWindow <- function(
           .default = .data$eventStartDate
         )
       )
-
-    andromeda$treatmentHistory |>
-      dbplyr::window_order(.data$sortOrder) |>
-      dplyr::select("personId", "eventCohortId", "eventStartDate", "eventEndDate", "sortOrder")
 
     appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] filter on minPostCombinationDuration", iterations))
     testFun(andromeda)
