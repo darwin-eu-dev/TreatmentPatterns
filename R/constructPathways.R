@@ -640,7 +640,6 @@ doCombinationWindow <- function(
     combinationWindow,
     minPostCombinationDuration,
     overlapMethod) {
-  browser()
 
   appendLog(andromeda = andromeda, msg = "[doCombinationWindow: %s] Start combination")
   testFun(andromeda)
@@ -856,7 +855,7 @@ doCombinationWindow <- function(
 
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::group_by(.data$personId, .data$n_target) |>
-      dbplyr::window_order(.data$eventStartDate, .data$eventEndDate, dplyr::desc(.data$eventCohortId)) |>
+      dbplyr::window_order(.data$eventStartDate, .data$eventEndDate, .data$eventCohortId) |>
       dplyr::mutate(sortOrder = as.numeric(.data$eventStartDate) + as.numeric(.data$eventEndDate) * row_number() / dplyr::n() * 10^-6) |>
       dbplyr::window_order() |>
       # dplyr::select(
