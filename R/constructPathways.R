@@ -836,17 +836,24 @@ doCombinationWindow <- function(
     appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] set next and previous dates", iterations))
     # testFun((andromeda)
 
+    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+      dplyr::group_by(.data$personId, .data$n_target) |>
+      dbplyr::window_order(.data$sortOrder) |>
+      dplyr::mutate(x = dplyr::row_number())
+
     andromeda[[sprintf("addRowsFRFS_%s", iterations)]] <- andromeda$treatmentHistory |>
       dplyr::filter(.data$combinationFRFS == 1) |>
       dplyr::mutate(
-        eventEndDate = .data$eventStartDate
+        eventEndDate = .data$eventStartDate,
+        x = .data$x - 0.5
       ) |>
       dplyr::mutate(eventCohortId = paste0(.data$eventCohortId, "+", .data$eventCohortIdPrevious))
 
     andromeda[[sprintf("addRowsLRFS_%s", iterations)]] <- andromeda$treatmentHistory |>
       dplyr::filter(dplyr::lead(.data$combinationLRFS) == 1) |>
       dplyr::mutate(
-        eventStartDate = .data$eventEndDate
+        eventStartDate = .data$eventEndDate,
+        x = .data$x + 1.5
       )
 
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
@@ -856,9 +863,7 @@ doCombinationWindow <- function(
 
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::group_by(.data$personId, .data$n_target) |>
-      dbplyr::window_order(.data$eventStartDate, .data$eventEndDate, .data$eventCohortId) |>
-      dplyr::mutate(sortOrder = as.numeric(.data$eventStartDate) + as.numeric(.data$eventEndDate) * row_number() / dplyr::n() * 10^-6) |>
-      dbplyr::window_order() |>
+      dbplyr::window_order(.data$x) |>
       # dplyr::select(
       #   "personId", "sortOrder",
       #   "eventCohortId", "eventStartDate", "eventEndDate",
@@ -868,14 +873,14 @@ doCombinationWindow <- function(
       dplyr::mutate(
         eventCohortId = dplyr::case_when(
           .data$combinationLRFS == 1
-          ~ paste0(.data$eventCohortId, "+", dplyr::lead(.data$eventCohortId)),
+          ~ paste0(.data$eventCohortId, "+", dplyr::lead(.data$eventCohortId, order_by = .data$x)),
           .default = .data$eventCohortId
         )
       ) |>
       # Update LRFS first record
       dplyr::mutate(
         eventEndDate = dplyr::case_when(
-          dplyr::lead(.data$combinationLRFS, order_by = .data$sortOrder) == 1
+          dplyr::lead(.data$combinationLRFS, order_by = .data$x) == 1
           ~ dplyr::lead(.data$eventStartDate),
           # ~ dplyr::lead(.data$eventStartDate) - 1,
           .default = .data$eventEndDate
@@ -884,8 +889,8 @@ doCombinationWindow <- function(
       # Update LRFS second record
       dplyr::mutate(
         eventStartDate = dplyr::case_when(
-          dplyr::lag(.data$combinationLRFS, order_by = .data$sortOrder) == 1
-          ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder),
+          dplyr::lag(.data$combinationLRFS, order_by = .data$x) == 1
+          ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
           # ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) + 1,
           .default = .data$eventStartDate
         )
@@ -894,17 +899,17 @@ doCombinationWindow <- function(
     dplyr::mutate(
       eventEndDate = dplyr::case_when(
         (.data$combinationFRFS == 1)
-        & grepl(dplyr::lead(.data$eventCohortId, order_by = .data$sortOrder), .data$eventCohortId)
-        ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder),
+        & grepl(dplyr::lead(.data$eventCohortId, order_by = .data$x), .data$eventCohortId)
+        ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
         .default = .data$eventEndDate
       )
     ) |>
       # Update FRFS first record
       dplyr::mutate(
         eventEndDate = dplyr::case_when(
-          dplyr::lead(.data$combinationFRFS, order_by = .data$sortOrder) == 1
-          & .data$eventEndDate == dplyr::lead(.data$eventEndDate, order_by = .data$sortOrder)
-          ~ dplyr::lead(.data$eventStartDate, order_by = .data$sortOrder),
+          dplyr::lead(.data$combinationFRFS, order_by = .data$x) == 1
+          & .data$eventEndDate == dplyr::lead(.data$eventEndDate, order_by = .data$x)
+          ~ dplyr::lead(.data$eventStartDate, order_by = .data$x),
           # ~ dplyr::lead(.data$eventStartDate, order_by = .data$sortOrder) - 1,
           .default = .data$eventEndDate
         )
@@ -912,9 +917,9 @@ doCombinationWindow <- function(
       # Update FRFS second record
       dplyr::mutate(
         eventStartDate = dplyr::case_when(
-          dplyr::lag(.data$combinationFRFS, order_by = .data$sortOrder) == 1
-          & .data$eventStartDate == dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
-          ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder),
+          dplyr::lag(.data$combinationFRFS, order_by = .data$x) == 1
+          & .data$eventStartDate == dplyr::lag(.data$eventStartDate, order_by = .data$x)
+          ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
           # ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) + 1,
           .default = .data$eventStartDate
         )
