@@ -342,7 +342,6 @@ fetchCohortTable <- function(
 
   cohortTables |>
     purrr::map(DBI::dbUnquoteIdentifier, con = con) |>
-    purrr::map(as.character) |>
     purrr::map(dplyr::tbl, src = con) |>
     purrr::map(addAgeSex, con = con, cdmSchema = cdmSchema) |>
     purrr::map(dplyr::rename_with, .fn = tolower) |>
