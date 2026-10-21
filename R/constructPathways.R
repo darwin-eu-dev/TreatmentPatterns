@@ -14,23 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-testFun <- function(andromeda) {
-  andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-    dplyr::mutate(
-      check_before = .data$eventStartDate < .data$targetStartDate,
-      check_after = .data$eventStartDate > .data$targetEndDate
-    )
-
-  nTrue <- andromeda$treatmentHistory |>
-    dplyr::filter(.data$check_before == TRUE | .data$check_after == TRUE) |>
-    dplyr::summarise(n = dplyr::n()) |>
-    dplyr::pull()
-
-  appendLog(andromeda = andromeda, msg = sprintf("target bounds check: %s", nTrue > 0))
-
-  return(invisible(nTrue > 0))
-}
-
 #' constructPathway
 #'
 #' Constructs the pathways.
@@ -620,10 +603,218 @@ doEraCollapse <- function(andromeda, eraCollapseSize) {
   return(invisible(NULL))
 }
 
-truncateRecords <- function(andromeda, overlapMethod, combinationWindow, iterations) {
-  if (overlapMethod == "truncate") {
-    appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] truncate non-combination overlap", iterations))
+filterOnMinPostCombinationDuration <- function(andromeda, minPostCombinationDuration, filterMethod = "combination") {
+  if (filterMethod == "all") {
+    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+      dplyr::mutate(durationEra = .data$eventEndDate - .data$eventStartDate) |>
+      dplyr::filter(.data$durationEra >= minPostCombinationDuration)
+  } else if (filterMethod == "combination") {
+    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+      dplyr::mutate(durationEra = .data$eventEndDate - .data$eventStartDate) |>
+      dbplyr::window_order(.data$combination_order) |>
+      dplyr::mutate(
+        filter_check = dplyr::case_when(
+          .data$combinationFRFS == 1 | .data$combinationLRFS == 1
+          | dplyr::lag(.data$combinationFRFS == 1) | dplyr::lag(.data$combinationLRFS == 1)
+          | dplyr::lead(.data$combinationFRFS == 1) | dplyr::lead(.data$combinationLRFS == 1)
+          ~ 1,
+          default = 0
+        )
+      ) |>
+      dplyr::filter(
+        dplyr::case_when(
+          .data$filter_check == 1 ~ .data$durationEra >= minPostCombinationDuration,
+          .default = TRUE
+        )
+      )
+  }
+}
 
+updateFRFSRecords <- function(treatmentHistory) {
+  treatmentHistory |>
+    # Update FRFS combination record
+    dplyr::mutate(
+      eventEndDate = dplyr::case_when(
+        (.data$combinationFRFS == 1)
+        & grepl(dplyr::lead(.data$eventCohortId, order_by = .data$combination_order), .data$eventCohortId)
+        ~ dplyr::lag(.data$eventEndDate, order_by = .data$combination_order),
+        .default = .data$eventEndDate
+      )
+    ) |>
+    # Update FRFS first record
+    dplyr::mutate(
+      eventEndDate = dplyr::case_when(
+        dplyr::lead(.data$combinationFRFS, order_by = .data$combination_order) == 1
+        & .data$eventEndDate == dplyr::lead(.data$eventEndDate, order_by = .data$combination_order)
+        ~ dplyr::lead(.data$eventStartDate, order_by = .data$combination_order),
+        # ~ dplyr::lead(.data$eventStartDate, order_by = .data$sortOrder) - 1,
+        .default = .data$eventEndDate
+      )
+    ) |>
+    # Update FRFS second record
+    dplyr::mutate(
+      eventStartDate = dplyr::case_when(
+        dplyr::lag(.data$combinationFRFS, order_by = .data$combination_order) == 1
+        & .data$eventStartDate == dplyr::lag(.data$eventStartDate, order_by = .data$combination_order)
+        ~ dplyr::lag(.data$eventEndDate, order_by = .data$combination_order),
+        # ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) + 1,
+        .default = .data$eventStartDate
+      )
+    )
+}
+
+updateLRFSRecords <- function(treatmentHistory) {
+  treatmentHistory |>
+    dplyr::mutate(
+      eventCohortId = dplyr::case_when(
+        .data$combinationLRFS == 1
+        ~ paste0(.data$eventCohortId, "+", dplyr::lead(.data$eventCohortId, order_by = .data$combination_order)),
+        .default = .data$eventCohortId
+      )
+    ) |>
+      # Update LRFS first record
+      dplyr::mutate(
+        eventEndDate = dplyr::case_when(
+          dplyr::lead(.data$combinationLRFS, order_by = .data$combination_order) == 1
+          ~ dplyr::lead(.data$eventStartDate),
+          # ~ dplyr::lead(.data$eventStartDate) - 1,
+          .default = .data$eventEndDate
+        )
+      ) |>
+      # Update LRFS second record
+      dplyr::mutate(
+        eventStartDate = dplyr::case_when(
+          dplyr::lag(.data$combinationLRFS, order_by = .data$combination_order) == 1
+          ~ dplyr::lag(.data$eventEndDate, order_by = .data$combination_order),
+          # ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) + 1,
+          .default = .data$eventStartDate
+        )
+      )
+}
+
+subsetLRFS <- function(andromeda) {
+  andromeda$treatmentHistory |>
+    dplyr::filter(dplyr::lead(.data$combinationLRFS) == 1) |>
+    dplyr::mutate(
+      eventStartDate = .data$eventEndDate,
+      combination_order = .data$combination_order + 1.5
+    )
+}
+
+subsetFRFS <- function(andromeda) {
+  andromeda$treatmentHistory |>
+    dplyr::filter(.data$combinationFRFS == 1) |>
+    dplyr::mutate(
+      eventEndDate = .data$eventStartDate,
+      combination_order = .data$combination_order - 0.5
+    ) |>
+    dplyr::mutate(eventCohortId = paste0(.data$eventCohortId, "+", dplyr::lag(.data$eventCohortId, order_by = .data$sortOrder)))
+}
+
+addCombinationOrder <- function(andromeda) {
+  andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+    dplyr::group_by(.data$personId, .data$n_target) |>
+    dbplyr::window_order(.data$sortOrder) |>
+    dplyr::mutate(combination_order = dplyr::row_number())
+}
+
+snapShotState <- function(andromeda, iterations, missingIds) {
+  appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] sum check switch and combinations != rows", iterations))
+  thPath <- file.path(tempdir(), sprintf("%s_problematic_treatment_history.csv", iterations))
+  ctPath <- file.path(tempdir(), sprintf("%s_problematic_cohort_table.csv", iterations))
+  
+  andromeda$treatmentHistory |>
+    dplyr::filter(.data$personId %in% missingIds) |>
+    dplyr::collect() |>
+    write.csv(thPath)
+  
+  message(sprintf("Wrote problematic persons from Treatment History to: %s", thPath))
+  
+  andromeda$cohortTable |>
+    dplyr::filter(.data$personId %in% missingIds) |>
+    dplyr::collect() |>
+    write.csv(ctPath)
+  
+  message(sprintf("Wrote problematic persons from Cohort Table to: %s", ctPath))
+  
+  andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+    dplyr::filter(!.data$personId %in% missingIds)
+}
+
+sumSelectedRows <- function(andromeda) {
+  andromeda$treatmentHistory |>
+    dplyr::filter(.data$selectedRows == 1) |>
+    dplyr::summarise(n = dplyr::n()) |>
+    dplyr::pull()
+}
+
+fetchSelectedRecordsPersonIds <- function(andromeda) {
+  andromeda$treatmentHistory |>
+    dplyr::filter(.data$selectedRows == 1) |>
+    dplyr::pull(.data$personId)
+}
+
+fetchSwitchCombinationPersonIds <- function(andromeda) {
+  andromeda$treatmentHistory |>
+    dplyr::filter(
+      .data$switch == 1 |
+        .data$combinationFRFS == 1 |
+        .data$combinationLRFS == 1
+    ) |>
+    dplyr::pull(.data$personId)
+}
+
+sumSwitchCombinationsRecords <- function(andromeda) {
+  andromeda$treatmentHistory |>
+    dplyr::filter(
+      .data$switch == 1 |
+        .data$combinationFRFS == 1 |
+        .data$combinationLRFS == 1
+    ) |>
+    dplyr::summarise(dplyr::n()) |>
+    dplyr::pull()
+}
+
+identifyLRFS <- function(andromeda) {
+  # For rows selected not in column switch ->
+  # if treatmentHistory[r - 1, event_end_date] >
+  # treatmentHistory[r, event_end_date] ->
+  # add column combination last received, first stopped
+  andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+    dplyr::group_by(.data$personId, .data$n_target) |>
+    dplyr::mutate(combinationLRFS = dplyr::case_when(
+      .data$selectedRows == 1 &
+        .data$switch == 0 &
+        (dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) >= .data$eventEndDate |
+           (dplyr::lead(.data$durationEra, order_by = .data$sortOrder) == .data$durationEra &
+              dplyr::lead(.data$eventEndDate, order_by = .data$sortOrder) == .data$eventEndDate &
+              dplyr::lead(.data$eventStartDate, order_by = .data$sortOrder) == .data$eventStartDate)) ~ 1,
+      .default = 0
+    )) |>
+    dplyr::ungroup()
+}
+
+identifyFRFS <- function(andromeda) {
+  # For rows selected not in column switch ->
+  # if treatmentHistory[r - 1, event_end_date] <=
+  # treatmentHistory[r, event_end_date] ->
+  # add column combination first received, first stopped
+  andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+    dplyr::group_by(.data$personId, .data$n_target) |>
+    dbplyr::window_order(.data$sortOrder) |>
+    dplyr::mutate(
+      combinationFRFS = case_when(
+        .data$selectedRows == 1
+        & .data$switch == 0
+        & dplyr::lag(.data$eventEndDate) < .data$eventEndDate ~ 1,
+        .default = 0
+      )) |>
+    dplyr::ungroup() |>
+    dbplyr::window_order()
+}
+
+truncateRecords <- function(andromeda, overlapMethod, combinationWindow) {
+  if (overlapMethod == "truncate") {
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::group_by(.data$personId, .data$n_target) |>
       dbplyr::window_order(.data$sortOrder) |>
@@ -638,10 +829,29 @@ truncateRecords <- function(andromeda, overlapMethod, combinationWindow, iterati
       ) |>
       dplyr::ungroup() |>
       dbplyr::window_order()
-  } else {
-    appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] non-combination overlap is NOT truncated", iterations))
-    # testFun((andromeda)
   }
+}
+
+identifySwitches <- function(andromeda, combinationWindow) {
+  # Which rows have gap previous shorter than combination window OR
+  # min(current duration era, previous duration era) -> add column switch
+  andromeda$treatmentHistory <- andromeda$treatmentHistory |>
+    dplyr::group_by(.data$personId, .data$targetCohortId) |>
+    # dplyr::select("personId", "eventCohortId", "eventStartDate", "eventEndDate", "gapPrevious", "durationEra") |>
+    # dplyr::filter(.data$personId == 3) |>
+    dplyr::mutate(
+      switch = dplyr::case_when(
+        .data$selectedRows == 1 & -.data$gapPrevious < combinationWindow
+        ~ 1,
+        .default = 0
+      ))
+}
+
+fetchSelectedRows <- function(andromeda) {
+  andromeda$treatmentHistory |>
+    dplyr::filter(.data$selectedRows) |>
+    dplyr::count() |>
+    dplyr::pull()
 }
 
 #' Combine overlapping events into combinations
@@ -674,187 +884,38 @@ doCombinationWindow <- function(
   # While rows that need modification exist:
   iterations <- 1
 
-  while (andromeda$treatmentHistory |>
-    dplyr::filter(.data$selectedRows) |>
-    dplyr::count() |>
-    dplyr::pull() != 0) {
-
+  while (fetchSelectedRows(andromeda) != 0) {
     appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] In while", iterations))
-    # testFun((andromeda)
 
-    # Which rows have gap previous shorter than combination window OR
-    # min(current duration era, previous duration era) -> add column switch
-    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-      dplyr::group_by(.data$personId, .data$targetCohortId) |>
-      # dplyr::select("personId", "eventCohortId", "eventStartDate", "eventEndDate", "gapPrevious", "durationEra") |>
-      # dplyr::filter(.data$personId == 3) |>
-      dplyr::mutate(
-        switch = dplyr::case_when(
-          .data$selectedRows == 1 & -.data$gapPrevious < combinationWindow
-          ~ 1,
-        .default = 0
-      ))
-
-    truncateRecords(andromeda, overlapMethod, combinationWindow, iterations)
-
+    identifySwitches(andromeda, combinationWindow)
     appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] flag switch", iterations))
-    # testFun((andromeda)
 
-    # For rows selected not in column switch ->
-    # if treatmentHistory[r - 1, event_end_date] <=
-    # treatmentHistory[r, event_end_date] ->
-    # add column combination first received, first stopped
-    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-      dplyr::group_by(.data$personId, .data$n_target) |>
-      dbplyr::window_order(.data$sortOrder) |>
-      dplyr::mutate(
-        combinationFRFS = case_when(
-          .data$selectedRows == 1
-          & .data$switch == 0
-          & dplyr::lag(.data$eventEndDate) < .data$eventEndDate ~ 1,
-        .default = 0
-      )) |>
-      dplyr::ungroup() |>
-      dbplyr::window_order()
+    truncateRecords(andromeda, overlapMethod, combinationWindow)
+    appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] truncate non-combination overlap", iterations))
 
+    identifyFRFS(andromeda)
     appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] flag FRFS", iterations))
-    # testFun((andromeda)
 
-    # For rows selected not in column switch ->
-    # if treatmentHistory[r - 1, event_end_date] >
-    # treatmentHistory[r, event_end_date] ->
-    # add column combination last received, first stopped
-    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-      dplyr::group_by(.data$personId, .data$n_target) |>
-      dplyr::mutate(combinationLRFS = dplyr::case_when(
-        .data$selectedRows == 1 &
-          .data$switch == 0 &
-          (dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) >= .data$eventEndDate |
-            (dplyr::lead(.data$durationEra, order_by = .data$sortOrder) == .data$durationEra &
-              dplyr::lead(.data$eventEndDate, order_by = .data$sortOrder) == .data$eventEndDate &
-              dplyr::lead(.data$eventStartDate, order_by = .data$sortOrder) == .data$eventStartDate)) ~ 1,
-        .default = 0
-      )) |>
-      dplyr::ungroup()
-
+    identifyLRFS(andromeda)
     appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] flag LRFS", iterations))
-    # testFun((andromeda)
 
-    sumSwitchComb <- andromeda$treatmentHistory |>
-      dplyr::filter(
-        .data$switch == 1 |
-          .data$combinationFRFS == 1 |
-          .data$combinationLRFS == 1
-      ) |>
-      dplyr::summarise(dplyr::n()) |>
-      pull()
+    if (sumSwitchCombinationsRecords(andromeda) != sumSelectedRows(andromeda)) {
+      appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] sum[nFRFS, nLRFS, nSwtich] != nSelectedRows", iterations))
 
-    switchedPersons <- andromeda$treatmentHistory |>
-      dplyr::filter(
-        .data$switch == 1 |
-          .data$combinationFRFS == 1 |
-          .data$combinationLRFS == 1
-      ) |>
-      dplyr::pull(.data$personId)
+      switchedPersons <- fetchSwitchCombinationPersonIds(andromeda)
+      totalPersons <- fetchSelectedRecordsPersonIds(andromeda)
+      missingIds <- totalPersons[!totalPersons %in% switchedPersons]
 
-    totalPersons <- andromeda$treatmentHistory |>
-      dplyr::filter(.data$selectedRows == TRUE) |>
-      dplyr::pull(.data$personId)
-
-    missingIds <- totalPersons[!totalPersons %in% switchedPersons]
-
-    sumSelectedRows <- andromeda$treatmentHistory |>
-      dplyr::summarise(sum = sum(.data$selectedRows, na.rm = TRUE)) |>
-      dplyr::pull()
-
-    appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] sum check switch and combinations", iterations))
-    # testFun((andromeda)
-
-    if (sumSwitchComb != sumSelectedRows) {
-      appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] sum check switch and combinations != rows", iterations))
-      # testFun((andromeda)
-      thPath <- file.path(tempdir(), sprintf("%s_problematic_treatment_history.csv", iterations))
-      ctPath <- file.path(tempdir(), sprintf("%s_problematic_cohort_table.csv", iterations))
-
-      andromeda$treatmentHistory |>
-        dplyr::filter(.data$personId %in% missingIds) |>
-        dplyr::collect() |>
-        write.csv(thPath)
-
-      message(sprintf("Wrote problematic persons from Treatment History to: %s", thPath))
-
-      andromeda$cohortTable |>
-        dplyr::filter(.data$personId %in% missingIds) |>
-        dplyr::collect() |>
-        write.csv(ctPath)
-
-      message(sprintf("Wrote problematic persons from Cohort Table to: %s", ctPath))
-
-      andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-        dplyr::filter(!.data$personId %in% missingIds)
-
+      snapShotState(andromeda, iterations, missingIds)
       stop(sprintf(": %s", paste0(missingIds, collapse = ", ")))
     }
 
-    appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] sum check switch and combinations == rows", iterations))
-    # testFun((andromeda)
+    appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] sum[nFRFS, nLRFS, nSwtich] == nSelectedRows", iterations))
 
-    # Do transformations for each of the three newly added columns
-    # Construct helpers
-    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-      dplyr::group_by(.data$personId, .data$n_target) |>
-      dplyr::mutate(
-        eventCohortIdPrevious = dplyr::lag(
-          .data$eventCohortId,
-          order_by = .data$sortOrder
-        ),
-        eventStartDatePrevious = dplyr::lag(
-          .data$eventStartDate,
-          order_by = .data$sortOrder
-        ),
-        eventEndDatePrevious = dplyr::lag(
-          .data$eventEndDate,
-          order_by = .data$sortOrder
-        )
-      ) |>
-      dplyr::mutate(
-        eventCohortIdNext = dplyr::lead(
-          .data$eventCohortId,
-          order_by = .data$sortOrder
-        ),
-        eventStartDateNext = dplyr::lead(
-          .data$eventStartDate,
-          order_by = .data$sortOrder
-        ),
-        eventEndDateNext = dplyr::lead(
-          .data$eventEndDate,
-          order_by = .data$sortOrder
-        )
-      ) |>
-      dplyr::ungroup()
+    addCombinationOrder(andromeda)
 
-    appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] set next and previous dates", iterations))
-    # testFun((andromeda)
-
-    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-      dplyr::group_by(.data$personId, .data$n_target) |>
-      dbplyr::window_order(.data$sortOrder) |>
-      dplyr::mutate(x = dplyr::row_number())
-
-    andromeda[[sprintf("addRowsFRFS_%s", iterations)]] <- andromeda$treatmentHistory |>
-      dplyr::filter(.data$combinationFRFS == 1) |>
-      dplyr::mutate(
-        eventEndDate = .data$eventStartDate,
-        x = .data$x - 0.5
-      ) |>
-      dplyr::mutate(eventCohortId = paste0(.data$eventCohortId, "+", .data$eventCohortIdPrevious))
-
-    andromeda[[sprintf("addRowsLRFS_%s", iterations)]] <- andromeda$treatmentHistory |>
-      dplyr::filter(dplyr::lead(.data$combinationLRFS) == 1) |>
-      dplyr::mutate(
-        eventStartDate = .data$eventEndDate,
-        x = .data$x + 1.5
-      )
+    andromeda[[sprintf("addRowsFRFS_%s", iterations)]] <- subsetFRFS(andromeda)
+    andromeda[[sprintf("addRowsLRFS_%s", iterations)]] <- subsetLRFS(andromeda)
 
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::union_all(andromeda[[sprintf("addRowsFRFS_%s", iterations)]]) |>
@@ -863,77 +924,12 @@ doCombinationWindow <- function(
 
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::group_by(.data$personId, .data$n_target) |>
-      dbplyr::window_order(.data$x) |>
-      # dplyr::select(
-      #   "personId", "sortOrder",
-      #   "eventCohortId", "eventStartDate", "eventEndDate",
-      #   "combinationLRFS", "combinationFRFS", "switch"
-      # ) |>
-      # Update LRFS combination record
-      dplyr::mutate(
-        eventCohortId = dplyr::case_when(
-          .data$combinationLRFS == 1
-          ~ paste0(.data$eventCohortId, "+", dplyr::lead(.data$eventCohortId, order_by = .data$x)),
-          .default = .data$eventCohortId
-        )
-      ) |>
-      # Update LRFS first record
-      dplyr::mutate(
-        eventEndDate = dplyr::case_when(
-          dplyr::lead(.data$combinationLRFS, order_by = .data$x) == 1
-          ~ dplyr::lead(.data$eventStartDate),
-          # ~ dplyr::lead(.data$eventStartDate) - 1,
-          .default = .data$eventEndDate
-        )
-      ) |>
-      # Update LRFS second record
-      dplyr::mutate(
-        eventStartDate = dplyr::case_when(
-          dplyr::lag(.data$combinationLRFS, order_by = .data$x) == 1
-          ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
-          # ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) + 1,
-          .default = .data$eventStartDate
-        )
-      ) |>
-    # Update FRFS combination record
-    dplyr::mutate(
-      eventEndDate = dplyr::case_when(
-        (.data$combinationFRFS == 1)
-        & grepl(dplyr::lead(.data$eventCohortId, order_by = .data$x), .data$eventCohortId)
-        ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
-        .default = .data$eventEndDate
-      )
-    ) |>
-      # Update FRFS first record
-      dplyr::mutate(
-        eventEndDate = dplyr::case_when(
-          dplyr::lead(.data$combinationFRFS, order_by = .data$x) == 1
-          & .data$eventEndDate == dplyr::lead(.data$eventEndDate, order_by = .data$x)
-          ~ dplyr::lead(.data$eventStartDate, order_by = .data$x),
-          # ~ dplyr::lead(.data$eventStartDate, order_by = .data$sortOrder) - 1,
-          .default = .data$eventEndDate
-        )
-      ) |>
-      # Update FRFS second record
-      dplyr::mutate(
-        eventStartDate = dplyr::case_when(
-          dplyr::lag(.data$combinationFRFS, order_by = .data$x) == 1
-          & .data$eventStartDate == dplyr::lag(.data$eventStartDate, order_by = .data$x)
-          ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
-          # ~ dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) + 1,
-          .default = .data$eventStartDate
-        )
-      )
+      updateLRFSRecords() |>
+      updateFRFSRecords()
 
     appendLog(andromeda = andromeda, msg = sprintf("[doCombinationWindow: %s] filter on minPostCombinationDuration", iterations))
-    # testFun((andromeda)
 
-    andromeda$treatmentHistory <- andromeda$treatmentHistory |>
-      # dplyr::filter(.data$eventStartDate != .data$eventEndDate)
-      # Original from mi-erasmus and older versions of DARWIN TreatmentPatterns
-      # dbplyr::window_order(.data$sortOrder) |>
-      dplyr::mutate(durationEra = .data$eventEndDate - .data$eventStartDate) |>
-      dplyr::filter(.data$durationEra >= minPostCombinationDuration)
+    filterOnMinPostCombinationDuration(andromeda, minPostCombinationDuration)
 
     attrCounts <- fetchAttritionCounts(andromeda, "treatmentHistory")
     appendAttrition(
