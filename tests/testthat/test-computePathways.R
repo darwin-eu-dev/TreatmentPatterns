@@ -653,6 +653,27 @@ test_that("No target defined", {
   })
 })
 
+testthat::test_that("Target bounds check", {
+  testthat::skip_on_cran()
+  testthat::skip_if_not(ableToRun()$CDMC)
+
+  outputEnv <- computePathways(
+    cohorts = .CM$cohorts,
+    cohortTableName = "cohort_table",
+    cdm = .CM$cdm
+  )
+
+  nOutOfTargetBounds <- outputEnv$treatmentHistoryFinal |>
+    dplyr::filter(
+      .data$eventStartDate < .data$targetStartDate
+      | .data$eventStartDate > .data$targetEndDate
+    ) |>
+    dplyr::collect() |>
+    nrow()
+
+  testthat::expect_equal(nOutOfTargetBounds, 0)
+})
+
 # test_that("Attrition", {
 #   skip_on_cran()
 #   skip_on_os(os = "linux")
