@@ -67,26 +67,6 @@ updateSubjectId <- function(aCohortTable) {
     dplyr::mutate(subject_id = dplyr::sql("dense_rank() OVER (ORDER BY subject_id_origin)"))
 }
 
-checkRows <- function(cohortTables) {
-  tableNames <- names(cohortTables)
-  
-  n <- cohortTables |>
-    purrr::map(head) |>
-    purrr::map(dplyr::summarise, n = dplyr::n()) |>
-    purrr::map(dplyr::pull, "n") |>
-    purrr::reduce(max)
-  
-  if (n == 0) {
-    "`%s`" |>
-      sprintf(cohortTables) |>
-      paste(collapse = ", ") |>
-      sprintf(fmt = "Cohort Tables: %s are empty.") |>
-      warning()
-  }
-  
-  return(cohortTables)
-}
-
 conInterface <- function(connectionDetails = NULL, cdm = NULL, andromeda) {
   if (is.null(connectionDetails) & is.null(cdm)) {
     stop("Neither `connectionDetails` or `cdm` are specified.")
@@ -214,6 +194,9 @@ fetchCohortTable <- function(
     cohorts,
     cohortTables
   ) {
+
+  cohortTables <- as.list(cohortTables)
+
   cdmSchema <- if (!is.null(cdm) & is.null(cdmSchema)) {
     cdmSchema <- attr(cdm, "cdm_schema") |>
       as.list() |>
@@ -231,10 +214,6 @@ fetchCohortTable <- function(
   } else if (is.null(cdm) & !is.null(writeSchema)) {
     makeSchemaId(writeSchema)
   }
-
-  cohortTables <- cohortTables |>
-    purrr::map(\(x) c(attr(writeSchema, "name"), table = x)) |>
-    purrr::map(DBI::Id)
 
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertClass(
@@ -341,7 +320,12 @@ fetchCohortTable <- function(
   )
 
   cohortTables |>
-    purrr::map(dplyr::tbl, src = con) |>
+    purrr::map(
+      attachTable,
+      con = con,
+      catalog = getCatalog(writeSchema),
+      schema = getSchema(writeSchema)
+    ) |>
     purrr::map(addAgeSex, con = con, cdmSchema = cdmSchema) |>
     purrr::map(dplyr::rename_with, .fn = tolower) |>
     purrr::map(dplyr::right_join, y = dbCohorts, by = "cohort_definition_id") |>
