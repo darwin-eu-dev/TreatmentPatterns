@@ -1,7 +1,7 @@
 Package: TreatmentPatterns
 Type: Package
 Title: Analyzes Real-World Treatment Patterns of a Study Population of Interest
-Version: 3.1.2
+Version: 3.2.0
 Authors@R: 
     c(person("Aniek", "Markus", , role = c("aut"), comment = c(ORCID = "0000-0001-5779-4794")),
       person("Maarten", "van Kessel", email = "m.l.vankessel@erasmusmc.nl", role = c("cre"), comment = c(ORCID = "0009-0006-8832-6030")))
@@ -24,9 +24,10 @@ Imports:
     checkmate,
     dplyr,
     tidyr,
-    dbplyr,
-    Andromeda,
-    CDMConnector (>= 2.2.0)
+    dbplyr (>= 2.6.0),
+    Andromeda (>= 1.0.0),
+    purrr,
+    visOmopResults
 Suggests:
     knitr,
     rmarkdown,
@@ -34,6 +35,7 @@ Suggests:
     testthat (>= 3.0.0),
     usethis,
     Eunomia,
+    CDMConnector (>= 2.2.0),
     DatabaseConnector (>= 7.0.0),
     SqlRender,
     CohortGenerator,
@@ -48,18 +50,17 @@ Suggests:
     networkD3,
     ggplot2,
     htmlwidgets,
-    visOmopResults,
-    PaRe
+    gt,
+    PaRe,
+    rlang
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Roxygen: list(markdown = TRUE)
 Collate: 
-    'CDMInterface.R'
     'TreatmentPatterns-package.R'
     'TreatmentPatternsResults.R'
     'attrition.R'
@@ -74,3 +75,14 @@ Collate:
     'ggSunburst.R'
     'plotEventDuration.R'
     'utils.R'
+    'log.R'
+    'fetchCohortTable.R'
+    'initMetadata.R'
+    'summariseTargetIndexToEndOfObservation.R'
+    'summariseTargetCohortDecay.R'
+    'summariseGaps.R'
+    'summariseOnEvent.R'
+    'setCohortTypes.R'
+    'tableSummaryEventDuration.R'
+    'tableTreatmentPathways.R'
+Config/roxygen2/version: 8.0.0

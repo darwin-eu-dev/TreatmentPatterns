@@ -1,3 +1,27 @@
+# TreatmentPatterns 3.2.0
+---------
+- Added `summariseTargetIndexToEndOfObservation()` Function to analyze the duration from target index to end of observation.
+- Added `tableTagetIndexToEndOfObservation()` Function to create a table the result of `summariseTargetIndexToEndOfObservation()`.
+- Added `plotTargetIndexToEndOfObservation()` Function to create a plot the result of `summariseTargetIndexToEndOfObservation()`..
+- Added `summariseTargetCohortDecay()` Function to analyze time subjects are in the Target cohort.
+- Added `tableTargetCohortDecay()` Function to create a table the result of `summariseTargetCohortDecay()`.
+- Added `tableTargetCohortDecayAtDays()` Function to create a table at a specific time point of the result of `summariseTargetCohortDecay()`.
+- Added `plotTargetCohortDecay()` Function to create a plot the result of `summariseTargetCohortDecay()`.
+- Added `summariseGaps()` Function to analyze the gaps between the start of the Target and the first Event, between events, and the last event and the end of the Target.
+- Added `tableGaps()` Function to create a table the result of `summariseGaps()`.
+- Added `plotGaps()` Function to create a plot the result of `summariseGaps()`.
+- Added `summariseOnEvent()` Function to analyze how many subjects are on an event at a given day in the Target cohort.
+- Added `tableOnEvent()` Function to create a table the result of `summariseOnEvent()`.
+- Added `plotOnEvent()` Function to create a plot the result of `summariseOnEvent()`.
+- Added `tableTreatmentPathways()` Function to create a table the `treatment_pathways` result form `export()`.
+- Added `tableSummaryEventDuration()` Function to create a table the `summary_event_duration` result form `export()`.
+- Added `setCohortTypes()` Function to create a `data.frame` from either a `CohortSet` from `CDMConnector`; or a `CohortDefinitionSet` or `GeneratedCohortSet` from `CohortGenerator` to assign cohort types.
+- Added internal log in Andromeda database.
+- Updated the way how to connect to the database, `CDMConnector` is now fully by-passed.
+- Fixed issue when summonsing combination-events in summary_event_duration.
+- Fixed issue where `ggSunburst()` did not sometimes stack events correctly.
+- Fixed issue where in some edge cases the event sequence could be different.
+
 # TreatmentPatterns 3.1.2
 ---------
 - Fixes run-to-run stability of TreatmentPatterns.

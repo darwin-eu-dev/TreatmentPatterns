@@ -16,15 +16,12 @@ test_that("exportPatientLevel", {
     name = "cohort_table"
   )
 
-  cohorts <- cohortSet %>%
-    # Remove 'cohort' and 'json' columns
-    select(-"cohort", -"json") %>%
-    mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target")) %>%
-    rename(
+  cohorts <- cohortSet |>
+    dplyr::select(
       cohortId = "cohort_definition_id",
-      cohortName = "cohort_name",
-    ) %>%
-    select("cohortId", "cohortName", "type")
+      cohortName = "cohort_name"
+    ) |>
+    dplyr::mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target"))
 
   outputEnv <- computePathways(
     cohorts = cohorts,
@@ -39,15 +36,15 @@ test_that("exportPatientLevel", {
   attrition <- read.csv(file.path(tempdir(), "attrition.csv"))
   cdm_source_info <- read.csv(file.path(tempdir(), "cdm_source_info.csv"))
 
-  expect_equal(ncol(treatment_history), 13)
-  expect_equal(nrow(treatment_history), 553)
+  testthat::expect_equal(ncol(treatment_history), 15)
+  testthat::expect_equal(nrow(treatment_history), 553)
 
-  expect_equal(ncol(metadata), 5)
-  expect_equal(nrow(metadata), 1)
+  testthat::expect_equal(ncol(metadata), 5)
+  testthat::expect_equal(nrow(metadata), 1)
 
-  expect_equal(ncol(attrition), 5)
-  expect_equal(nrow(attrition), 11)
+  testthat::expect_equal(ncol(attrition), 7)
+  testthat::expect_equal(nrow(attrition), 12)
 
-  expect_equal(ncol(cdm_source_info), 10)
-  expect_equal(nrow(cdm_source_info), 1)
+  testthat::expect_equal(ncol(cdm_source_info), 10)
+  testthat::expect_equal(nrow(cdm_source_info), 1)
 })
