@@ -36,14 +36,14 @@ summariseGaps <- function(andromeda) {
       by = dplyr::join_by(targetCohortId == cohortId)
     ) |>
     dplyr::select(
-      "eventCohortId", "cohortName", "personId",
+      "eventCohortName", "cohortName", "personId",
       "eventStartDate", "eventEndDate",
       targetStartDate = "startDate",
       targetEndDate = "endDate",
       "eventSeq",
       age = "age.x", sex = "sex.x", "indexYear"
     ) |>
-    dplyr::group_by(.data$personId, .data$cohortName) |>
+    dplyr::group_by(.data$personId, .data$cohortName, .data$eventCohortName) |>
     dbplyr::window_order(.data$eventSeq) |>
     dplyr::mutate(
       gap_to_first = dplyr::case_when(
@@ -71,7 +71,7 @@ summariseGaps <- function(andromeda) {
       max = max(.data$gap_between, na.rm = TRUE),
       mean = mean(.data$gap_between, na.rm = TRUE),
       sd = stats::sd(.data$gap_between, na.rm = TRUE),
-      .by = c("cohortName", "eventSeq")
+      .by = c("cohortName", "eventCohortName", "eventSeq")
     ) |>
     dplyr::filter(.data$layer != max(.data$layer))
 
@@ -98,6 +98,7 @@ summariseGaps <- function(andromeda) {
     dplyr::select(
       "analysis_id",
       target_cohort = "cohortName",
+      event_cohort = "eventCohortName",
       "type",
       "min",
       "q25",
