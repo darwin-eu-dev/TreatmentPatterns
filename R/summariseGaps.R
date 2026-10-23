@@ -33,7 +33,7 @@ summariseGaps <- function(andromeda) {
     ) |>
     dplyr::left_join(
       andromeda$cohorts,
-      by = dplyr::join_by(targetCohortId == cohortId, type == type)
+      by = dplyr::join_by(targetCohortId == cohortId)
     ) |>
     dplyr::select(
       "eventCohortId", "cohortName", "personId",
