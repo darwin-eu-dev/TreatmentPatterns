@@ -35,7 +35,6 @@ summariseTargetIndexToEndOfObservation <- function(andromeda, minCellCount) {
       is.na(.data$eventCohortId) ~ "valid events",
       .default = "no valid events"
     )) |>
-    dplyr::filter(.data$type == "target") |>
     dplyr::mutate(
       indexYear = floor(.data$startDate / 365.25 + 1970),
       observation_period_start_date = .data$observation_period_start_date - as.Date("1970-01-01"),

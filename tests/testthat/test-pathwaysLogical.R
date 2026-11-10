@@ -2056,3 +2056,49 @@ test_that("LRFS: A-A+B-A", {
   
   DBI::dbDisconnect(con)
 })
+
+test_that("LRFS: C-C+D-D", {
+  skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomiaDir())
+  
+  cohorts <- data.frame(
+    cohortId = c(1, 2, 3, 4, 5),
+    cohortName = c("X", "A", "B", "C", "D"),
+    type = c("target", "event", "event", "event", "event")
+  )
+
+  cohort_table <- dplyr::tribble(
+    ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
+    1,                     5,           as.Date("2014-01-01"), as.Date("2014-05-30"),
+
+    4,                     5,           as.Date("2014-01-01"), as.Date("2014-03-30"),
+    5,                     5,           as.Date("2014-02-01"), as.Date("2014-05-30"),
+    2,                     5,           as.Date("2014-06-01"), as.Date("2014-06-30"),
+    3,                     5,           as.Date("2014-06-01"), as.Date("2014-12-31")
+  )
+
+  dplyr::copy_to(con, cohort_table, overwrite = TRUE)
+  
+  cdm <- CDMConnector::cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table")
+  
+  andromeda <- TreatmentPatterns::computePathways(
+    cohorts = cohorts,
+    cohortTableName = "cohort_table",
+    cdm = cdm,
+    minEraDuration = 0,
+    eraCollapseSize = 5,
+    combinationWindow = 5,
+    minPostCombinationDuration = 5,
+    filterTreatments = "All",
+    maxPathLength = 5,
+    concatTargets = FALSE
+  )
+  
+  result <- TreatmentPatterns::export(andromeda, minCellCount = 1, nonePaths = TRUE)
+  
+  testthat::expect_identical(result$treatment_pathways$pathway,"C-C+D-D")
+  testthat::expect_equal(result$treatment_pathways$freq, 1)
+  
+  DBI::dbDisconnect(con)
+})
