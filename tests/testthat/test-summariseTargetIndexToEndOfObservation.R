@@ -77,12 +77,16 @@ testthat::test_that("summariseTargetIndexToEndOfObservation", {
     lglN <- is.na(result$n)
     lglpct <- is.na(result$pct)
 
-    all(
-      isFALSE(lglN[1]),
-      isFALSE(lglpct[1]),
-      isTRUE(lglN[2]),
-      isTRUE(lglpct[2])
-    )
+    result |>
+      dplyr::mutate(
+        na_match = dplyr::case_when(
+          is.na(.data$n) & is.na(.data$pct) ~ TRUE,
+          !is.na(.data$n) & !is.na(.data$pct) ~ TRUE,
+          .default = FALSE
+        )
+      ) |>
+      dplyr::pull(.data$na_match) |>
+      all()
   })
 })
 
