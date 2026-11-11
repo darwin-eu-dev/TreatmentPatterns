@@ -1,5 +1,5 @@
 ---
-title: "Exporing Results"
+title: "Exporting Results"
 always_allow_html: yes
 output:
   html_document:

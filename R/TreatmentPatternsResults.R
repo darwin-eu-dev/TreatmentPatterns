@@ -25,35 +25,169 @@ TreatmentPatternsResults <- R6::R6Class(
   classname = "TreatmentPatternsResults",
   # Active Fields ----
   active = list(
-    #' @field attrition (`data.frame`) 
-    attrition = function() return(private$.attrition),
-
-    #' @field metadata (`data.frame`) 
-    metadata = function() return(private$.metadata),
-
-    #' @field treatment_pathways (`data.frame`) 
-    treatment_pathways = function() return(private$.treatmentPathways),
-
-    #' @field summary_event_duration (`data.frame`) 
-    summary_event_duration = function() return(private$.summaryEventDuration),
-
-    #' @field counts_age (`data.frame`) 
-    counts_age = function() return(private$.countsAge),
-
-    #' @field counts_sex (`data.frame`) 
-    counts_sex = function() return(private$.countsSex),
-
-    #' @field counts_year (`data.frame`) 
-    counts_year = function() return(private$.countsYear),
-
-    #' @field cdm_source_info (`data.frame`)
-    cdm_source_info = function() return(private$.cdmSourceInfo),
-
     #' @field analyses (`data.frame`)
-    analyses = function() return(private$.analyses),
-
-    #' @field arguments (`list`)
-    arguments = function() return(private$.arguments)
+    analyses = function(analyses) {
+      if (missing(analyses)) {
+        return(private$.analyses)
+      } else {
+        checkmate::checkDataFrame(
+          x = analyses,
+          col.names = c(
+            "analysis_id", "description", "result_id"
+          )
+        )
+        private$.analyses <- analyses
+      }
+    },
+    
+    #' @field treatment_pathways (`data.frame`)
+    treatment_pathways = function(treatment_pathways) {
+      if (missing(treatment_pathways)) {
+        return(private$.treatment_pathways)
+      } else {
+        checkmate::checkDataFrame(
+          x = treatment_pathways,
+          col.names = c(
+            "pathway", "freq", "age", "sex", "index_year", "analysis_id",
+            "target_cohort_id", "target_cohort_name", "result_id"
+          )
+        )
+        private$.treatment_pathways <- treatment_pathways
+      }
+    },
+    
+    #' @field summary_event_duration (`data.frame`)
+    summary_event_duration = function(summary_event_duration) {
+      if (missing(summary_event_duration)) {
+        return(private$.summary_event_duration)
+      } else {
+        checkmate::checkDataFrame(
+          x = summary_event_duration,
+          col.names = c(
+            "event_name", "duration_min", "duration_q1", "duration_median",
+            "duration_q2", "duration_max", "duration_average", "duration_sd",
+            "event_count", "line", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.summary_event_duration <- summary_event_duration
+      }
+    },
+    
+    #' @field counts_age (`data.frame`)
+    counts_age = function(counts_age) {
+      if (missing(counts_age)) {
+        return(private$.counts_age)
+      } else {
+        checkmate::assertDataFrame(
+          x = counts_age,
+          col.names = c(
+            "age", "n", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.counts_age <- counts_age
+      }
+    },
+    
+    #' @field counts_sex (`data.frame`)
+    counts_sex = function(counts_sex) {
+      if (missing(counts_sex)) {
+        return(private$.counts_sex)
+      } else {
+        checkmate::assertDataFrame(
+          x = counts_sex,
+          col.names = c(
+            "sex", "n", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.counts_sex <- counts_sex
+      }
+    },
+    
+    #' @field counts_year (`data.frame`)
+    counts_year = function(counts_year) {
+      if (missing(counts_year)) {
+        return(private$.counts_year)
+      } else {
+        checkmate::checkDataFrame(
+          x = counts_year,
+          col.names = c(
+            "index_year", "n", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.counts_year <- counts_year
+      }
+    },
+    
+    #' @field attrition (`data.frame`)
+    attrition = function(attrition) {
+      if (missing(attrition)) {
+        return(private$.attrition)
+      } else {
+        checkmate::checkDataFrame(
+          x = attrition,
+          col.names = c(
+            "number_records", "number_subjects", "reason_id", "reason",
+            "time_stamp", "analysis_id", "target_cohort_id",
+            "target_cohort_name", "result_id"
+          )
+        )
+        private$.attrition <- attrition
+      }
+    },
+    
+    #' @field metadata (`data.frame`)
+    metadata = function(metadata) {
+      if (missing(metadata)) {
+        return(private$.metadata)
+      } else {
+        checkmate::checkDataFrame(
+          x = metadata,
+          col.names = c(
+            "execution_start", "package_version", "r_version", "platform",
+            "execution_end", "analysis_id", "result_id"
+          )
+        )
+        private$.metadata <- metadata
+      }
+    },
+    
+    #' @field arguments (`data.frame`)
+    arguments = function(arguments) {
+      if (missing(arguments)) {
+        return(private$.arguments)
+      } else {
+        checkmate::checkDataFrame(
+          x = arguments,
+          col.names = c(
+            "analysis_id", "arguments", "result_id"
+          )
+        )
+        private$.arguments <- arguments
+      }
+    },
+    
+    #' @field cdm_source_info (`data.frame`)
+    cdm_source_info = function(cdm_source_info) {
+      if (missing(cdm_source_info)) {
+        return(private$.cdm_source_info)
+      } else {
+        checkmate::assertDataFrame(
+          x = cdm_source_info,
+          col.names = c(
+            "cdm_source_name", "cdm_source_abbreviation", "cdm_holder",
+            "source_description", "source_documentation_reference",
+            "cdm_etl_reference", "source_release_date", "cdm_release_date",
+            "cdm_version", "cdm_version_concept_id", "vocabulary_version",
+            "analysis_id", "result_id"
+          )
+        )
+        private$.cdm_source_info <- cdm_source_info
+      }
+    }
   ),
 
   # Public ----
@@ -90,12 +224,12 @@ TreatmentPatternsResults <- R6::R6Class(
       } else {
         private$.attrition <- attrition
         private$.metadata <- metadata
-        private$.treatmentPathways <- treatmentPathways
-        private$.summaryEventDuration <- summaryEventDuration
-        private$.countsAge <- countsAge
-        private$.countsSex <- countsSex
-        private$.countsYear <- countsYear
-        private$.cdmSourceInfo <- cdmSourceInfo
+        private$.treatment_pathways <- treatmentPathways
+        private$.summary_event_duration <- summaryEventDuration
+        private$.counts_age <- countsAge
+        private$.counts_sex <- countsSex
+        private$.counts_year <- countsYear
+        private$.cdm_source_info <- cdmSourceInfo
         private$.analyses <- analyses
         private$.arguments = arguments
       }
@@ -129,7 +263,7 @@ TreatmentPatternsResults <- R6::R6Class(
       }
       return(invisible(self))
     },
-    
+
     #' @description
     #' Save the results as csv-files.
     #'
@@ -146,12 +280,12 @@ TreatmentPatternsResults <- R6::R6Class(
 
       write.csv(private$.attrition, file.path(path, "attrition.csv"), row.names = FALSE)
       write.csv(private$.metadata, file.path(path, "metadata.csv"), row.names = FALSE)
-      write.csv(private$.treatmentPathways, file.path(path, "treatment_pathways.csv"), row.names = FALSE)
-      write.csv(private$.summaryEventDuration, file.path(path, "summary_event_duration.csv"), row.names = FALSE)
-      write.csv(private$.countsAge, file.path(path, "counts_age.csv"), row.names = FALSE)
-      write.csv(private$.countsSex, file.path(path, "counts_sex.csv"), row.names = FALSE)
-      write.csv(private$.countsYear, file.path(path, "counts_year.csv"), row.names = FALSE)
-      write.csv(private$.cdmSourceInfo, file.path(path, "cdm_source_info.csv"), row.names = FALSE)
+      write.csv(private$.treatment_pathways, file.path(path, "treatment_pathways.csv"), row.names = FALSE)
+      write.csv(private$.summary_event_duration, file.path(path, "summary_event_duration.csv"), row.names = FALSE)
+      write.csv(private$.counts_age, file.path(path, "counts_age.csv"), row.names = FALSE)
+      write.csv(private$.counts_sex, file.path(path, "counts_sex.csv"), row.names = FALSE)
+      write.csv(private$.counts_year, file.path(path, "counts_year.csv"), row.names = FALSE)
+      write.csv(private$.cdm_source_info, file.path(path, "cdm_source_info.csv"), row.names = FALSE)
       write.csv(private$.analyses, file.path(path, "analyses.csv"), row.names = FALSE)
       write.csv(private$.arguments, file.path(path, "arguments.csv"), row.names = FALSE)
 
@@ -160,7 +294,7 @@ TreatmentPatternsResults <- R6::R6Class(
       }
       return(invisible(self))
     },
-    
+
     #' @description
     #' Upload results to a resultsDatabase using `ResultModelManager`.
     #'
@@ -178,14 +312,14 @@ TreatmentPatternsResults <- R6::R6Class(
       checkmate::assertCharacter(prefix, len = 1, add = assertions)
       checkmate::assertLogical(overwrite, len = 1, add = assertions)
       checkmate::reportAssertions(assertions)
-      
+
       rmmInstalled <- require(
         "ResultModelManager",
         character.only = TRUE,
         quietly = TRUE,
         warn.conflicts = FALSE
       )
-      
+
       if (rmmInstalled) {
         tempDir <- file.path(tempdir(), "tp-db")
         dir.create(tempDir, showWarnings = FALSE, recursive = TRUE)
@@ -198,13 +332,13 @@ TreatmentPatternsResults <- R6::R6Class(
           tablePrefix = prefix,
           purgeSiteDataBeforeUploading = purgeSiteDataBeforeUploading
         )
+        unlink(tempDir, recursive = TRUE)
       } else {
         message("ResultModelManager is not installed. Install it with: remotes::install_github('OHDSI/ResultModelManager'")
       }
-      unlink(tempDir, recursive = TRUE)
       return(invisible(self))
     },
-    
+
     #' @description
     #' Load data from files.
     #'
@@ -224,7 +358,7 @@ TreatmentPatternsResults <- R6::R6Class(
       )
       return(invisible(self))
     },
-    
+
     #' @description
     #' Wrapper for `TreatmentPatterns::createSunburstPlot()`, but with data filtering step.
     #'
@@ -248,12 +382,12 @@ TreatmentPatternsResults <- R6::R6Class(
       } else {
         "None"
       }
-      
-      private$.treatmentPathways |>
+
+      private$.treatment_pathways |>
         private$filterData(age, sex, indexYear, none) |>
         TreatmentPatterns::createSunburstPlot(...)
     },
-    
+
     #' @description
     #' Wrapper for `TreatmentPatterns::createSankeyDiagram()`, but with data filtering step.
     #'
@@ -278,11 +412,11 @@ TreatmentPatternsResults <- R6::R6Class(
         "None"
       }
       
-      private$.treatmentPathways |>
+      private$.treatment_pathways |>
         private$filterData(age, sex, indexYear, none) |>
         TreatmentPatterns::createSankeyDiagram(...)
     },
-    
+
     #' @description
     #' Wrapper for `TreatmentPatterns::plotEventDuration()`.
     #'
@@ -290,25 +424,25 @@ TreatmentPatternsResults <- R6::R6Class(
     #'
     #' @return `ggplot`
     plotEventDuration = function(...) {
-      private$.summaryEventDuration |>
+      private$.summary_event_duration |>
         TreatmentPatterns::plotEventDuration(...)
     }
   ),
-  
+
   # Private ----
   private = list(
     ## Fields ----
     .attrition = NULL,
     .metadata = NULL,
-    .treatmentPathways = NULL,
-    .summaryEventDuration = NULL,
-    .countsAge = NULL,
-    .countsSex = NULL,
-    .countsYear = NULL,
-    .cdmSourceInfo = NULL,
+    .treatment_pathways = NULL,
+    .summary_event_duration = NULL,
+    .counts_age = NULL,
+    .counts_sex = NULL,
+    .counts_year = NULL,
+    .cdm_source_info = NULL,
     .analyses = NULL,
     .arguments = NULL,
-    
+
     ## Methods ----
     assertSource = function(filePath) {
       if (endsWith(tolower(filePath), suffix = ".zip")) {
@@ -319,7 +453,7 @@ TreatmentPatternsResults <- R6::R6Class(
         stop("Cannot assert type. A zip-file or a directory containing csv-files are supported")
       }
     },
-    
+
     loadZip = function(filePath) {
       fileNames <- unzip(zipfile = filePath, list = TRUE)$Name
       files <- lapply(fileNames, function(file) {
@@ -331,12 +465,12 @@ TreatmentPatternsResults <- R6::R6Class(
       
       private$.attrition <- files$attrition.csv
       private$.metadata <- files$metadata.csv
-      private$.treatmentPathways <- files$treatment_pathways.csv
-      private$.summaryEventDuration <- files$summary_event_duration.csv
-      private$.countsAge <- files$counts_age.csv
-      private$.countsSex <- files$counts_sex.csv
-      private$.countsYear <- files$counts_year.csv
-      private$.cdmSourceInfo <- files$cdm_source_info.csv
+      private$.treatment_pathways <- files$treatment_pathways.csv
+      private$.summary_event_duration <- files$summary_event_duration.csv
+      private$.counts_age <- files$counts_age.csv
+      private$.counts_sex <- files$counts_sex.csv
+      private$.counts_year <- files$counts_year.csv
+      private$.cdm_source_info <- files$cdm_source_info.csv
       private$.analyses <- files$analyses.csv
       private$.arguments <- files$arguments.csv
     },
@@ -344,12 +478,12 @@ TreatmentPatternsResults <- R6::R6Class(
     loadCsv = function(filePath) {
       private$.attrition <- read.csv(file.path(filePath, "attrition.csv"))
       private$.metadata <- read.csv(file.path(filePath, "metadata.csv"))
-      private$.treatmentPathways <- read.csv(file.path(filePath, "treatment_pathways.csv"))
-      private$.summaryEventDuration <- read.csv(file.path(filePath, "summary_event_duration.csv"))
-      private$.countsAge <- read.csv(file.path(filePath, "counts_age.csv"))
-      private$.countsSex <- read.csv(file.path(filePath, "counts_sex.csv"))
-      private$.countsYear <- read.csv(file.path(filePath, "counts_year.csv"))
-      private$.cdmSourceInfo <- read.csv(file.path(filePath, "cdm_source_info.csv"))
+      private$.treatment_pathways <- read.csv(file.path(filePath, "treatment_pathways.csv"))
+      private$.summary_event_duration <- read.csv(file.path(filePath, "summary_event_duration.csv"))
+      private$.counts_age <- read.csv(file.path(filePath, "counts_age.csv"))
+      private$.counts_sex <- read.csv(file.path(filePath, "counts_sex.csv"))
+      private$.counts_year <- read.csv(file.path(filePath, "counts_year.csv"))
+      private$.cdm_source_info <- read.csv(file.path(filePath, "cdm_source_info.csv"))
       private$.analyses <- read.csv(file.path(filePath, "analyses.csv"))
       private$.arguments <- read.csv(file.path(filePath, "arguments.csv"))
     },

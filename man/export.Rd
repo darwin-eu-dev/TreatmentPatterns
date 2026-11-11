@@ -95,14 +95,14 @@ if (ableToRun) {
     name = "cohort_table"
   )
 
-  cohorts <- cohortSet \%>\%
+  cohorts <- cohortSet |>
     # Remove 'cohort' and 'json' columns
-    select(-"cohort", -"json") \%>\%
-    mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target")) \%>\%
+    select(-"cohort", -"json") |>
+    mutate(type = c("event", "event", "event", "event", "exit", "event", "event", "target")) |>
     rename(
       cohortId = "cohort_definition_id",
       cohortName = "cohort_name",
-    ) \%>\%
+    ) |>
     select("cohortId", "cohortName", "type")
 
   outputEnv <- computePathways(
