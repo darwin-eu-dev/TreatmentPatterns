@@ -88,7 +88,7 @@ summariseGaps <- function(andromeda) {
           max = max(.data[[col]], na.rm = TRUE),
           mean = mean(.data[[col]], na.rm = TRUE),
           sd = stats::sd(.data[[col]], na.rm = TRUE),
-          .by = c("cohortName")
+          .by = c("cohortName", "eventCohortName")
         )
     }) |>
     purrr::reduce(dplyr::union_all)
@@ -136,8 +136,8 @@ plotGaps <- function(result, timeScale = "day", ...) {
   assertions <- checkmate::makeAssertCollection()
   checkmate::assertClass(result, "data.frame", add = assertions)
   checkmate::assertNames(
-    x = names(result),
-    identical.to = c(
+    x = names(result), 
+    must.include = c(
       "analysis_id", "target_cohort", "type", "min", "q25", "median", "q75",
       "max","mean", "sd"
     ),
@@ -175,9 +175,10 @@ plotGaps <- function(result, timeScale = "day", ...) {
           regex = "gap_layer_", 
           replacement = "Time between layers ")
       )
-    )
+    ) |>
+    dplyr::mutate(foo = sprintf("%s: %s", .data$event_cohort, .data$type))
 
-  ggplot2::ggplot(data = df, mapping = ggplot2::aes(group = .data$type)) +
+  ggplot2::ggplot(data = df) +
     ggplot2::geom_boxplot(
       stat = "identity",
       mapping = ggplot2::aes(
@@ -189,7 +190,7 @@ plotGaps <- function(result, timeScale = "day", ...) {
         xmax = .data$max
       )
     ) +
-    ggplot2::facet_grid(rows = ggplot2::vars(target_cohort)) +
+    ggplot2::facet_grid(rows = ggplot2::vars(event_cohort), cols = ggplot2::vars(target_cohort)) +
     visOmopResults::themeVisOmop(...) +
     ggplot2::theme(axis.title.y.left = ggplot2::element_blank()) +
     ggplot2::labs(
@@ -224,7 +225,7 @@ tableGaps <- function(result, timeScale = "day", ...) {
   checkmate::assertClass(result, "data.frame", add = assertions)
   checkmate::assertNames(
     x = names(result),
-    identical.to = c(
+    must.include = c(
       "analysis_id", "target_cohort", "type", "min", "q25", "median", "q75",
       "max", "mean", "sd"
     ),
@@ -245,6 +246,7 @@ tableGaps <- function(result, timeScale = "day", ...) {
   )
   
   result |>
+    dplyr::arrange(.data$analysis_id, .data$target_cohort, .data$event_cohort, .data$type) |>
     dplyr::mutate(
       min = round(.data$min / !!scaleMap[[timeScale]], 2),
       q25 = round(.data$q25 / !!scaleMap[[timeScale]], 2),
