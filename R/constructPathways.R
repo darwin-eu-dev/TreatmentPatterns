@@ -708,10 +708,14 @@ doCombinationWindow <- function(
       dplyr::group_by(.data$personId, .data$n_target) |>
       dbplyr::window_order(.data$sortOrder) |>
       dplyr::mutate(
-        combinationFRFS = case_when(
+        combinationFRFS = dplyr::case_when(
           .data$selectedRows == 1
           & .data$switch == 0
-          & dplyr::lag(.data$eventEndDate) < .data$eventEndDate ~ 1,
+          & .data$eventStartDate >= dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
+          & .data$eventStartDate <= dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)
+          & .data$eventEndDate >= dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
+          & .data$eventEndDate > dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)
+          ~ 1,
         .default = 0
       )) |>
       dplyr::ungroup() |>
@@ -727,12 +731,13 @@ doCombinationWindow <- function(
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::group_by(.data$personId, .data$n_target) |>
       dplyr::mutate(combinationLRFS = dplyr::case_when(
-        .data$selectedRows == 1 &
-          .data$switch == 0 &
-          (dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) >= .data$eventEndDate |
-            (dplyr::lead(.data$durationEra, order_by = .data$sortOrder) == .data$durationEra &
-              dplyr::lead(.data$eventEndDate, order_by = .data$sortOrder) == .data$eventEndDate &
-              dplyr::lead(.data$eventStartDate, order_by = .data$sortOrder) == .data$eventStartDate)) ~ 1,
+        .data$selectedRows == 1
+        & .data$switch == 0
+        & .data$eventStartDate >= dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
+        & .data$eventStartDate <= dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)
+        & .data$eventEndDate >= dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
+        & .data$eventEndDate <= dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)
+        ~ 1,
         .default = 0
       )) |>
       dplyr::ungroup()
@@ -867,7 +872,7 @@ doCombinationWindow <- function(
       # dplyr::select(
       #   "personId", "sortOrder",
       #   "eventCohortId", "eventStartDate", "eventEndDate",
-      #   "combinationLRFS", "combinationFRFS", "switch"
+      #   "combinationLRFS", "combinationFRFS", "switch", "x"
       # ) |>
       # Update LRFS combination record
       dplyr::mutate(
@@ -881,7 +886,7 @@ doCombinationWindow <- function(
       dplyr::mutate(
         eventEndDate = dplyr::case_when(
           dplyr::lead(.data$combinationLRFS, order_by = .data$x) == 1
-          ~ dplyr::lead(.data$eventStartDate),
+          ~ dplyr::lead(.data$eventStartDate, order_by = .data$x),
           # ~ dplyr::lead(.data$eventStartDate) - 1,
           .default = .data$eventEndDate
         )
