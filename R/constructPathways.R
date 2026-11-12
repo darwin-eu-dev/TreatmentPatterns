@@ -866,6 +866,8 @@ doCombinationWindow <- function(
       dplyr::union_all(andromeda[[sprintf("addRowsLRFS_%s", iterations)]]) |>
       dplyr::mutate(durationEra = .data$eventEndDate - .data$eventStartDate)
 
+    # browser()
+
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::group_by(.data$personId, .data$n_target) |>
       dbplyr::window_order(.data$x) |>
@@ -878,7 +880,7 @@ doCombinationWindow <- function(
       dplyr::mutate(
         eventCohortId = dplyr::case_when(
           .data$combinationLRFS == 1
-          ~ paste0(.data$eventCohortId, "+", dplyr::lead(.data$eventCohortId, order_by = .data$x)),
+          ~ paste0(.data$eventCohortId, "+", dplyr::lag(.data$eventCohortId, order_by = .data$x)),
           .default = .data$eventCohortId
         )
       ) |>
@@ -904,7 +906,9 @@ doCombinationWindow <- function(
     dplyr::mutate(
       eventEndDate = dplyr::case_when(
         (.data$combinationFRFS == 1)
-        & grepl(dplyr::lead(.data$eventCohortId, order_by = .data$x), .data$eventCohortId)
+        # pattern = "1+2" in x = "1+2+3" -> FALSE
+        # pattern = "\\Q1+2\\E" in x = "1+2+3" -> TRUE
+        & grepl(paste0("\\Q", dplyr::lead(.data$eventCohortId, order_by = .data$x), "\\E"), .data$eventCohortId)
         ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
         .default = .data$eventEndDate
       )
