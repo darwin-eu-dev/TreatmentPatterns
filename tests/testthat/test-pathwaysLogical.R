@@ -2102,3 +2102,54 @@ test_that("LRFS: C-C+D-D", {
   
   DBI::dbDisconnect(con)
 })
+
+testthat::test_that("target overlap", {
+  skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomiaDir())
+  
+  cohorts <- data.frame(
+    cohortId = c(1, 2, 3),
+    cohortName = c("X", "A", "B"),
+    type = c("target", "event", "event")
+  )
+  
+  cohort_table <- dplyr::tribble(
+    ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
+    1,                     5,           as.Date("2014-01-01"), as.Date("2014-05-30"),
+    2,                     5,           as.Date("2014-01-01"), as.Date("2014-02-01"),
+    3,                     5,           as.Date("2014-01-15"), as.Date("2014-02-15"),
+    
+    1,                     5,           as.Date("2014-06-20"), as.Date("2014-12-31"),
+    2,                     5,           as.Date("2014-06-01"), as.Date("2014-07-01"),
+    3,                     5,           as.Date("2014-06-15"), as.Date("2014-07-15")
+  )
+  
+  dplyr::copy_to(con, cohort_table, overwrite = TRUE)
+  
+  cdm <- CDMConnector::cdmFromCon(con, cdmSchema = "main", writeSchema = "main", cohortTables = "cohort_table", .softValidation = TRUE)
+  
+  andromeda <- TreatmentPatterns::computePathways(
+    cohorts = cohorts,
+    cohortTableName = "cohort_table",
+    cdm = cdm,
+    startAnchor = "startDate",
+    windowStart = c(-90),
+    endAnchor = "startDate",
+    windowEnd = c(5*365),
+    minEraDuration = 0,
+    splitEventCohorts = NULL,
+    eraCollapseSize = 0,
+    combinationWindow = 5*365+90,
+    minPostCombinationDuration = 0,
+    filterTreatments = "Changes",
+    maxPathLength = 5,
+    overlapMethod = "truncate",
+    concatTargets = FALSE
+  )
+
+  result <- TreatmentPatterns::export(andromeda, minCellCount = 1, nonePaths = TRUE)
+  
+  testthat::expect_identical(result$treatment_pathways$pathway,"A-B-A-B")
+  testthat::expect_equal(result$treatment_pathways$freq, 1)
+})
