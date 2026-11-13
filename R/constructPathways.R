@@ -239,6 +239,83 @@ getCohortIds <- function(cohorts, cohortType) {
     dplyr::pull(.data$cohortId)
 }
 
+adjustTargetToObs <- function(tbl) {
+  # Make sure updated target is within observation
+  tbl |>
+    dplyr::mutate(
+      obsStart = .data$observation_period_start_date - as.Date("1970-01-01"),
+      obsEnd = .data$observation_period_end_date - as.Date("1970-01-01")
+    ) |>
+    dplyr::mutate(
+      startDate = pmax(.data$startDate, .data$obsStart),
+      endDate = pmin(.data$endDate, .data$obsEnd)
+    )
+}
+
+mergeTargetOverlap <- function(tbl) {
+  # merge overlapping targets
+  doOverlap <- TRUE
+  i <- 1
+  while (doOverlap) {
+    # Add `overlap_prev` col
+    tbl <- tbl |>
+      dplyr::group_by(.data$cohortId, .data$personId) |>
+      dplyr::mutate(
+        overlap_prev = .data$startDate - dplyr::lag(.data$endDate, order_by = .data$startDate)
+      )
+
+    nOverlappingTargets <- tbl |>
+      dplyr::filter(.data$overlap_prev < 0) |>
+      dplyr::count() |>
+      dplyr::pull() |>
+      length()
+
+    if (nOverlappingTargets == 0) {
+      doOverlap <- FALSE
+      tbl <- tbl |>
+        dplyr::ungroup() |>
+        dplyr::select(-"overlap_prev")
+    } else {
+      appendLog(
+        andromeda = tbl[[1]],
+        msg = sprintf(
+          "[%s] Found overlap between records in `Target` cohort, after applying `startDate` and `endDate` to the anchors. Merging overlapping records.", i)
+      )
+
+      tbl <- tbl |>
+        dplyr::group_by(.data$cohortId, .data$personId) |>
+        dplyr::mutate(
+          endDate = dplyr::case_when(
+            dplyr::lead(.data$overlap_prev < 0, order_by = .data$startDate)
+            ~ dplyr::lead(endDate, order_by = .data$startDate),
+            .default = .data$endDate
+          )
+        ) |>
+        dplyr::filter(.data$overlap_prev > 0 | is.na(.data$overlap_prev)) |>
+        dplyr::ungroup() |>
+        dplyr::select(-"overlap_prev")
+    }
+  }
+  return(tbl)
+}
+
+applyTargetOffset <- function(tbl, startAnchor, windowStart, endAnchor, windowEnd) {
+  tbl |>
+    dplyr::mutate(
+      type = "target",
+      startDate = dplyr::case_when(
+        startAnchor == "startDate" ~ .data$startDate + windowStart,
+        startAnchor == "endDate" ~ .data$endDate + windowStart
+      ),
+      endDate = dplyr::case_when(
+        endAnchor == "startDate" ~ .data$startDate + windowEnd,
+        endAnchor == "endDate" ~ .data$endDate + windowEnd
+      )
+    ) |>
+    mergeTargetOverlap() |>
+    adjustTargetToObs()
+}
+
 #' createTreatmentHistory
 #'
 #' @noRd
@@ -274,17 +351,25 @@ createTreatmentHistory <- function(
     windowEnd,
     concatTargets) {
   andromeda$targetCohorts <- andromeda$cohortTable |>
-    dplyr::filter(.data$cohortId %in% targetCohortId) |>
+    dplyr::filter(.data$cohortId %in% !!targetCohortId) |>
+    applyTargetOffset(startAnchor, windowStart, endAnchor, windowEnd)
+
+  attrCounts <- fetchAttritionCounts(andromeda, "targetCohorts")
+  appendAttrition(
+    toAdd = data.frame(
+      number_target_subjects = attrCounts$nSubjects,
+      number_target_records = attrCounts$nSubjects,
+      number_event_subjects = attrCounts$nSubjects,
+      number_event_records = attrCounts$nRecords,
+      reason_id = 4,
+      reason = "Merged overlapping Target cohort records."
+    ),
+    andromeda = andromeda
+  )
+
+  andromeda$targetCohorts <- andromeda$targetCohorts |>
     dplyr::mutate(
-      type = "target",
-      indexDate = dplyr::case_when(
-        startAnchor == "startDate" ~ .data$startDate + windowStart,
-        startAnchor == "endDate" ~ .data$endDate + windowStart
-      ),
-      endDate = dplyr::case_when(
-        endAnchor == "startDate" ~ .data$startDate + windowEnd,
-        endAnchor == "endDate" ~ .data$endDate + windowEnd
-      ),
+      indexDate = .data$startDate,
       indexYear = floor(.data$indexDate / 365.25 + 1970)
     )
 
