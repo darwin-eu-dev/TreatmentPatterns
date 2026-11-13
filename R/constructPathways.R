@@ -601,9 +601,6 @@ doCombinationWindow <- function(
   # Find which rows contain some overlap
   selectRowsCombinationWindow(andromeda, combinationWindow, overlapMethod)
 
-  andromeda$treatmentHistory <- andromeda$treatmentHistory  |>
-    dplyr::distinct(.data$personId, .data$eventCohortId, .data$eventStartDate, .data$eventEndDate)
-
   # While rows that need modification exist:
   iterations <- 1
 
