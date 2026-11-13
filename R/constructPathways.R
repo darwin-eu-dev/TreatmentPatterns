@@ -908,7 +908,7 @@ doCombinationWindow <- function(
         (.data$combinationFRFS == 1)
         # pattern = "1+2" in x = "1+2+3" -> FALSE
         # pattern = "\\Q1+2\\E" in x = "1+2+3" -> TRUE
-        & grepl(paste0("\\Q", dplyr::lead(.data$eventCohortId, order_by = .data$x), "\\E"), .data$eventCohortId)
+        & grepl(paste0("\\Q", dplyr::lag(.data$eventCohortId, order_by = .data$x), "\\E"), .data$eventCohortId)
         ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
         .default = .data$eventEndDate
       )
