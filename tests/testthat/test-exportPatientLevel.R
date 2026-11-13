@@ -43,7 +43,7 @@ test_that("exportPatientLevel", {
   testthat::expect_equal(nrow(metadata), 1)
 
   testthat::expect_equal(ncol(attrition), 7)
-  testthat::expect_equal(nrow(attrition), 12)
+  testthat::expect_equal(nrow(attrition), 13)
 
   testthat::expect_equal(ncol(cdm_source_info), 10)
   testthat::expect_equal(nrow(cdm_source_info), 1)
