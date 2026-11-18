@@ -674,6 +674,59 @@ testthat::test_that("Target bounds check", {
   testthat::expect_equal(nOutOfTargetBounds, 0)
 })
 
+testthat::test_that("overlapping cohorts", {
+  skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomiaDir())
+  
+  cohorts <- data.frame(
+    cohortId = c(1, 2, 3),
+    cohortName = c("X", "A", "B"),
+    type = c("target", "event", "event")
+  )
+  
+  cohort_table <- dplyr::tribble(
+    ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
+    1,                     5,           as.Date("2014-01-01"), as.Date("2015-02-01"),
+    1,                     5,           as.Date("2014-02-02"), as.Date("2015-03-01"),
+    1,                     5,           as.Date("2014-03-02"), as.Date("2015-04-01"),
+    1,                     5,           as.Date("2014-04-02"), as.Date("2015-05-01"),
+    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    2,                     5,           as.Date("2014-01-11"), as.Date("2014-02-10"),
+    2,                     5,           as.Date("2014-02-11"), as.Date("2014-03-10")
+  )
+  
+  dplyr::copy_to(con, cohort_table, overwrite = TRUE)
+  
+  cdm <- CDMConnector::cdmFromCon(
+    con,
+    cdmSchema = "main",
+    writeSchema = "main",
+    cohortTables = "cohort_table",
+    .softValidation = TRUE
+  )
+  
+  andromeda <- TreatmentPatterns::computePathways(
+    cohorts = cohorts,
+    cohortTableName = "cohort_table",
+    cdm = cdm,
+    minEraDuration = 0,
+    eraCollapseSize = 5,
+    combinationWindow = 30,
+    minPostCombinationDuration = 30,
+    filterTreatments = "All",
+    maxPathLength = 5
+  )
+  
+  nOverlap <- andromeda$overlapping_subjects |>
+    dplyr::summarise(n = dplyr::n()) |>
+    dplyr::pull()
+
+  testthat::expect_true(nOverlap > 0)
+
+  DBI::dbDisconnect(con)
+})
+
 # test_that("Attrition", {
 #   skip_on_cran()
 #   skip_on_os(os = "linux")
