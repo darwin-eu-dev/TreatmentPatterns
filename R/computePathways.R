@@ -170,6 +170,15 @@ computePathways <- function(
     cohortTables = cohortTableName
   )
 
+  n <- andromeda$overlapping_subjects |>
+    dplyr::summarise(n = dplyr::n()) |>
+    dplyr::pull()
+
+  if (n > 0) {
+    message(sprintf("Overlap was found within cohorts. `overlapping_subjects` is written in the returned andromeda object."))
+    return(andromeda)
+  }
+
   argsToSave <- as.character(jsonlite::toJSON(args[-grep("cdm|connectionDetails", names(args))]))
 
   andromeda$arguments <- data.frame(

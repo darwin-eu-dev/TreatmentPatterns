@@ -138,6 +138,19 @@ setOriginSubjectId <- function(tbl, dbms) {
   }
 }
 
+validateCohorts <- function(tbl) {
+  andromeda <- tbl[[1]]
+
+  andromeda$overlapping_subjects <- tbl |>
+    dplyr::group_by(.data$subject_id, .data$cohort_definition_id) |>
+    dplyr::mutate(
+      overlap = .data$cohort_start_date - dplyr::lag(.data$cohort_end_date, order_by = .data$cohort_start_date)
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::filter(.data$overlap < 0)
+  return(andromeda)
+}
+
 #' fetchCohortTable
 #'
 #' @param cdm (`cdm_reference`) A CDM reference object.
@@ -349,6 +362,9 @@ fetchCohortTable <- function(
   andromeda$cohort_table <- andromeda$cohort_table |>
     dplyr::mutate(age = dplyr::sql("year(cohort_start_date) - year_of_birth")) |>
     dplyr::select(-"year_of_birth")
+
+  andromeda <- andromeda$cohort_table |>
+    validateCohorts()
 
   nTarget <- andromeda$cohort_table |>
     dplyr::filter(.data$type == "target") |>
