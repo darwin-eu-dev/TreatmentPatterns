@@ -708,10 +708,14 @@ doCombinationWindow <- function(
       dplyr::group_by(.data$personId, .data$n_target) |>
       dbplyr::window_order(.data$sortOrder) |>
       dplyr::mutate(
-        combinationFRFS = case_when(
+        combinationFRFS = dplyr::case_when(
           .data$selectedRows == 1
           & .data$switch == 0
-          & dplyr::lag(.data$eventEndDate) < .data$eventEndDate ~ 1,
+          & .data$eventStartDate >= dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
+          & .data$eventStartDate <= dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)
+          & .data$eventEndDate >= dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
+          & .data$eventEndDate > dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)
+          ~ 1,
         .default = 0
       )) |>
       dplyr::ungroup() |>
@@ -727,12 +731,13 @@ doCombinationWindow <- function(
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::group_by(.data$personId, .data$n_target) |>
       dplyr::mutate(combinationLRFS = dplyr::case_when(
-        .data$selectedRows == 1 &
-          .data$switch == 0 &
-          (dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder) >= .data$eventEndDate |
-            (dplyr::lead(.data$durationEra, order_by = .data$sortOrder) == .data$durationEra &
-              dplyr::lead(.data$eventEndDate, order_by = .data$sortOrder) == .data$eventEndDate &
-              dplyr::lead(.data$eventStartDate, order_by = .data$sortOrder) == .data$eventStartDate)) ~ 1,
+        .data$selectedRows == 1
+        & .data$switch == 0
+        & .data$eventStartDate >= dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
+        & .data$eventStartDate <= dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)
+        & .data$eventEndDate >= dplyr::lag(.data$eventStartDate, order_by = .data$sortOrder)
+        & .data$eventEndDate <= dplyr::lag(.data$eventEndDate, order_by = .data$sortOrder)
+        ~ 1,
         .default = 0
       )) |>
       dplyr::ungroup()
@@ -861,19 +866,21 @@ doCombinationWindow <- function(
       dplyr::union_all(andromeda[[sprintf("addRowsLRFS_%s", iterations)]]) |>
       dplyr::mutate(durationEra = .data$eventEndDate - .data$eventStartDate)
 
+    # browser()
+
     andromeda$treatmentHistory <- andromeda$treatmentHistory |>
       dplyr::group_by(.data$personId, .data$n_target) |>
       dbplyr::window_order(.data$x) |>
       # dplyr::select(
       #   "personId", "sortOrder",
       #   "eventCohortId", "eventStartDate", "eventEndDate",
-      #   "combinationLRFS", "combinationFRFS", "switch"
+      #   "combinationLRFS", "combinationFRFS", "switch", "x"
       # ) |>
       # Update LRFS combination record
       dplyr::mutate(
         eventCohortId = dplyr::case_when(
           .data$combinationLRFS == 1
-          ~ paste0(.data$eventCohortId, "+", dplyr::lead(.data$eventCohortId, order_by = .data$x)),
+          ~ paste0(.data$eventCohortId, "+", dplyr::lag(.data$eventCohortId, order_by = .data$x)),
           .default = .data$eventCohortId
         )
       ) |>
@@ -881,7 +888,7 @@ doCombinationWindow <- function(
       dplyr::mutate(
         eventEndDate = dplyr::case_when(
           dplyr::lead(.data$combinationLRFS, order_by = .data$x) == 1
-          ~ dplyr::lead(.data$eventStartDate),
+          ~ dplyr::lead(.data$eventStartDate, order_by = .data$x),
           # ~ dplyr::lead(.data$eventStartDate) - 1,
           .default = .data$eventEndDate
         )
@@ -899,7 +906,9 @@ doCombinationWindow <- function(
     dplyr::mutate(
       eventEndDate = dplyr::case_when(
         (.data$combinationFRFS == 1)
-        & grepl(dplyr::lead(.data$eventCohortId, order_by = .data$x), .data$eventCohortId)
+        # pattern = "1+2" in x = "1+2+3" -> FALSE
+        # pattern = "\\Q1+2\\E" in x = "1+2+3" -> TRUE
+        & grepl(paste0("\\Q", dplyr::lag(.data$eventCohortId, order_by = .data$x), "\\E"), .data$eventCohortId)
         ~ dplyr::lag(.data$eventEndDate, order_by = .data$x),
         .default = .data$eventEndDate
       )
