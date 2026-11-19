@@ -1,3 +1,9 @@
+if (interactive()) {
+  list.files("./", recursive = TRUE, full.names = TRUE, pattern = "helper-.+\\.R$") |>
+    lapply(source)
+  invisible()
+}
+
 require("withr", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
 require("stats", quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
 

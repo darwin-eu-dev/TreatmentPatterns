@@ -3,28 +3,20 @@ library(testthat)
 library(TreatmentPatterns)
 library(dplyr)
 
-# test_that("computePathways DatabaseConnector", {
-#   skip("Eunomia [2.0.0] bug")
-#   skip_on_cran()
-#   skip_if_not(ableToRun()$CG)
-# 
-#   expect_message(
-#     expect_message(
-#       expect_message(
-#         computePathways(
-#           cohorts = .CG$cohorts,
-#           cohortTableName = .CG$cohortTableName,
-#           connectionDetails = .CG$connectionDetails,
-#           cdmSchema = "main",
-#           resultSchema = "main"
-#         ),
-#         "After maxPathLength: 554"
-#       ),
-#       "After combinationWindow: 554"
-#     ),
-#     "Original number of rows: 8366"
-#   )
-# })
+test_that("computePathways DatabaseConnector", {
+  skip_on_cran()
+  skip_if_not(ableToRun()$CG)
+
+  testthat::expect_no_error({
+    computePathways(
+      cohorts = .CG$cohorts,
+      cohortTableName = .CG$cohortTableName,
+      connectionDetails = .CG$connectionDetails,
+      cdmSchema = "main",
+      resultSchema = "main"
+    )
+  })
+})
 
 test_that("computePathways CDMConnector", {
   skip_on_cran()
@@ -101,7 +93,7 @@ test_that("windowStart", {
       cdm = .CM$cdm,
       windowStart = 0
     ),
-    "Records: 8366"
+    "(8366)"
   )
 
   expect_message(
@@ -111,7 +103,7 @@ test_that("windowStart", {
       cdm = .CM$cdm,
       windowStart = -30
     ),
-    "Records: 8366"
+    "(8366)"
   )
 
   expect_message(
@@ -121,7 +113,7 @@ test_that("windowStart", {
       cdm = .CM$cdm,
       windowStart = 30
     ),
-    "Records: 6267"
+    "(6267)"
   )
 })
 
@@ -616,26 +608,34 @@ test_that("No target records", {
     )
   })
 
-  expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
+  outputEnv$treatmentHistory |>
+    dplyr::collect() |>
+    nrow() |>
+    as.logical() |>
+    testthat::expect_false()
 })
 
 test_that("Empty cohort table", {
   skip_on_cran()
   skip_if_not(ableToRun()$CDMC)
 
-  .CM$cdm$cohort_table <- .CM$cdm$cohort_table %>%
-    filter(.data$cohort_definition_id <= 0) %>%
-    compute()
+  .CM$cdm$cohort_table_empty <- .CM$cdm$cohort_table %>%
+    dplyr::filter(.data$cohort_definition_id < 0) %>%
+    dplyr::compute(name = "cohort_table_empty", temporary = FALSE)
 
   expect_warning({
     outputEnv <- computePathways(
       cohorts = .CM$cohorts,
-      cohortTableName = .CM$cohortTableName,
+      cohortTableName = "cohort_table_empty",
       cdm = .CM$cdm
     )
   })
 
-  expect_true(nrow(outputEnv$treatmentHistory %>% collect()) == 0)
+  outputEnv$treatmentHistory |>
+    dplyr::collect() |>
+    nrow() |>
+    as.logical() |>
+    testthat::expect_false()
 })
 
 test_that("No target defined", {
@@ -651,6 +651,80 @@ test_that("No target defined", {
       cdm = .CM$cdm
     )
   })
+})
+
+testthat::test_that("Target bounds check", {
+  testthat::skip_on_cran()
+  testthat::skip_if_not(ableToRun()$CDMC)
+
+  outputEnv <- computePathways(
+    cohorts = .CM$cohorts,
+    cohortTableName = "cohort_table",
+    cdm = .CM$cdm
+  )
+
+  nOutOfTargetBounds <- outputEnv$treatmentHistoryFinal |>
+    dplyr::filter(
+      .data$eventStartDate < .data$targetStartDate
+      | .data$eventStartDate > .data$targetEndDate
+    ) |>
+    dplyr::collect() |>
+    nrow()
+
+  testthat::expect_equal(nOutOfTargetBounds, 0)
+})
+
+testthat::test_that("overlapping cohorts", {
+  skip_on_cran()
+  skip_if_not(ableToRun()$CDMC)
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomiaDir())
+  
+  cohorts <- data.frame(
+    cohortId = c(1, 2, 3),
+    cohortName = c("X", "A", "B"),
+    type = c("target", "event", "event")
+  )
+  
+  cohort_table <- dplyr::tribble(
+    ~cohort_definition_id, ~subject_id, ~cohort_start_date,    ~cohort_end_date,
+    1,                     5,           as.Date("2014-01-01"), as.Date("2015-02-01"),
+    1,                     5,           as.Date("2014-02-02"), as.Date("2015-03-01"),
+    1,                     5,           as.Date("2014-03-02"), as.Date("2015-04-01"),
+    1,                     5,           as.Date("2014-04-02"), as.Date("2015-05-01"),
+    2,                     5,           as.Date("2014-01-10"), as.Date("2014-03-10"),
+    2,                     5,           as.Date("2014-01-11"), as.Date("2014-02-10"),
+    2,                     5,           as.Date("2014-02-11"), as.Date("2014-03-10")
+  )
+  
+  dplyr::copy_to(con, cohort_table, overwrite = TRUE)
+  
+  cdm <- CDMConnector::cdmFromCon(
+    con,
+    cdmSchema = "main",
+    writeSchema = "main",
+    cohortTables = "cohort_table",
+    .softValidation = TRUE
+  )
+  
+  andromeda <- TreatmentPatterns::computePathways(
+    cohorts = cohorts,
+    cohortTableName = "cohort_table",
+    cdm = cdm,
+    minEraDuration = 0,
+    eraCollapseSize = 5,
+    combinationWindow = 30,
+    minPostCombinationDuration = 30,
+    filterTreatments = "All",
+    maxPathLength = 5
+  )
+  
+  nOverlap <- andromeda$overlapping_subjects |>
+    dplyr::summarise(n = dplyr::n()) |>
+    dplyr::pull()
+
+  testthat::expect_true(nOverlap > 0)
+
+  DBI::dbDisconnect(con)
 })
 
 # test_that("Attrition", {
