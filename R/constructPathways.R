@@ -286,7 +286,7 @@ mergeTargetOverlap <- function(tbl) {
         dplyr::group_by(.data$cohortId, .data$personId) |>
         dplyr::mutate(
           endDate = dplyr::case_when(
-            dplyr::lead(.data$overlap_prev < 0, order_by = .data$startDate)
+            dplyr::lead(.data$overlap_prev <= 0, order_by = .data$startDate)
             ~ dplyr::lead(endDate, order_by = .data$startDate),
             .default = .data$endDate
           )
