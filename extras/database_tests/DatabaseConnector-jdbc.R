@@ -82,11 +82,18 @@ test_that("Test Database", {
     cohort_end_date = as.Date("2005-01-01")
   )
 
+  tempEmulationSchema <- if (DBMS == "bigquery") {
+    RESULT_SCHEMA
+  } else {
+    NULL
+  }
+
   DatabaseConnector::insertTable(
     connection = connection,
     databaseSchema = RESULT_SCHEMA,
     tableName = cohortTableName,
     data = dummyCohortTable,
+    tempEmulationSchema = tempEmulationSchema,
     dropTableIfExists = TRUE
   )
 
