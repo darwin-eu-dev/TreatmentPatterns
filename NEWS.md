@@ -21,6 +21,8 @@
 - Fixed issue when summonsing combination-events in summary_event_duration.
 - Fixed issue where `ggSunburst()` did not sometimes stack events correctly.
 - Fixed issue where in some edge cases the event sequence could be different.
+- Fixed issue where multiple Target cohort entries could overlap when using `startAnchor`, `windowStart`, `endAnchor`, and`windowEnd`. When applied, overlapping records are now merged.
+- Fixed issue where overlapping Event cohorts weren't checked on, causing unexpected behavior. If overlap is found between events when passed to TreatmentPatterns, the `overlapping_subjects` table is created and the `Andromeda` object is returned. 
 
 # TreatmentPatterns 3.1.2
 ---------
