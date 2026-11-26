@@ -1,19 +1,4 @@
-#' @export
-as.character.Id <- function(x, ...) {
-  paste(attr(x, "name"), collapse = ".")
-}
-
-makeSchemaId <- function(schema) {
-  if (is.null(schema)) {
-    NULL
-  } else {
-    strsplit(schema, "\\.") |>
-      unlist() |>
-      DBI::Id()
-  }
-}
-
-# Copyright 2024 DARWIN EU®
+# Copyright 2026 DARWIN EU®
 #
 # This file is part of TreatmentPatterns
 #
@@ -28,6 +13,21 @@ makeSchemaId <- function(schema) {
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+#' @export
+as.character.Id <- function(x, ...) {
+  paste(attr(x, "name"), collapse = ".")
+}
+
+makeSchemaId <- function(schema) {
+  if (is.null(schema)) {
+    NULL
+  } else {
+    strsplit(schema, "\\.") |>
+      unlist() |>
+      DBI::Id()
+  }
+}
 
 #' computePathways
 #'

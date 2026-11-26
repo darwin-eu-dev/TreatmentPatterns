@@ -1,4 +1,4 @@
-# Copyright 2024 DARWIN EU®
+# Copyright 2026 DARWIN EU®
 #
 # This file is part of TreatmentPatterns
 #
